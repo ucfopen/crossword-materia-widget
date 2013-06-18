@@ -1,0 +1,98 @@
+---
+name: Famous Landmarks
+qset:
+  version: 1
+  data:
+    items:
+      - 
+        items:
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: >
+                  The tallest mountain in the world, and
+                  the ultimate challenge for mountain
+                  climbers everwhere.
+            answers:
+              - 
+                value: 100
+                text: Everest
+            options:
+              y: 3
+              x: 4
+              posSet: 1
+              hint: "Starts with an 'E'."
+              dir: 1
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: >
+                  Home for the president of the United
+                  States of America.
+            answers:
+              - 
+                value: 100
+                text: The White House
+            options:
+              y: 3
+              x: 7
+              posSet: 1
+              hint: They painted it white.
+              dir: 1
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: >
+                  Mysterious landmark of several large
+                  standing stones arranged in a circle.
+            answers:
+              - 
+                value: 100
+                text: Stonehenge
+            options:
+              y: 10
+              x: 6
+              posSet: 1
+              hint: This monument is in England.
+              dir: 0
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: "This is one of the world's oldest statues - A lion with a human head that stands in the Giza Plateau."
+            answers:
+              - 
+                value: 100
+                text: Sphinx
+            options:
+              y: 0
+              x: 1
+              posSet: 1
+              hint: It needs a new nose!
+              dir: 1
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: "A monument built for the 1889 World's Fair, this metal structure can be found on the Champ de Mars in Paris."
+            answers:
+              - 
+                value: 100
+                text: Eiffel Tower
+            options:
+              y: 3
+              x: 0
+              posSet: 1
+              hint: ___ Tower.
+              dir: 0
+    options:
+      freeWords: 1
+      hintPenalty: 50

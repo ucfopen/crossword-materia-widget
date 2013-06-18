@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" mouseOver="mouseIsOver()"  mouseOut="mouseIsOut()" creationComplete="init()" width="100%" height="76">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			// an event for when this text field changed
+			public static const WORD_CHANGED:String = "WORD_CHANGED";
+			public var dataField:String;
+			private function init():void{
+			}
+			private function mouseIsOver():void{
+			}
+			private function mouseIsOut():void{
+			}
+			override public function set data(value:Object):void{
+				if(value != null)
+				{
+					super.data = value;
+					text.text = data[dataField];
+				}
+			}
+			private function textEntry():void{
+				data[dataField] = text.text;
+				if(dataField == "word") // word is the word drawn onto the puzzle
+				{
+					// we only need to know if words changed to redraw the puzzle
+					dispatchEvent(new Event(WORD_CHANGED, true));
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:WipeUp target="{warningText}" />
+	<mx:Label id="warningText" color="#FF1111"  bottom="4" right="10" left="10"/>
+	<mx:TextArea id="text" top="10" bottom="22" left="10" right="10" editable="true"
+		change="textEntry()" focusIn="{text.setSelection(0,text.text.length); }"
+		backgroundColor="#F4F4F4" color="#333333"/>
+</mx:Canvas>
