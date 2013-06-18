@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" backgroundColor="#C3C1C1" backgroundAlpha="0.65" cornerRadius="4" borderStyle="solid">
+	<mx:Button label="Modify Word List" horizontalCenter="0" verticalCenter="-30" click="{modifyQuestionsClick()}" fillAlphas="[1.0, 1.0, 1.0, 1.0]" width="172" height="30"/>
+	<mx:Label text="You will need to regenerate the puzzle after modifying the word list." horizontalCenter="0" verticalCenter="-1" color="#333333" fontWeight="bold"/>
+	<mx:Script>
+		<![CDATA[
+			public static const MODIFY_QUESTIONS:String = "MODIFY_QUESTIONS";
+			private function modifyQuestionsClick():void{
+				this.visible = false;
+				dispatchEvent(new Event(MODIFY_QUESTIONS));
+			}
+		]]>
+	</mx:Script>
+</mx:Canvas>
