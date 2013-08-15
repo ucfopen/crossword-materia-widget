@@ -47,7 +47,7 @@ class Score_Modules_Crossword extends Score_Module
 	{
 		if ($log->text == $this::HINT_INTERACTION)
 		{
-			$this->modifiers[$log->item_id] = (int) $log->value;
+			$this->modifiers[$log->item_id] = (float) $log->value;
 			// Add hit deduction to question's answer's feedback
 			$this->questions[$log->item_id]->answers[0]['options']['feedback'] = 'Hint Received';
 		}
@@ -107,7 +107,7 @@ class Score_Modules_Crossword extends Score_Module
 				}
 			}
 			if ($guessable == 0) return 0;
-			return (int)($match_num / (float)$guessable * $this::INITIAL_SCORE);
+			return $match_num / (float)$guessable * $this::INITIAL_SCORE;
 		}
 		return 0;
 	}
