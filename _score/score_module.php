@@ -75,10 +75,20 @@ class Score_Modules_Crossword extends Score_Module
 		}
 
 		// Cannot generate a puzzle with zero questions => $this->total_questions > 0
-		$this->points_lost        = -1 * array_sum($points_lost) / $this->total_questions;
-		$this->hint_deductions    = -1 * array_sum($hint_deductions) / $this->total_questions;
-		$this->verified_score     = array_sum($updated_scores);
-		$this->calculated_percent = $this->verified_score / $this->total_questions;
+		if ($this->total_questions > 0)
+		{
+			$this->points_lost        = -1 * array_sum($points_lost) / $this->total_questions;
+			$this->hint_deductions    = -1 * array_sum($hint_deductions) / $this->total_questions;
+			$this->verified_score     = array_sum($updated_scores);
+			$this->calculated_percent = $this->verified_score / $this->total_questions;
+		}
+		else
+		{
+			$this->points_lost        = 0;
+			$this->hint_deductions    = 0;
+			$this->verified_score     = 0;
+			$this->calculated_percent = 0;
+		}
 	}
 
 	public function check_answer($log)
