@@ -116,7 +116,7 @@ class Test_Score_Modules_Crossword extends \Basetest
 		');
 	}
 
-	protected function _makeWidget()
+	protected function _make_widget()
 	{
 		$this->_asAuthor();
 
@@ -129,7 +129,7 @@ class Test_Score_Modules_Crossword extends \Basetest
 
 	public function test_check_answer()
 	{
-		$inst = $this->_makeWidget('false');
+		$inst = $this->_make_widget('false');
 
 		$play_session = \Materia\Api::session_play_create($inst->id);
 		$qset = \Materia\Api::question_set_get($inst->id, $play_session);
@@ -174,12 +174,12 @@ class Test_Score_Modules_Crossword extends \Basetest
 		$this_score = \Materia\Api::widget_instance_play_scores_get($play_session);
 
 		$this->assertInternalType('array', $this_score);
-		$this->assertEquals(67, $this_score[0]['overview']['score']);
+		$this->assertEquals(66.666666666667, $this_score[0]['overview']['score']);
 	}
 
-	public function test_check_answerPartial()
+	public function test_check_answer_partial()
 	{
-		$inst = $this->_makeWidget('false');
+		$inst = $this->_make_widget('false');
 		$play_session = \Materia\Api::session_play_create($inst->id);
 		$qset = \Materia\Api::question_set_get($inst->id, $play_session);
 
@@ -202,8 +202,8 @@ class Test_Score_Modules_Crossword extends \Basetest
 		}');
 
 		$logs[] = json_decode('{
-			"text":"Hint Received",
-			"type":1003,
+			"text":"question_hint",
+			"type":1001,
 			"value":-50,
 			"item_id":"'.$qset->data['items'][0]['items'][1]['id'].'",
 			"game_time":12
