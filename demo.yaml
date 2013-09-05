@@ -7,6 +7,7 @@ qset:
       - 
         items:
           - 
+            materiaType: question
             id: null
             type: QA
             questions:
@@ -26,6 +27,7 @@ qset:
               hint: "Starts with an 'E'."
               dir: 1
           - 
+            materiaType: question
             id: null
             type: QA
             questions:
@@ -44,6 +46,7 @@ qset:
               hint: They painted it white.
               dir: 1
           - 
+            materiaType: question
             id: null
             type: QA
             questions:
@@ -62,6 +65,7 @@ qset:
               hint: This monument is in England.
               dir: 0
           - 
+            materiaType: question
             id: null
             type: QA
             questions:
@@ -78,6 +82,7 @@ qset:
               hint: It needs a new nose!
               dir: 1
           - 
+            materiaType: question
             id: null
             type: QA
             questions:
