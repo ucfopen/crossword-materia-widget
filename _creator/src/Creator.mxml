@@ -150,10 +150,12 @@
 	}
 	public override function onSaveClicked(mode:String = 'save'):void
 	{
+		var qSet:Object = generateQSet();
+		scrubErrorsFromQSet(qSet);
 		// save everything if it checks out
 		if(checkQSetErrors() && checkCrosswordErrors())
 		{
-			ExternalInterface.call("__materia_flash_save", instanceTitle, generateQSet(), questionSetVersion);
+			ExternalInterface.call("__materia_flash_save", instanceTitle, qSet, questionSetVersion);
 		}
 	}
 	/**
