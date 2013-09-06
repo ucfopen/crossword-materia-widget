@@ -151,7 +151,6 @@
 	public override function onSaveClicked(mode:String = 'save'):void
 	{
 		var qSet:Object = generateQSet();
-		scrubErrorsFromQSet(qSet);
 		// save everything if it checks out
 		if(checkQSetErrors() && checkCrosswordErrors())
 		{
@@ -272,7 +271,9 @@
 			qSet.addOption("hintPenalty", hintsNumStepper.value);
 		}
 		validateQIDs(qSet);
-		return qSet.convertToObject();
+		var result:Object = qSet.convertToObject();
+		scrubErrorsFromQSet(result); 
+		return result;
 	}
 	//--------------------------------------------------------------------------
 	//
