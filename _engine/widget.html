@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>HTML Widget Engine</title>
+		<meta charset="utf-8" />
+		<style type="text/css"></style>
+		<script type="text/javascript" src="/js/materia.require.js"></script>
+		<link rel="stylesheet/less" type="text/css" href="css/widget.less">
+		<script type="text/javascript">
+			require(['enginecore', 'score', 'less'], function(util) {
+				Materia.Engine.start(Crossword.Engine);
+			});
+		</script>
+		<script src='js/widget.js'></script>
+	</head>
+	<body>
+	<div id="board" class="screen board">
+		<header class="header">
+			<h1 id='title'></h1>
+			<div id='scorebar'>
+				<div class='remaining'>
+					<span id='hintsRemaining'></span>
+					Hints remaining
+				</div>
+				<div class='remaining'>
+					<span id='freeWordsRemaining'></span>
+					Free words remaining
+				</div>
+			</div>
+		</header>
+		<div id='movable' class='crossword-board'>
+		</div>
+		<div id='hints'>
+			<strong>Clues</strong>
+			<div id='controlbar'>
+				<input type='button' value='Submit Answers' id='checkBtn'>
+			</div>
+		</div>
+		<div id='alertbox'>
+			<span id='alertcaption'></span>
+			<input id='confirmbtn' type='button' value='Understood!'>
+			<input id='cancelbtn' type='button' value='Nevermind'>
+		</div>
+	</div>
+	</body>
+</html>
