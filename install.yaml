@@ -13,7 +13,7 @@ general:
   api_version: 2
 files:
   creator: swf/crossword-creator.swf
-  player: swf/crossword-engine.swf
+  player: widget.html
   flash_version: 10
 score:
   is_scorable: Yes
