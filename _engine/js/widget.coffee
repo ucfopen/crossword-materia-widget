@@ -78,9 +78,14 @@ Namespace('Crossword').Engine = do ->
 				if !e?
 					e = window.event
 				_highlight(e.target.getAttribute('data-i'))
+			hint.onmouseout = (e) ->
+				if !e?
+					e = window.event
+				_highlight(false)
 
 			$('#hints').append hint
 			$('#movable').append numberLabel
+
 			$('#hintbtn_'+i).click (e) ->
 				if !e?
 					e = window.event
@@ -214,10 +219,28 @@ Namespace('Crossword').Engine = do ->
 					
 				e = document.getElementById("letter_" + letterLeft + "_" + letterTop)
 
+				if i != index
+					e.className = e.className.replace("highlight","")
+
+		for i of questions
+			letters = questions[i].answers[0].text.split('')
+			x = questions[i].options.x
+			y = questions[i].options.y
+			dir = questions[i].options.dir
+
+			for l in [0..letters.length-1]
+				if dir == 0
+					letterLeft = x + l
+					letterTop = y
+				else
+					letterLeft = x
+					letterTop = y + l
+					
+				e = document.getElementById("letter_" + letterLeft + "_" + letterTop)
+
 				if i == index
 					e.className += " highlight"
-				else
-					e.className = e.className.replace("highlight","")
+
 	_showAlert = (caption, action) ->
 		document.getElementById('alertbox').style.display = "block"
 		_caption 'alertcaption', caption
@@ -265,6 +288,9 @@ Namespace('Crossword').Engine = do ->
 
 
 	_getHint = (index) ->
+		_hintsRemaining--
+		_captionUpdate()
+
 		questions = _qset.items[0].items
 		Materia.Score.submitInteractionForScoring(questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty)
 		_caption "hintspot_" + index, questions[index].options.hint
