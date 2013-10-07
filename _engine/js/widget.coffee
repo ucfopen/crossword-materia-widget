@@ -15,6 +15,8 @@ Namespace('Crossword').Engine = do ->
 	_caption = (id,caption) ->
 		document.getElementById(id).innerHTML = caption
 
+	curDir					= -1
+
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
@@ -133,7 +135,8 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').append letter
 				letter.focus()
 
-		$('#checkBtn').click _submitAnswers
+		$('#checkBtn').click () ->
+			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
 
 		$('#board').mousedown (e) ->
 			if !e?
@@ -142,6 +145,8 @@ Namespace('Crossword').Engine = do ->
 			_boardDown = true
 			_boardY = e.screenY
 			_boardX = e.screenX
+
+			curDir = -1
 
 		$('#board').mouseup (e) ->
 			_boardDown = false
@@ -169,25 +174,31 @@ Namespace('Crossword').Engine = do ->
 		deltaX = 1
 		deltaY = 0
 
-		if currentLetter.getAttribute("dir") == "1" and !document.getElementById("letter_" + (parseInt(cur[1]) + deltaX) + "_" + cur[2])?
+		if curDir == -1
+			curDir = currentLetter.getAttribute("dir")
+		else if curDir == "1" #and !document.getElementById("letter_" + (parseInt(cur[1]) + deltaX) + "_" + cur[2])?
 			deltaY = 1
 			deltaX = 0
 
 		if e.keyCode == 37
 			deltaX = -1
 			deltaY = 0
+			curDir = -1
 		else if e.keyCode == 38
 			deltaY = -1
 			deltaX = 0
+			curDir = -1
 		else if e.keyCode == 39
 		else if e.keyCode == 40
 			deltaX = 0
 			deltaY = 1
+			curDir = -1
 		else if e.keyCode == 8
 			if e.target.value == ""
 				# backspace
 				deltaX = -1
 				deltaY = 0
+				curDir = -1
 			else
 				return
 		else
@@ -196,9 +207,13 @@ Namespace('Crossword').Engine = do ->
 
 
 		if next = document.getElementById("letter_" + (parseInt(cur[1]) + deltaX) + "_" + (parseInt(cur[2]) + deltaY))
-			next.setSelectionRange(0,1)
-			next.focus()
-			next.setSelectionRange(0,1)
+			if next.className.indexOf('space') != -1
+				next.value = ' '
+				_letterKeydown({ target: next, keyCode: e.keyCode })
+			else
+				next.setSelectionRange(0,1)
+				next.focus()
+				next.setSelectionRange(0,1)
 
 	_highlight = (index) ->
 		questions = _qset.items[0].items
@@ -294,7 +309,7 @@ Namespace('Crossword').Engine = do ->
 		questions = _qset.items[0].items
 		Materia.Score.submitInteractionForScoring(questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty)
 		_caption "hintspot_" + index, questions[index].options.hint
-		document.getElementById("hintbtn_" + index).style.opacity = 0
+		document.getElementById("hintbtn_" + index).style.display = 'none'
 
 	_submitAnswers = ->
 		questions = _qset.items[0].items
