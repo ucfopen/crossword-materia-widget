@@ -34,6 +34,11 @@ Namespace('Crossword').Engine = do ->
 		_caption('freeWordsRemaining', _freeWordsRemaining)
 		_caption('hintsRemaining', _hintsRemaining)
 
+		questions = _qset.items[0].items
+		if _freeWordsRemaining < 1
+			for i of questions
+				document.getElementById("freewordbtn_" + i).style.opacity = 0
+
 	# Draw the main board.
 	_drawBoard = (title) ->
 		# special place in hell below
@@ -87,6 +92,9 @@ Namespace('Crossword').Engine = do ->
 
 			$('#hints').append hint
 			$('#movable').append numberLabel
+
+			if !questions[i].options.hint
+				$('#hintbtn_'+i).css('display', 'none')
 
 			$('#hintbtn_'+i).click (e) ->
 				if !e?
@@ -196,8 +204,12 @@ Namespace('Crossword').Engine = do ->
 		else if e.keyCode == 8
 			if e.target.value == ""
 				# backspace
-				deltaX = -1
-				deltaY = 0
+				if curDir == "1"
+					deltaX = 0
+					deltaY = -1
+				else
+					deltaX = -1
+					deltaY = 0
 				curDir = -1
 			else
 				return
@@ -295,10 +307,8 @@ Namespace('Crossword').Engine = do ->
 
 		document.getElementById("freewordbtn_" + index).style.opacity = 0
 		_caption("freeWordsRemaining", _freeWordsRemaining)
+		_captionUpdate()
 
-		if _freeWordsRemaining < 1
-			for i of questions
-				document.getElementById("freewordbtn_" + i).style.opacity = 0
 		return
 
 
