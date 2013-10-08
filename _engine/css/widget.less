@@ -15,6 +15,31 @@
   font-weight: 400;
   src: local('Walter Turncoat'), local('WalterTurncoat'), url(http://themes.googleusercontent.com/static/fonts/walterturncoat/v3/sG9su5g4GXy1KP73cU3hvUg5BZJjJQhkX_0Ep7_Wjf8.woff) format('woff');
 }
+@font-face {
+  font-family: 'Swanky and Moo Moo';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Swanky and Moo Moo'), local('SwankyandMooMoo'), url(http://themes.googleusercontent.com/static/fonts/swankyandmoomoo/v3/orVNZ9kDeE3lWp3U3YELu9DBM1lOB_0MWtzhbhPR_Xs.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Delius Swash Caps';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Delius Swash Caps'), local('DeliusSwashCaps-Regular'), url(http://themes.googleusercontent.com/static/fonts/deliusswashcaps/v5/uXyrEUnoWApxIOICunRq70dtE_hqo9Jbz3iVRUjskWg.woff) format('woff');
+}
+@font-face {
+  font-family: 'Delius Unicase';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Delius Unicase'), local('DeliusUnicase-Regular'), url(http://themes.googleusercontent.com/static/fonts/deliusunicase/v6/b2sKujV3Q48RV2PQ0k1vqu0T1_f-eZQ5oLffZi8sUkg.woff) format('woff');
+}
+@font-face {
+  font-family: 'Delius Unicase';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Delius Unicase Bold'), local('DeliusUnicase-Bold'), url(http://themes.googleusercontent.com/static/fonts/deliusunicase/v6/7FTMTITcb4dxUp99FAdTqBP_Um-arKtgx53xMX8IBuo.woff) format('woff');
+}
 
 html, body {
 	cursor: default;
@@ -80,11 +105,12 @@ html, body {
 .letter {
 	position: absolute;
 	border: solid 1px #999;
-	width: 20px;
+	width: 25px;
 	height: 20px;
-	padding-left: 5px;
-	font-size: 18px;
-    font-family: 'Walter Turncoat';
+	padding-left: 0px;
+	font-size: 19px;
+    font-family: 'Delius Unicase';
+    text-align: center;
 }
 
 .letter.highlight {
@@ -99,7 +125,7 @@ html, body {
     background: #F4F7FF;
 }
 
-#hints {
+#clues {
 	display: block;
 	position: absolute;
 	right: 0px;
@@ -107,8 +133,9 @@ html, body {
 	bottom: 0px;
 	width: 200px;
 	background: #fff;
-	padding: 7px;
+    padding: 0px;
 	padding-bottom: 20px;
+    padding-top: 10px;
 	overflow: auto;
     border-left: solid 1px #999;
     z-index: 5;
@@ -118,6 +145,7 @@ html, body {
         display: inline-block;
         width: 100%;
         font-size: 20px;
+        margin-bottom: 10px;
     }
     div {
         margin: 15px 4px;
@@ -125,22 +153,49 @@ html, body {
             font-size: 14px;
         }
     }
+    span.hintspot {
+        opacity: 0;
+        display: block;
+        -webkit-transition: all 0.5s ease;
+    }
+    input {
+      background: #333;
+      color: #fff;
+      margin: 0px;
+      padding: 0px;
+      border: solid 1px #333;
+    }
+    div {
+      padding: 5px;
+      margin: 0px;
+      -webkit-transition: all 0.1s ease;
+    }
+    div:nth-child(odd) {
+      background: #eeeeee;
+    }
+    div.highlight {
+      background: #5163A6;
+      color: #fff;
+    }
 }
 
 
 input {
   border: solid 1px #333;
-  font-family: 'Walter Turncoat';
-  font-size: 13px;
+  font-family: 'Roboto Slab';
+  font-size: 14px;
   color: #333;
   background: #fff;
   margin: 8px 0px;
+  -webkit-transition: all 0.2s ease;
+  position: relative;
+  left: 0px;
 }
 
 #scorebar {
     position: absolute;
     right: 0px;
-    top: 25px;
+    top: 20px;
 	.remaining {
 		text-align: center;
 		display: inline-block;
@@ -162,6 +217,10 @@ input {
     color: #fff;
     font-size: 14px;
 }
+#checkBtn.done {
+  box-shadow: 0px 0px 10px #5163A6,
+    0px 0px 15px #5163A6;
+}
 
 #movable {
 	position: relative;
@@ -169,7 +228,7 @@ input {
 
 .numberlabel {
 	color: #333;
-	font-size: 12px;
+	font-size: 10px;
 	position: absolute;
 	display: block;
 	margin: 0px;
@@ -189,10 +248,45 @@ input {
   top: 49%;
   margin-left: -250px;
   margin-top: -50px;
-  padding: 25px;
+  padding: 15px;
   border: solid 1px #999;
   border-radius: 5px;
   z-index: 10000;
   box-shadow: 0px 0px 5px #999;
   text-align: center;
+  input {
+    margin: 10px;
+  }
+}
+
+.fadein {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 0.2s;
+  -webkit-animation-delay: 0s;
+  -webkit-animation-iteration-count: 1;
+}
+
+.fadeout {
+  -webkit-animation-name: fadeout;
+  -webkit-animation-duration: 0.2s;
+  -webkit-animation-delay: 0s;
+  -webkit-animation-iteration-count: 1;
+}
+
+@-webkit-keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
