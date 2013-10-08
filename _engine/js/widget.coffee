@@ -1,10 +1,10 @@
 Namespace('Crossword').Engine = do ->
 	_qset                   = null
+	_questions				= null
 	_hintsRemaining			= 0
 	_freeWordsRemaining		= 0
 	_puzzleGrid				= {}
 	_instance				= {}
-	_hints					= []
 
 	_boardDown				= false
 	_boardY					= 0
@@ -12,15 +12,13 @@ Namespace('Crossword').Engine = do ->
 	_boardX					= 0
 	_boardLeft				= 0
 
-	_caption = (id,caption) ->
-		document.getElementById(id).innerHTML = caption
-
 	curDir					= -1
 
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
 		_qset = qset
+		_questions = _qset.items[0].items
 		_drawBoard(instance.name)
 		_instance = instance
 
@@ -29,15 +27,17 @@ Namespace('Crossword').Engine = do ->
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
 
+	_caption = (id,caption) ->
+		$('#'+id).html(caption)
+
 	_captionUpdate = () ->
 		_caption('title', _instance.name)
 		_caption('freeWordsRemaining', _freeWordsRemaining)
 		_caption('hintsRemaining', _hintsRemaining)
 
-		questions = _qset.items[0].items
 		if _freeWordsRemaining < 1
-			for i of questions
-				document.getElementById("freewordbtn_" + i).style.opacity = 0
+			for i of _questions
+				$('#freewordbtn_'+i).css('opacity',0)
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -49,21 +49,20 @@ Namespace('Crossword').Engine = do ->
 
 		_freeWordsRemaining = _qset.options.freeWords
 
-		questions = _qset.items[0].items
-
 		# generate elements for questions
-		for i of questions
+		for i of _questions
 			
-			if questions[i].options.hint
+			# increment the hints counter
+			if _questions[i].options.hint
 				_hintsRemaining++
-			_hints.push(questions[i].options.hint)
 
-			letters = questions[i].answers[0].text.toUpperCase().split('')
-			x = questions[i].options.x
-			y = questions[i].options.y
-			dir = questions[i].options.dir
+			# split the word into a letter array for the second loop
+			letters = _questions[i].answers[0].text.toUpperCase().split('')
 
-			numberLabel = document.createElement('div')
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
+			question = _questions[i].questions[0].text
 
 			if dir
 				questionNumber = (parseInt(i) + 1)
@@ -72,40 +71,12 @@ Namespace('Crossword').Engine = do ->
 				questionNumber = (parseInt(i) + 1)
 				hintPrefix = questionNumber + " across"
 
-			numberLabel.innerHTML = questionNumber
-			numberLabel.className = 'numberlabel'
-			numberLabel.style.top = 129 + (y * 23) + "px"
-			numberLabel.style.left = 29 + (x * 27) + "px"
+			_renderNumberLabel questionNumber, x, y
+			_renderClue question, hintPrefix, i
 
-			hint = document.createElement 'div'
-
-			hint.innerHTML = "<em>" + hintPrefix + ":</em> " + questions[i].questions[0].text + "<br><input type='button' data-i='"+i+"' id='hintbtn_"+i+"' value='Hint'> <input type='button' data-i='" + i + "' id='freewordbtn_"+i+"' value='Free word'><br><span id='hintspot_" + i + "'></span>"
-			hint.setAttribute 'data-i', i
-			hint.onmouseover = (e) ->
-				if !e?
-					e = window.event
-				_highlight(e.target.getAttribute('data-i'))
-			hint.onmouseout = (e) ->
-				if !e?
-					e = window.event
-				_highlight(false)
-
-			$('#hints').append hint
-			$('#movable').append numberLabel
-
-			if !questions[i].options.hint
-				$('#hintbtn_'+i).css('display', 'none')
-
-			$('#hintbtn_'+i).click (e) ->
-				if !e?
-					e = window.event
-				_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', () ->
-					_getHint(e.target.getAttribute('data-i'))
-			
-			$('#freewordbtn_'+i).click (e) ->
-				if !e?
-					e = window.event
-				_freeWord(e.target.getAttribute('data-i'))
+			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
+			$('#hintbtn_'+i).click _hintConfirm
+			$('#freewordbtn_'+i).click _getFreeword
 
 			# generate inputs for each letter in answer
 			for l in [0..letters.length-1]
@@ -122,24 +93,25 @@ Namespace('Crossword').Engine = do ->
 
 				letter = document.createElement('input')
 				letter.type = 'text'
+				letter.setAttribute('data-q', i)
 				letter.setAttribute('maxlength', 1)
 				letter.setAttribute('dir', dir)
 				letter.className = 'letter'
 				letter.id = "letter_" + letterLeft + "_" + letterTop
-#				letter.value = letters[l]
 
 				if letters[l] == " "
 					# if it's a space, make it a black block
 					letter.className += " space"
 
 				letter.onkeydown = _letterKeydown
+				letter.onkeyup = _checkIfDone
+				letter.onfocus = _letterFocus
+				letter.style.top = 120 + (letterTop) * 23 + "px"
+				letter.style.left = 10 + (letterLeft) * 27 + "px"
 
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 
-				letter.style.top = 120 + (letterTop) * 23 + "px"
-				letter.style.left = 10 + (letterLeft) * 27 + "px"
-				
 				$('#movable').append letter
 				letter.focus()
 
@@ -147,9 +119,6 @@ Namespace('Crossword').Engine = do ->
 			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
 
 		$('#board').mousedown (e) ->
-			if !e?
-				e = window.event
-
 			_boardDown = true
 			_boardY = e.screenY
 			_boardX = e.screenX
@@ -160,9 +129,6 @@ Namespace('Crossword').Engine = do ->
 			_boardDown = false
 
 		$('#board').mousemove (e) ->
-			if !e?
-				e = window.event
-
 			if _boardDown
 				_boardTop += (e.screenY - _boardY)
 				_boardLeft += (e.screenX - _boardX)
@@ -171,10 +137,24 @@ Namespace('Crossword').Engine = do ->
 
 				$('#movable').css('top', _boardTop + "px")
 				$('#movable').css('left', _boardLeft + "px")
+
+	_letterFocus = (e) ->
+		if $('#clue_'+e.target.getAttribute('data-q')).hasClass('highlight')
+			return
+
+		for j of _questions
+			$('#clue_'+j).removeClass('highlight')
+
+		scrolly = $('#clue_'+e.target.getAttribute('data-q')).position().top + $('#clues').scrollTop()
+
+		$('#clue_'+e.target.getAttribute('data-q')).addClass('highlight')
+		$('#clues').animate({
+			scrollTop: scrolly
+		}, 150)
+
 	
 	_letterKeydown = (e) ->
-		if !e?
-			e = window.event
+		console.log e.keyCode
 
 		currentLetter = e.target
 		cur = e.target.id.split("_")
@@ -184,7 +164,7 @@ Namespace('Crossword').Engine = do ->
 
 		if curDir == -1
 			curDir = currentLetter.getAttribute("dir")
-		else if curDir == "1" #and !document.getElementById("letter_" + (parseInt(cur[1]) + deltaX) + "_" + cur[2])?
+		else if curDir == "1"
 			deltaY = 1
 			deltaX = 0
 
@@ -197,6 +177,9 @@ Namespace('Crossword').Engine = do ->
 			deltaX = 0
 			curDir = -1
 		else if e.keyCode == 39
+			deltaX = 1
+			deltaY = 0
+			curDir = -1
 		else if e.keyCode == 40
 			deltaX = 0
 			deltaY = 1
@@ -226,15 +209,25 @@ Namespace('Crossword').Engine = do ->
 				next.setSelectionRange(0,1)
 				next.focus()
 				next.setSelectionRange(0,1)
+		else
+			curDir = -1
 
+
+	_hintConfirm = (e) ->
+		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', () ->
+			_getHint(e.target.getAttribute('data-i'))
+
+	_getFreeword = (e) ->
+		_freeWord(e.target.getAttribute('data-i'))
+			
 	_highlight = (index) ->
-		questions = _qset.items[0].items
+		_questions = _qset.items[0].items
 
-		for i of questions
-			letters = questions[i].answers[0].text.split('')
-			x = questions[i].options.x
-			y = questions[i].options.y
-			dir = questions[i].options.dir
+		for i of _questions
+			letters = _questions[i].answers[0].text.split('')
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
 
 			for l in [0..letters.length-1]
 				if dir == 0
@@ -243,17 +236,15 @@ Namespace('Crossword').Engine = do ->
 				else
 					letterLeft = x
 					letterTop = y + l
-					
-				e = document.getElementById("letter_" + letterLeft + "_" + letterTop)
 
 				if i != index
-					e.className = e.className.replace("highlight","")
+					$('#letter_' + letterLeft + '_' + letterTop).removeClass('highlight')
 
-		for i of questions
-			letters = questions[i].answers[0].text.split('')
-			x = questions[i].options.x
-			y = questions[i].options.y
-			dir = questions[i].options.dir
+		for i of _questions
+			letters = _questions[i].answers[0].text.split('')
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
 
 			for l in [0..letters.length-1]
 				if dir == 0
@@ -262,34 +253,42 @@ Namespace('Crossword').Engine = do ->
 				else
 					letterLeft = x
 					letterTop = y + l
-					
-				e = document.getElementById("letter_" + letterLeft + "_" + letterTop)
 
 				if i == index
-					e.className += " highlight"
+					$('#letter_' + letterLeft + '_' + letterTop).addClass 'highlight'
 
 	_showAlert = (caption, action) ->
-		document.getElementById('alertbox').style.display = "block"
+		ab = $('#alertbox')
+		ab.css 'display', 'block'
+		ab.addClass 'fadein'
 		_caption 'alertcaption', caption
-		document.getElementById('confirmbtn').onclick = () ->
+
+		$('#confirmbtn').unbind('click').click () ->
 			_hideAlert()
 			action()
-		document.getElementById('cancelbtn').onclick = _hideAlert
+		$('#cancelbtn').click _hideAlert
 
 	_hideAlert = () ->
-		document.getElementById('alertbox').style.display = "none"
+		ab = $('#alertbox')
+		ab.addClass 'fadeout'
+		
+		setTimeout(() ->
+			ab.css 'display', 'none'
+			ab.removeClass 'fadeout'
+			ab.removeClass 'fade'
+		,190)
 
 	_freeWord = (index) ->
 		if _freeWordsRemaining < 1
 			return
 
 		index = parseInt(index)
-		questions = _qset.items[0].items
+		_questions = _qset.items[0].items
 
-		letters = questions[index].answers[0].text.split('')
-		x = questions[index].options.x
-		y = questions[index].options.y
-		dir = questions[index].options.dir
+		letters = _questions[index].answers[0].text.split('')
+		x = _questions[index].options.x
+		y = _questions[index].options.y
+		dir = _questions[index].options.dir
 
 		answer = ""
 
@@ -306,7 +305,6 @@ Namespace('Crossword').Engine = do ->
 		_freeWordsRemaining--
 
 		document.getElementById("freewordbtn_" + index).style.opacity = 0
-		_caption("freeWordsRemaining", _freeWordsRemaining)
 		_captionUpdate()
 
 		return
@@ -316,21 +314,30 @@ Namespace('Crossword').Engine = do ->
 		_hintsRemaining--
 		_captionUpdate()
 
-		questions = _qset.items[0].items
-		Materia.Score.submitInteractionForScoring(questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty)
-		_caption "hintspot_" + index, questions[index].options.hint
-		document.getElementById("hintbtn_" + index).style.display = 'none'
+		_questions = _qset.items[0].items
 
-	_submitAnswers = ->
-		questions = _qset.items[0].items
+		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
-		for i of questions
-			letters = questions[i].answers[0].text.split('')
-			x = questions[i].options.x
-			y = questions[i].options.y
-			dir = questions[i].options.dir
+		_caption 'hintspot_' + index, _questions[index].options.hint
 
-			answer = ""
+		$('#hintspot_' + index).css('opacity', 1)
+		$('#hintbtn_' + index).css('opacity', 0)
+
+		setTimeout(() ->
+			$('#hintbtn_' + index).css('left', '-47px')
+			$('#freewordbtn_' + index).css('left', '-47px')
+		,190)
+
+	_checkIfDone = ->
+		_questions = _qset.items[0].items
+
+		done = true
+
+		for i of _questions
+			letters = _questions[i].answers[0].text.split('')
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
 
 			for l in [0..letters.length-1]
 				if dir == 0
@@ -341,13 +348,71 @@ Namespace('Crossword').Engine = do ->
 					letterTop = y + l
 
 				if letters[l] != " "
-					answer += document.getElementById("letter_" + letterLeft + "_" + letterTop).value || "_"
+					if $("#letter_" + letterLeft + "_" + letterTop).val() == ""
+						done = false
+						break
+		if done
+			$('#checkBtn').addClass('done')
+		else
+			$('#checkBtn').removeClass('done')
+
+	_renderNumberLabel = (questionNumber, x, y) ->
+		numberLabel = document.createElement('div')
+		numberLabel.innerHTML = questionNumber
+		numberLabel.className = 'numberlabel'
+		numberLabel.style.top = 129 + (y * 23) + "px"
+		numberLabel.style.left = 31 + (x * 27) + "px"
+		$('#movable').append numberLabel
+
+	_renderClue = (question, hintPrefix, i) ->
+		clue = document.createElement 'div'
+		clue.id = 'clue_' + i
+
+		clue.innerHTML = $('#t_hints').html().
+							replace(/{{hintPrefix}}/g, hintPrefix).
+							replace(/{{question}}/g, question).
+							replace(/{{i}}/g, i)
+
+		clue.setAttribute 'data-i', i
+
+		clue.onmouseover = _clueMouseOver
+		clue.onmouseout = _clueMouseOut
+
+		$('#clues').append clue
+
+	_clueMouseOver = (e) ->
+		_highlight(e.target.getAttribute('data-i'))
+
+	_clueMouseOut = (e) ->
+		_highlight(false)
+
+	_submitAnswers = ->
+		_questions = _qset.items[0].items
+
+		for i of _questions
+			letters = _questions[i].answers[0].text.split('')
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
+
+			answer = ''
+
+			for l in [0..letters.length-1]
+				if dir == 0
+					letterLeft = x + l
+					letterTop = y
+				else
+					letterLeft = x
+					letterTop = y + l
+
+				if letters[l] != " "
+					answer += $("#letter_" + letterLeft + "_" + letterTop).val() || "_"
 				else
 					answer += " "
 
 				console.log answer
 
-			Materia.Score.submitQuestionForScoring questions[i].id, answer
+			Materia.Score.submitQuestionForScoring _questions[i].id, answer
 
 		Materia.Engine.end()
 

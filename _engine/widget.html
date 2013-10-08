@@ -30,17 +30,24 @@
 		</header>
 		<div id='movable' class='crossword-board'>
 		</div>
-		<div id='hints'>
+		<div id='controlbar'>
+			<input type='button' value='Submit Answers' id='checkBtn'>
+		</div>
+		<div id='clues'>
 			<strong>Clues</strong>
-			<div id='controlbar'>
-				<input type='button' value='Submit Answers' id='checkBtn'>
-			</div>
 		</div>
 		<div id='alertbox'>
 			<span id='alertcaption'></span><br>
 			<input id='confirmbtn' type='button' value='Understood!'>
 			<input id='cancelbtn' type='button' value='Nevermind'>
 		</div>
+	</div>
+	<div id='t_hints' style='display:none'>
+		<em>{{hintPrefix}}:</em><br>
+		{{question}}<br>
+		<input type='button' data-i='{{i}}' id='hintbtn_{{i}}' value='Hint'>
+		<input type='button' data-i='{{i}}' id='freewordbtn_{{i}}' value='Free word'><br>
+		<span class='hintspot' id='hintspot_{{i}}'></span>
 	</div>
 	</body>
 </html>
