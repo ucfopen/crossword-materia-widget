@@ -115,6 +115,8 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').append letter
 				letter.focus()
 
+		$('#cancelbtn').click _hideAlert
+
 		$('#checkBtn').click () ->
 			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
 
@@ -154,8 +156,6 @@ Namespace('Crossword').Engine = do ->
 
 	
 	_letterKeydown = (e) ->
-		console.log e.keyCode
-
 		currentLetter = e.target
 		cur = e.target.id.split("_")
 
@@ -266,7 +266,6 @@ Namespace('Crossword').Engine = do ->
 		$('#confirmbtn').unbind('click').click () ->
 			_hideAlert()
 			action()
-		$('#cancelbtn').click _hideAlert
 
 	_hideAlert = () ->
 		ab = $('#alertbox')
@@ -274,8 +273,8 @@ Namespace('Crossword').Engine = do ->
 		
 		setTimeout(() ->
 			ab.css 'display', 'none'
+			ab.removeClass 'fadein'
 			ab.removeClass 'fadeout'
-			ab.removeClass 'fade'
 		,190)
 
 	_freeWord = (index) ->
@@ -324,8 +323,8 @@ Namespace('Crossword').Engine = do ->
 		$('#hintbtn_' + index).css('opacity', 0)
 
 		setTimeout(() ->
-			$('#hintbtn_' + index).css('left', '-47px')
-			$('#freewordbtn_' + index).css('left', '-47px')
+			$('#hintbtn_' + index).css('left', '-43px')
+			$('#freewordbtn_' + index).css('left', '-43px')
 		,190)
 
 	_checkIfDone = ->
@@ -409,8 +408,6 @@ Namespace('Crossword').Engine = do ->
 					answer += $("#letter_" + letterLeft + "_" + letterTop).val() || "_"
 				else
 					answer += " "
-
-				console.log answer
 
 			Materia.Score.submitQuestionForScoring _questions[i].id, answer
 
