@@ -36,7 +36,10 @@ Namespace('Crossword').Engine = do ->
 
 		if _freeWordsRemaining < 1
 			for i of _questions
-				$('#freewordbtn_'+i).attr('disabled',true)
+				if _qset.options.freeWords < 1
+					$('#freewordbtn_'+i).css('display','none')
+				else
+					$('#freewordbtn_'+i).attr('disabled',true)
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -82,6 +85,13 @@ Namespace('Crossword').Engine = do ->
 				else			# horizontal
 					letterLeft = x + l
 					letterTop = y
+
+				if letterLeft > 20 or letterTop > 20
+					$('#movable').addClass('pannedout')
+					setTimeout ->
+						$('#movable').removeClass('pannedout')
+					,2500
+						
 
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
