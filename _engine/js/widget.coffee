@@ -1,7 +1,6 @@
 Namespace('Crossword').Engine = do ->
 	_qset                   = null
 	_questions				= null
-	_hintsRemaining			= 0
 	_freeWordsRemaining		= 0
 	_puzzleGrid				= {}
 	_instance				= {}
@@ -23,6 +22,7 @@ Namespace('Crossword').Engine = do ->
 		_instance = instance
 
 		_captionUpdate()
+		$('#printbtn').click _printBoard
 
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
@@ -33,11 +33,10 @@ Namespace('Crossword').Engine = do ->
 	_captionUpdate = () ->
 		_caption('title', _instance.name)
 		_caption('freeWordsRemaining', _freeWordsRemaining)
-		_caption('hintsRemaining', _hintsRemaining)
 
 		if _freeWordsRemaining < 1
 			for i of _questions
-				$('#freewordbtn_'+i).css('opacity',0)
+				$('#freewordbtn_'+i).attr('disabled',true)
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -48,14 +47,11 @@ Namespace('Crossword').Engine = do ->
 		#	if e.button is 2 then false else true          # Disables right click.
 
 		_freeWordsRemaining = _qset.options.freeWords
+		if _freeWordsRemaining < 1
+			$('.remaining').css('display','none')
 
 		# generate elements for questions
 		for i of _questions
-			
-			# increment the hints counter
-			if _questions[i].options.hint
-				_hintsRemaining++
-
 			# split the word into a letter array for the second loop
 			letters = _questions[i].answers[0].text.toUpperCase().split('')
 
@@ -310,14 +306,13 @@ Namespace('Crossword').Engine = do ->
 
 
 	_getHint = (index) ->
-		_hintsRemaining--
 		_captionUpdate()
 
 		_questions = _qset.items[0].items
 
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
-		_caption 'hintspot_' + index, _questions[index].options.hint
+		_caption 'hintspot_' + index, 'Hint: ' + _questions[index].options.hint
 
 		$('#hintspot_' + index).css('opacity', 1)
 		$('#hintbtn_' + index).css('opacity', 0)
@@ -384,6 +379,86 @@ Namespace('Crossword').Engine = do ->
 
 	_clueMouseOut = (e) ->
 		_highlight(false)
+
+	_printBoard = (e) ->
+		frame = document.createElement 'iframe'
+		$('body').append frame
+		console.log frame
+		wnd = frame.contentWindow
+		frame.style.display = 'none'
+		
+		console.log document.styleSheets
+		wnd.document.write '<h1>' + _instance.name + '</h1>'
+		wnd.document.write "<h1 style='page-break-before:always'>" + _instance.name + '</h1>'
+
+		downClues = document.createElement 'div'
+		downClues.innerHTML = '<strong>Down</strong>'
+
+		acrossClues = document.createElement 'div'
+		acrossClues.innerHTML = '<strong>Across</strong>'
+
+		wnd.document.body.appendChild downClues
+		wnd.document.body.appendChild acrossClues
+
+		for i of _questions
+			# split the word into a letter array for the second loop
+			letters = _questions[i].answers[0].text.toUpperCase().split('')
+
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
+			question = _questions[i].questions[0].text
+
+			questionNumber = (parseInt(i) + 1)
+			
+			if dir
+				downClues.innerHTML += '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
+			else
+				acrossClues.innerHTML += '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
+
+
+
+			_puzzleGrid = {}
+
+			# generate inputs for each letter in answer
+			for l in [0..letters.length-1]
+				if dir			# vertical
+					letterLeft = x
+					letterTop = y + l
+				else			# horizontal
+					letterLeft = x + l
+					letterTop = y
+
+				numberLabel = document.createElement('div')
+				numberLabel.innerHTML = questionNumber
+				numberLabel.style.position = 'absolute'
+				numberLabel.style.top = 129 + (y * 23) + "px"
+				numberLabel.style.left = 80 + (x * 27) + "px"
+				numberLabel.style.fontSize = 10 + "px"
+				numberLabel.style.zIndex = '1000'
+
+				# overlapping connectors should not be duplicated
+				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
+					continue
+
+				letter = wnd.document.createElement('input')
+				letter.type = 'text'
+				letter.setAttribute('maxlength', 1)
+				letter.style.position = 'absolute'
+				letter.style.top = 120 + (letterTop) * 23 + "px"
+				letter.style.left = 60 + (letterLeft) * 27 + "px"
+				letter.style.border = 'solid 1px #333'
+				letter.style.width = '28px'
+				letter.style.height = '24px'
+
+				if letters[l] == " "
+					# if it's a space, make it a black block
+					letter.style.backgroundColor = '#000'
+
+				wnd.document.body.appendChild(letter)
+				wnd.document.body.appendChild(numberLabel)
+
+		wnd.print()
 
 	_submitAnswers = ->
 		_questions = _qset.items[0].items
