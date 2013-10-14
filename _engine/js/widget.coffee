@@ -147,6 +147,16 @@ Namespace('Crossword').Engine = do ->
 			if _boardDown
 				_boardTop += (e.screenY - _boardY)
 				_boardLeft += (e.screenX - _boardX)
+
+				if _boardTop < -500
+					_boardTop = -500
+				if _boardTop > 500
+					_boardTop = 500
+				if _boardLeft < -500
+					_boardLeft = -500
+				if _boardLeft > 500
+					_boardLeft = 500
+
 				_boardY = e.screenY
 				_boardX = e.screenX
 
@@ -177,10 +187,9 @@ Namespace('Crossword').Engine = do ->
 
 		if curDir == -1
 			curDir = currentLetter.getAttribute("dir")
-		else if curDir == "1"
+		if curDir == "1"
 			deltaY = 1
 			deltaX = 0
-
 		if e.keyCode == 37
 			deltaX = -1
 			deltaY = 0
@@ -198,7 +207,7 @@ Namespace('Crossword').Engine = do ->
 			deltaY = 1
 			curDir = -1
 		else if e.keyCode == 8
-			if e.target.value == ""
+			if e.target.value == "" or e.target.value == " "
 				# backspace
 				if curDir == "1"
 					deltaX = 0
@@ -206,7 +215,7 @@ Namespace('Crossword').Engine = do ->
 				else
 					deltaX = -1
 					deltaY = 0
-				curDir = -1
+					#curDir = -1
 			else
 				return
 		else
@@ -219,11 +228,18 @@ Namespace('Crossword').Engine = do ->
 				next.value = ' '
 				_letterKeydown({ target: next, keyCode: e.keyCode })
 			else
-				next.setSelectionRange(0,1)
 				next.focus()
-				next.setSelectionRange(0,1)
+				setTimeout ->
+					next.setSelectionRange(0,1)
+				,10
 		else
-			curDir = -1
+			if e.stackCount and e.stackCount > 4
+				return
+			if curDir == "1"
+				curDir = 0
+			else
+				curDir = -1
+			_letterKeydown({ target: currentLetter, keyCode: e.keyCode, stackCount: (e.stackCount || 0) + 1 })
 
 
 	_hintConfirm = (e) ->
@@ -400,11 +416,9 @@ Namespace('Crossword').Engine = do ->
 	_printBoard = (e) ->
 		frame = document.createElement 'iframe'
 		$('body').append frame
-		console.log frame
 		wnd = frame.contentWindow
 		frame.style.display = 'none'
 		
-		console.log document.styleSheets
 		wnd.document.write '<h1>' + _instance.name + '</h1>'
 		wnd.document.write "<h1 style='page-break-before:always'>" + _instance.name + '</h1>'
 
