@@ -32,7 +32,12 @@ Namespace('Crossword').Engine = do ->
 
 	_captionUpdate = () ->
 		_caption('title', _instance.name)
-		_caption('freeWordsRemaining', _freeWordsRemaining)
+		if _freeWordsRemaining == 1
+			sentence = " free word remaining"
+		else
+			sentence = " free words remaining"
+
+		_caption('freeWordsRemaining', _freeWordsRemaining + sentence)
 
 		if _freeWordsRemaining < 1
 			for i of _questions
@@ -119,7 +124,9 @@ Namespace('Crossword').Engine = do ->
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 
 				$('#movable').append letter
-				letter.focus()
+				if !letterFocused
+					letterFocused = true
+					letter.focus()
 
 		$('#cancelbtn').click _hideAlert
 
@@ -425,8 +432,6 @@ Namespace('Crossword').Engine = do ->
 				downClues.innerHTML += '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
 			else
 				acrossClues.innerHTML += '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
-
-
 
 			_puzzleGrid = {}
 
