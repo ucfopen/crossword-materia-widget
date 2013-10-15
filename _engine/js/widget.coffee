@@ -13,6 +13,9 @@ Namespace('Crossword').Engine = do ->
 
 	curDir					= -1
 
+	LETTER_HEIGHT			= 23
+	LETTER_WIDTH			= 27
+
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
@@ -21,115 +24,13 @@ Namespace('Crossword').Engine = do ->
 		_drawBoard(instance.name)
 		_instance = instance
 
-		_captionUpdate()
-		$('#printbtn').click _printBoard
-
-		# once everything is drawn, set the height of the player
-		Materia.Engine.setHeight()
-
-	_caption = (id,caption) ->
-		$('#'+id).html(caption)
-
-	_captionUpdate = () ->
-		_caption('title', _instance.name)
-		if _freeWordsRemaining == 1
-			sentence = " free word remaining"
-		else
-			sentence = " free words remaining"
-
-		_caption('freeWordsRemaining', _freeWordsRemaining + sentence)
-
-		if _freeWordsRemaining < 1
-			for i of _questions
-				if _qset.options.freeWords < 1
-					$('#freewordbtn_'+i).css('display','none')
-				else
-					$('#freewordbtn_'+i).attr('disabled',true)
-
-	# Draw the main board.
-	_drawBoard = (title) ->
-		# special place in hell below
-		# disabled for development because inspect element
-		#document.oncontextmenu = -> false                  # Disables right click.
-		#document.addEventListener 'mousedown', (e) ->
-		#	if e.button is 2 then false else true          # Disables right click.
-
 		_freeWordsRemaining = _qset.options.freeWords
-		if _freeWordsRemaining < 1
-			$('.remaining').css('display','none')
+		$('.remaining').css('display','none') if _freeWordsRemaining < 1
 
-		# generate elements for questions
-		for i of _questions
-			# split the word into a letter array for the second loop
-			letters = _questions[i].answers[0].text.toUpperCase().split('')
+		_captionUpdate()
 
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
-			question = _questions[i].questions[0].text
-
-			if dir
-				questionNumber = (parseInt(i) + 1)
-				hintPrefix = questionNumber + " down"
-			else
-				questionNumber = (parseInt(i) + 1)
-				hintPrefix = questionNumber + " across"
-
-			_renderNumberLabel questionNumber, x, y
-			_renderClue question, hintPrefix, i
-
-			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
-			$('#hintbtn_'+i).click _hintConfirm
-			$('#freewordbtn_'+i).click _getFreeword
-
-			# generate inputs for each letter in answer
-			for l in [0..letters.length-1]
-				if dir			# vertical
-					letterLeft = x
-					letterTop = y + l
-				else			# horizontal
-					letterLeft = x + l
-					letterTop = y
-
-				if letterLeft > 20 or letterTop > 20
-					$('#movable').addClass('pannedout')
-					setTimeout ->
-						$('#movable').removeClass('pannedout')
-					,2500
-						
-
-				# overlapping connectors should not be duplicated
-				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
-					continue
-
-				letter = document.createElement('input')
-				letter.type = 'text'
-				letter.setAttribute('data-q', i)
-				letter.setAttribute('maxlength', 1)
-				letter.setAttribute('dir', dir)
-				letter.className = 'letter'
-				letter.id = "letter_" + letterLeft + "_" + letterTop
-
-				if letters[l] == " "
-					# if it's a space, make it a black block
-					letter.className += " space"
-
-				letter.onkeydown = _letterKeydown
-				letter.onkeyup = _checkIfDone
-				letter.onfocus = _letterFocus
-				letter.style.top = 120 + (letterTop) * 23 + "px"
-				letter.style.left = 10 + (letterLeft) * 27 + "px"
-
-				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
-				_puzzleGrid[letterTop][letterLeft] = letters[l]
-
-				$('#movable').append letter
-				if !letterFocused
-					letterFocused = true
-					letter.focus()
-
+		$('#printbtn').click _printBoard
 		$('#cancelbtn').click _hideAlert
-
 		$('#checkBtn').click () ->
 			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
 
@@ -148,141 +49,193 @@ Namespace('Crossword').Engine = do ->
 				_boardTop += (e.screenY - _boardY)
 				_boardLeft += (e.screenX - _boardX)
 
-				if _boardTop < -500
-					_boardTop = -500
-				if _boardTop > 500
-					_boardTop = 500
-				if _boardLeft < -500
-					_boardLeft = -500
-				if _boardLeft > 500
-					_boardLeft = 500
+				# if its out of range, stop panning
+				_boardTop = -500 if _boardTop < -500
+				_boardTop = 500 if _boardTop > 500
+				_boardLeft = -500 if _boardLeft < -500
+				_boardLeft = 500 if _boardLeft > 500
 
 				_boardY = e.screenY
 				_boardX = e.screenX
 
-				$('#movable').css('top', _boardTop + "px")
-				$('#movable').css('left', _boardLeft + "px")
+				$('#movable').css 'top', _boardTop + 'px'
+				$('#movable').css 'left', _boardLeft + 'px'
+
+		# once everything is drawn, set the height of the player
+		Materia.Engine.setHeight()
+
+	_captionUpdate = () ->
+		$('#title').html _instance.name
+
+		sentence = ' free word' + (if _freeWordsRemaining is 1 then '' else 's') + ' remaining'
+		$('#freeWordsRemaining').html _freeWordsRemaining + sentence
+
+		if _freeWordsRemaining < 1
+			for i of _questions
+				if _qset.options.freeWords < 1
+					$('#freewordbtn_'+i).css 'display', 'none'
+				else
+					$('#freewordbtn_'+i).attr 'disabled', true
+
+	# Draw the main board.
+	_drawBoard = (title) ->
+		# Disable right click
+		document.oncontextmenu = -> false
+		document.addEventListener 'mousedown', (e) ->
+			if e.button is 2 then false else true
+
+		letterLeft = 0
+		letterTop = 0
+
+		# generate elements for questions
+		forEveryQuestion (i,letters,x,y,dir) ->
+			question = _questions[i].questions[0].text
+
+			questionNumber = parseInt(i) + 1
+			hintPrefix = questionNumber + if dir then ' down' else ' across'
+
+			_renderNumberLabel questionNumber, x, y
+			_renderClue question, hintPrefix, i
+
+			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
+			$('#hintbtn_'+i).click _hintConfirm
+			$('#freewordbtn_'+i).click _getFreeword
+
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+				# overlapping connectors should not be duplicated
+				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
+					return
+				
+				letter = document.createElement 'input'
+				letter.id = 'letter_' + letterLeft + '_' + letterTop
+				letter.className = 'letter'
+				letter.type = 'text'
+				letter.setAttribute 'data-q', i
+				letter.setAttribute 'maxlength', 1
+				letter.setAttribute 'dir', dir
+
+				letter.onkeydown = _letterKeydown
+				letter.onkeyup = _checkIfDone
+				letter.onfocus = _letterFocus
+
+				letter.style.top = 120 + letterTop * LETTER_HEIGHT + 'px'
+				letter.style.left = 10 + letterLeft * LETTER_WIDTH + 'px'
+
+				if letters[l] == ' '
+					# if it's a space, make it a black block
+					letter.className += ' space'
+
+				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
+				_puzzleGrid[letterTop][letterLeft] = letters[l]
+
+				$('#movable').append letter
+
+		# zoom animation
+		if letterLeft > 20 or letterTop > 20
+			$('#movable').addClass 'pannedout'
+			setTimeout ->
+				$('#movable').removeClass 'pannedout'
+			,2500
+
+		$('#letter_'+letterLeft+'_'+letterTop).focus()
 
 	_letterFocus = (e) ->
-		if $('#clue_'+e.target.getAttribute('data-q')).hasClass('highlight')
+		if $('#clue_'+e.target.getAttribute('data-q')).hasClass 'highlight'
 			return
 
 		for j of _questions
-			$('#clue_'+j).removeClass('highlight')
+			$('#clue_'+j).removeClass 'highlight'
 
 		scrolly = $('#clue_'+e.target.getAttribute('data-q')).position().top + $('#clues').scrollTop()
 
-		$('#clue_'+e.target.getAttribute('data-q')).addClass('highlight')
-		$('#clues').animate({
-			scrollTop: scrolly
-		}, 150)
+		$('#clue_'+e.target.getAttribute('data-q')).addClass 'highlight'
+
+		$('#clues').animate(scrollTop: scrolly, 150)
 
 	
 	_letterKeydown = (e) ->
 		currentLetter = e.target
-		cur = e.target.id.split("_")
+		cur = e.target.id.split '_'
+		x = parseInt cur[1]
+		y = parseInt cur[2]
 
 		deltaX = 1
 		deltaY = 0
 
 		if curDir == -1
-			curDir = currentLetter.getAttribute("dir")
-		if curDir == "1"
+			curDir = currentLetter.getAttribute 'dir'
+		if curDir == '1'
 			deltaY = 1
 			deltaX = 0
-		if e.keyCode == 37
-			deltaX = -1
-			deltaY = 0
-			curDir = -1
-		else if e.keyCode == 38
-			deltaY = -1
-			deltaX = 0
-			curDir = -1
-		else if e.keyCode == 39
-			deltaX = 1
-			deltaY = 0
-			curDir = -1
-		else if e.keyCode == 40
-			deltaX = 0
-			deltaY = 1
-			curDir = -1
-		else if e.keyCode == 8
-			if e.target.value == "" or e.target.value == " "
-				# backspace
-				if curDir == "1"
-					deltaX = 0
-					deltaY = -1
+		switch e.keyCode
+			when 37 #left
+				deltaX = -1
+				deltaY = 0
+				curDir = -1
+			when 38 #up
+				deltaY = -1
+				deltaX = 0
+				curDir = -1
+			when 39 #right
+				deltaX = 1
+				deltaY = 0
+				curDir = -1
+			when 40 #down
+				deltaX = 0
+				deltaY = 1
+				curDir = -1
+			when 8 #backspace
+				if e.target.value == '' or e.target.value == ' '
+					if curDir == '1'
+						deltaX = 0
+						deltaY = -1
+					else
+						deltaX = -1
+						deltaY = 0
 				else
-					deltaX = -1
-					deltaY = 0
-					#curDir = -1
+					return
 			else
-				return
-		else
-			if e.target.value == ""
-				return
+				if e.target.value == ''
+					return
 
+		next = $('#letter_' + (x + deltaX) + '_' + (y + deltaY))
 
-		if next = document.getElementById("letter_" + (parseInt(cur[1]) + deltaX) + "_" + (parseInt(cur[2]) + deltaY))
-			if next.className.indexOf('space') != -1
-				next.value = ' '
-				_letterKeydown({ target: next, keyCode: e.keyCode })
+		if next.length
+			if next.hasClass 'space'
+				next.val ' '
+				_letterKeydown
+					target: next.get(0),
+					keyCode: e.keyCode
 			else
 				next.focus()
 				setTimeout ->
-					next.setSelectionRange(0,1)
+					next.get(0).setSelectionRange 0,1
 				,10
 		else
 			if e.stackCount and e.stackCount > 4
 				return
-			if curDir == "1"
-				curDir = 0
-			else
-				curDir = -1
-			_letterKeydown({ target: currentLetter, keyCode: e.keyCode, stackCount: (e.stackCount || 0) + 1 })
 
+			curDir = if curDir == '1' then 0 else -1
+
+			_letterKeydown
+				target: currentLetter,
+				keyCode: e.keyCode,
+				stackCount: (e.stackCount || 0) + 1
 
 	_hintConfirm = (e) ->
-		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', () ->
-			_getHint(e.target.getAttribute('data-i'))
+		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
+			_getHint e.target.getAttribute 'data-i'
 
 	_getFreeword = (e) ->
-		_freeWord(e.target.getAttribute('data-i'))
+		_freeWord e.target.getAttribute 'data-i'
 			
 	_highlight = (index) ->
-		_questions = _qset.items[0].items
-
-		for i of _questions
-			letters = _questions[i].answers[0].text.split('')
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
-
-			for l in [0..letters.length-1]
-				if dir == 0
-					letterLeft = x + l
-					letterTop = y
-				else
-					letterLeft = x
-					letterTop = y + l
-
+		forEveryQuestion (i,letters,x,y,dir) ->
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
-					$('#letter_' + letterLeft + '_' + letterTop).removeClass('highlight')
-
-		for i of _questions
-			letters = _questions[i].answers[0].text.split('')
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
-
-			for l in [0..letters.length-1]
-				if dir == 0
-					letterLeft = x + l
-					letterTop = y
-				else
-					letterLeft = x
-					letterTop = y + l
-
+					$('#letter_' + letterLeft + '_' + letterTop).removeClass 'highlight'
+		forEveryQuestion (i,letters,x,y,dir) ->
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i == index
 					$('#letter_' + letterLeft + '_' + letterTop).addClass 'highlight'
 
@@ -290,7 +243,7 @@ Namespace('Crossword').Engine = do ->
 		ab = $('#alertbox')
 		ab.css 'display', 'block'
 		ab.addClass 'fadein'
-		_caption 'alertcaption', caption
+		$('#alertcaption').html caption
 
 		$('#confirmbtn').unbind('click').click () ->
 			_hideAlert()
@@ -311,94 +264,70 @@ Namespace('Crossword').Engine = do ->
 			return
 
 		index = parseInt(index)
-		_questions = _qset.items[0].items
 
 		letters = _questions[index].answers[0].text.split('')
 		x = _questions[index].options.x
 		y = _questions[index].options.y
 		dir = _questions[index].options.dir
 
-		answer = ""
+		answer = ''
 
-		for l in [0..letters.length-1]
-			if dir == 0
-				letterLeft = x + l
-				letterTop = y
-			else
-				letterLeft = x
-				letterTop = y + l
-
-			document.getElementById("letter_" + letterLeft + "_" + letterTop).value = letters[l]
+		forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+			$('#letter_' + letterLeft + '_' + letterTop).val letters[l]
 
 		_freeWordsRemaining--
 
-		document.getElementById("freewordbtn_" + index).style.opacity = 0
+		$('#freewordbtn_' + index).css 'opacity', 0
+
 		_captionUpdate()
-
-		return
-
 
 	_getHint = (index) ->
 		_captionUpdate()
 
-		_questions = _qset.items[0].items
-
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
-		_caption 'hintspot_' + index, 'Hint: ' + _questions[index].options.hint
+		hs = $('#hintspot_' + index)
+		hs.html 'Hint: ' + _questions[index].options.hint
+		hs.css 'opacity', 1
 
-		$('#hintspot_' + index).css('opacity', 1)
-		$('#hintbtn_' + index).css('opacity', 0)
+		hb = $('#hintbtn_' + index)
+		hb.css 'opacity', 0
 
 		setTimeout(() ->
-			$('#hintbtn_' + index).css('left', '-43px')
-			$('#freewordbtn_' + index).css('left', '-43px')
+			hb.css 'left', '-43px'
+			$('#freewordbtn_' + index).css 'left', '-43px'
 		,190)
 
 	_checkIfDone = ->
-		_questions = _qset.items[0].items
-
 		done = true
-
-		for i of _questions
-			letters = _questions[i].answers[0].text.split('')
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
-
-			for l in [0..letters.length-1]
-				if dir == 0
-					letterLeft = x + l
-					letterTop = y
-				else
-					letterLeft = x
-					letterTop = y + l
-
-				if letters[l] != " "
-					if $("#letter_" + letterLeft + "_" + letterTop).val() == ""
+		
+		forEveryQuestion (i,letters,x,y,dir) ->
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+				if letters[l] != ' '
+					if $('#letter_' + letterLeft + '_' + letterTop).val() == ''
 						done = false
-						break
+						return
 		if done
-			$('#checkBtn').addClass('done')
+			$('#checkBtn').addClass 'done'
 		else
-			$('#checkBtn').removeClass('done')
+			$('#checkBtn').removeClass 'done'
 
 	_renderNumberLabel = (questionNumber, x, y) ->
-		numberLabel = document.createElement('div')
+		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
 		numberLabel.className = 'numberlabel'
-		numberLabel.style.top = 129 + (y * 23) + "px"
-		numberLabel.style.left = 31 + (x * 27) + "px"
+		numberLabel.style.top = 129 + y * LETTER_HEIGHT + 'px'
+		numberLabel.style.left = 31 + x * LETTER_WIDTH + 'px'
 		$('#movable').append numberLabel
 
 	_renderClue = (question, hintPrefix, i) ->
 		clue = document.createElement 'div'
 		clue.id = 'clue_' + i
 
-		clue.innerHTML = $('#t_hints').html().
-							replace(/{{hintPrefix}}/g, hintPrefix).
-							replace(/{{question}}/g, question).
-							replace(/{{i}}/g, i)
+		clue.innerHTML = $('#t_hints').html()
+			.replace(/{{hintPrefix}}/g, hintPrefix)
+			.replace(/{{question}}/g, question)
+			.replace(/{{i}}/g, i)
 
 		clue.setAttribute 'data-i', i
 
@@ -431,91 +360,83 @@ Namespace('Crossword').Engine = do ->
 		wnd.document.body.appendChild downClues
 		wnd.document.body.appendChild acrossClues
 
-		for i of _questions
-			# split the word into a letter array for the second loop
-			letters = _questions[i].answers[0].text.toUpperCase().split('')
-
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
+		forEveryQuestion (i,letters,x,y,dir) ->
 			question = _questions[i].questions[0].text
-
-			questionNumber = (parseInt(i) + 1)
+			questionNumber = parseInt(i) + 1
 			
-			if dir
-				downClues.innerHTML += '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
-			else
-				acrossClues.innerHTML += '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
+			clue = '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
 
+			if dir
+				downClues.innerHTML += clue
+			else
+				acrossClues.innerHTML += clue
+				
 			_puzzleGrid = {}
 
-			# generate inputs for each letter in answer
-			for l in [0..letters.length-1]
-				if dir			# vertical
-					letterLeft = x
-					letterTop = y + l
-				else			# horizontal
-					letterLeft = x + l
-					letterTop = y
-
-				numberLabel = document.createElement('div')
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+				numberLabel = document.createElement 'div'
 				numberLabel.innerHTML = questionNumber
 				numberLabel.style.position = 'absolute'
-				numberLabel.style.top = 129 + (y * 23) + "px"
-				numberLabel.style.left = 80 + (x * 27) + "px"
-				numberLabel.style.fontSize = 10 + "px"
+				numberLabel.style.top = 129 + y * LETTER_HEIGHT + 'px'
+				numberLabel.style.left = 80 + x * LETTER_WIDTH + 'px'
+				numberLabel.style.fontSize = 10 + 'px'
 				numberLabel.style.zIndex = '1000'
 
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
-					continue
+					return
 
-				letter = wnd.document.createElement('input')
+				letter = wnd.document.createElement 'input'
 				letter.type = 'text'
-				letter.setAttribute('maxlength', 1)
+				letter.setAttribute 'maxlength', 1
 				letter.style.position = 'absolute'
-				letter.style.top = 120 + (letterTop) * 23 + "px"
-				letter.style.left = 60 + (letterLeft) * 27 + "px"
+				letter.style.top = 120 + letterTop * LETTER_HEIGHT + 'px'
+				letter.style.left = 60 + letterLeft * LETTER_WIDTH + 'px'
 				letter.style.border = 'solid 1px #333'
 				letter.style.width = '28px'
 				letter.style.height = '24px'
 
-				if letters[l] == " "
+				if letters[l] == ' '
 					# if it's a space, make it a black block
 					letter.style.backgroundColor = '#000'
 
-				wnd.document.body.appendChild(letter)
-				wnd.document.body.appendChild(numberLabel)
+				wnd.document.body.appendChild letter
+				wnd.document.body.appendChild numberLabel
 
 		wnd.print()
 
 	_submitAnswers = ->
-		_questions = _qset.items[0].items
-
-		for i of _questions
-			letters = _questions[i].answers[0].text.split('')
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
-
+		forEveryQuestion (i,letters,x,y,dir) ->
 			answer = ''
-
-			for l in [0..letters.length-1]
-				if dir == 0
-					letterLeft = x + l
-					letterTop = y
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+				if letters[l] != ' '
+					answer += $('#letter_' + letterLeft + '_' + letterTop).val() || '_'
 				else
-					letterLeft = x
-					letterTop = y + l
-
-				if letters[l] != " "
-					answer += $("#letter_" + letterLeft + "_" + letterTop).val() || "_"
-				else
-					answer += " "
+					answer += ' '
 
 			Materia.Score.submitQuestionForScoring _questions[i].id, answer
 
 		Materia.Engine.end()
+
+	# loop iteration functions to prevent redudency
+	forEveryLetter = (x,y,dir,letters,cb) ->
+		for l in [0..letters.length-1]
+			if dir == 0
+				letterLeft = x + l
+				letterTop = y
+			else
+				letterLeft = x
+				letterTop = y + l
+			cb(letterLeft,letterTop,l)
+
+
+	forEveryQuestion = (cb) ->
+		for i of _questions
+			letters = _questions[i].answers[0].text.toUpperCase().split ''
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
+			cb i, letters, x, y, dir
 
 	#public
 	manualResize: true
