@@ -11,7 +11,7 @@ Namespace('Crossword').Engine = do ->
 	_boardX					= 0
 	_boardLeft				= 0
 
-	curDir					= -1
+	_curDir					= -1
 
 	LETTER_HEIGHT			= 23
 	LETTER_WIDTH			= 27
@@ -21,17 +21,20 @@ Namespace('Crossword').Engine = do ->
 	start = (instance, qset, version = '1') ->
 		_qset = qset
 		_questions = _qset.items[0].items
-		_drawBoard(instance.name)
 		_instance = instance
 
-		_freeWordsRemaining = _qset.options.freeWords
-		$('.remaining').css('display','none') if _freeWordsRemaining < 1
+		_drawBoard instance.name
 
 		_captionUpdate()
+		_setupClickHandlers()
 
+		# once everything is drawn, set the height of the player
+		Materia.Engine.setHeight()
+	
+	_setupClickHandlers = ->
 		$('#printbtn').click _printBoard
 		$('#cancelbtn').click _hideAlert
-		$('#checkBtn').click () ->
+		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
 
 		$('#board').mousedown (e) ->
@@ -39,7 +42,7 @@ Namespace('Crossword').Engine = do ->
 			_boardY = e.screenY
 			_boardX = e.screenX
 
-			curDir = -1
+			_curDir = -1
 
 		$('#board').mouseup (e) ->
 			_boardDown = false
@@ -58,15 +61,11 @@ Namespace('Crossword').Engine = do ->
 				_boardY = e.screenY
 				_boardX = e.screenX
 
-				$('#movable').css 'top', _boardTop + 'px'
-				$('#movable').css 'left', _boardLeft + 'px'
+				m = $('#movable')
+				m.css 'top', _boardTop + 'px'
+				m.css 'left', _boardLeft + 'px'
 
-		# once everything is drawn, set the height of the player
-		Materia.Engine.setHeight()
-
-	_captionUpdate = () ->
-		$('#title').html _instance.name
-
+	_captionUpdate = ->
 		sentence = ' free word' + (if _freeWordsRemaining is 1 then '' else 's') + ' remaining'
 		$('#freeWordsRemaining').html _freeWordsRemaining + sentence
 
@@ -84,8 +83,17 @@ Namespace('Crossword').Engine = do ->
 		document.addEventListener 'mousedown', (e) ->
 			if e.button is 2 then false else true
 
-		letterLeft = 0
-		letterTop = 0
+		# hide freewords label if the widget has none
+		_freeWordsRemaining = _qset.options.freeWords
+		$('.remaining').css('display','none') if _freeWordsRemaining < 1
+
+		# ellipse the title if too long
+		title = title.substring(0,42) + '...' if title.length > 45
+		$('#title').html title
+		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
+
+		_left = 0
+		_top = 0
 
 		# generate elements for questions
 		forEveryQuestion (i,letters,x,y,dir) ->
@@ -105,6 +113,9 @@ Namespace('Crossword').Engine = do ->
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
 					return
+
+				_left = letterLeft
+				_top = letterTop
 				
 				letter = document.createElement 'input'
 				letter.id = 'letter_' + letterLeft + '_' + letterTop
@@ -131,13 +142,13 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').append letter
 
 		# zoom animation
-		if letterLeft > 20 or letterTop > 20
+		if _left > 20 or _top > 20
 			$('#movable').addClass 'pannedout'
 			setTimeout ->
 				$('#movable').removeClass 'pannedout'
 			,2500
 
-		$('#letter_'+letterLeft+'_'+letterTop).focus()
+		$('#letter_'+_left+'_'+_top).focus()
 
 	_letterFocus = (e) ->
 		if $('#clue_'+e.target.getAttribute('data-q')).hasClass 'highlight'
@@ -150,9 +161,8 @@ Namespace('Crossword').Engine = do ->
 
 		$('#clue_'+e.target.getAttribute('data-q')).addClass 'highlight'
 
-		$('#clues').animate(scrollTop: scrolly, 150)
+		$('#clues').animate scrollTop: scrolly, 150
 
-	
 	_letterKeydown = (e) ->
 		currentLetter = e.target
 		cur = e.target.id.split '_'
@@ -162,31 +172,31 @@ Namespace('Crossword').Engine = do ->
 		deltaX = 1
 		deltaY = 0
 
-		if curDir == -1
-			curDir = currentLetter.getAttribute 'dir'
-		if curDir == '1'
+		if _curDir == -1
+			_curDir = currentLetter.getAttribute 'dir'
+		if _curDir == '1'
 			deltaY = 1
 			deltaX = 0
 		switch e.keyCode
 			when 37 #left
 				deltaX = -1
 				deltaY = 0
-				curDir = -1
+				_curDir = -1
 			when 38 #up
 				deltaY = -1
 				deltaX = 0
-				curDir = -1
+				_curDir = -1
 			when 39 #right
 				deltaX = 1
 				deltaY = 0
-				curDir = -1
+				_curDir = -1
 			when 40 #down
 				deltaX = 0
 				deltaY = 1
-				curDir = -1
+				_curDir = -1
 			when 8 #backspace
 				if e.target.value == '' or e.target.value == ' '
-					if curDir == '1'
+					if _curDir == '1'
 						deltaX = 0
 						deltaY = -1
 					else
@@ -215,7 +225,7 @@ Namespace('Crossword').Engine = do ->
 			if e.stackCount and e.stackCount > 4
 				return
 
-			curDir = if curDir == '1' then 0 else -1
+			_curDir = if _curDir == '1' then 0 else -1
 
 			_letterKeydown
 				target: currentLetter,
@@ -228,7 +238,7 @@ Namespace('Crossword').Engine = do ->
 
 	_getFreeword = (e) ->
 		_freeWord e.target.getAttribute 'data-i'
-			
+
 	_highlight = (index) ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
@@ -245,19 +255,19 @@ Namespace('Crossword').Engine = do ->
 		ab.addClass 'fadein'
 		$('#alertcaption').html caption
 
-		$('#confirmbtn').unbind('click').click () ->
+		$('#confirmbtn').unbind('click').click ->
 			_hideAlert()
 			action()
 
-	_hideAlert = () ->
+	_hideAlert = ->
 		ab = $('#alertbox')
 		ab.addClass 'fadeout'
 		
-		setTimeout(() ->
+		setTimeout ->
 			ab.css 'display', 'none'
 			ab.removeClass 'fadein'
 			ab.removeClass 'fadeout'
-		,190)
+		,190
 
 	_freeWord = (index) ->
 		if _freeWordsRemaining < 1
@@ -282,8 +292,6 @@ Namespace('Crossword').Engine = do ->
 		_captionUpdate()
 
 	_getHint = (index) ->
-		_captionUpdate()
-
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
 		hs = $('#hintspot_' + index)
@@ -293,10 +301,10 @@ Namespace('Crossword').Engine = do ->
 		hb = $('#hintbtn_' + index)
 		hb.css 'opacity', 0
 
-		setTimeout(() ->
+		setTimeout ->
 			hb.css 'left', '-43px'
 			$('#freewordbtn_' + index).css 'left', '-43px'
-		,190)
+		,190
 
 	_checkIfDone = ->
 		done = true
@@ -337,10 +345,10 @@ Namespace('Crossword').Engine = do ->
 		$('#clues').append clue
 
 	_clueMouseOver = (e) ->
-		_highlight(e.target.getAttribute('data-i'))
+		_highlight e.target.getAttribute('data-i')
 
 	_clueMouseOut = (e) ->
-		_highlight(false)
+		_highlight false
 
 	_printBoard = (e) ->
 		frame = document.createElement 'iframe'
@@ -418,7 +426,7 @@ Namespace('Crossword').Engine = do ->
 
 		Materia.Engine.end()
 
-	# loop iteration functions to prevent redudency
+	# loop iteration functions to prevent redundancy
 	forEveryLetter = (x,y,dir,letters,cb) ->
 		for l in [0..letters.length-1]
 			if dir == 0
