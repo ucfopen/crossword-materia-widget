@@ -295,6 +295,9 @@ Namespace('Crossword').Engine = do ->
 		_freeWordsRemaining--
 
 		$('#freewordbtn_' + index).css 'opacity', 0
+		hb = $('#hintbtn_' + index)
+		hb.css 'opacity', 0
+		hb.attr 'disabled', 1
 
 		_captionUpdate()
 
