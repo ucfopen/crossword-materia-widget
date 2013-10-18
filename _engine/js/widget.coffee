@@ -80,8 +80,8 @@ Namespace('Crossword').Engine = do ->
 	_drawBoard = (title) ->
 		# Disable right click
 		document.oncontextmenu = -> false
-		document.addEventListener 'mousedown', (e) ->
-			if e.button is 2 then false else true
+		#document.addEventListener 'mousedown', (e) ->
+		#	if e.button is 2 then false else true
 
 		# hide freewords label if the widget has none
 		_freeWordsRemaining = _qset.options.freeWords
@@ -151,21 +151,27 @@ Namespace('Crossword').Engine = do ->
 		$('#letter_'+_left+'_'+_top).focus()
 
 	_letterFocus = (e) ->
-		if $('#clue_'+e.target.getAttribute('data-q')).hasClass 'highlight'
+		if !e?
+			e = window.event
+		clue = $('#clue_'+(e.target or e.srcElement).getAttribute('data-q'))
+		if clue.hasClass 'highlight'
 			return
 
 		for j of _questions
 			$('#clue_'+j).removeClass 'highlight'
 
-		scrolly = $('#clue_'+e.target.getAttribute('data-q')).position().top + $('#clues').scrollTop()
+		scrolly = clue.position().top + $('#clues').scrollTop()
 
-		$('#clue_'+e.target.getAttribute('data-q')).addClass 'highlight'
+		clue.addClass 'highlight'
 
 		$('#clues').animate scrollTop: scrolly, 150
 
 	_letterKeydown = (e) ->
-		currentLetter = e.target
-		cur = e.target.id.split '_'
+		if not e?
+			e = window.event
+
+		currentLetter = e.target or e.srcElement
+		cur = currentLetter.id.split '_'
 		x = parseInt cur[1]
 		y = parseInt cur[2]
 
@@ -195,7 +201,7 @@ Namespace('Crossword').Engine = do ->
 				deltaY = 1
 				_curDir = -1
 			when 8 #backspace
-				if e.target.value == '' or e.target.value == ' '
+				if currentLetter.value == '' or currentLetter.value == ' '
 					if _curDir == '1'
 						deltaX = 0
 						deltaY = -1
@@ -205,7 +211,7 @@ Namespace('Crossword').Engine = do ->
 				else
 					return
 			else
-				if e.target.value == ''
+				if currentLetter.value == ''
 					return
 
 		next = $('#letter_' + (x + deltaX) + '_' + (y + deltaY))
@@ -219,7 +225,8 @@ Namespace('Crossword').Engine = do ->
 			else
 				next.focus()
 				setTimeout ->
-					next.get(0).setSelectionRange 0,1
+					if sr = next.get(0).setSelectionRange
+						sr
 				,10
 		else
 			if e.stackCount and e.stackCount > 4
@@ -345,7 +352,9 @@ Namespace('Crossword').Engine = do ->
 		$('#clues').append clue
 
 	_clueMouseOver = (e) ->
-		_highlight e.target.getAttribute('data-i')
+		if !e?
+			e = window.event
+		_highlight (e.target or e.srcElement).getAttribute('data-i')
 
 	_clueMouseOut = (e) ->
 		_highlight false
