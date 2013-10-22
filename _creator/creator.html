@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>test Creator</title>
+		<meta charset='utf-8' />
+		<style type='text/css'></style>
+		<script type='text/javascript' src='/js/materia.require.js'></script>
+		<link rel='stylesheet' type='text/css' href='css/creator.css'>
+		<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js'></script>
+		<script type='text/javascript'>
+			require(['jquery', 'creatorcore', 'js/creator', 'js/creator.puzzle'], function(util) {
+				Materia.CreatorCore.start(Crossword.Creator);
+			});
+		</script>
+	</head>
+	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
+		<div id='modal'></div>
+		<header id='widget-header'>
+			<div>
+				<label>Widget Title:</label>
+				<div>
+					<input type='text' id='title' ng-model='widget.title' value='{{widget.title}}'/>
+				</div>
+			</div>
+		</header>
+		<section id='main_area'>
+			<table>
+				<tr>
+					<td>Clue (Question)</td>
+					<td>Word to guess (Answer)</td>
+					<td>Hint (Optional)</td>
+				</tr>
+				<tr class='question' ng-repeat='item in widget.puzzleItems'>
+					<td><input type='text' value='{{item.question}}' ng-model='item.question'></td>
+					<td><input type='text' value='{{item.answer}}' ng-model='item.answer'></td>
+					<td><input type='text' value='{{item.hint}}' ng-model='item.hint'></td>
+				</tr>
+			</table>
+			<div id='add_new_question_button' ng-click='addPuzzleItem()'>
+				<button class='add'></button>
+				Add new question
+			</div>
+		</section>
+
+		<!-- templates -->
+		<div class='template question'>
+			<textarea class='question_text'></textarea>
+			<textarea class='answer_text'></textarea>
+			<button class='delete'></button>
+		</div>
+		<!-- /templates -->
+	</body>
+</html>
