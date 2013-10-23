@@ -65,10 +65,8 @@ Namespace('Crossword').Creator = do ->
 			_items.push(_process _puzzleItems[i])
 			words.push _puzzleItems[i].answer
 
-		console.log words
 
-		results = Crossword.Puzzle.generatePuzzle _items
-		_items = Crossword.Puzzle.normalizeQSET _items
+		_items = Crossword.Puzzle.generatePuzzle _items
 
 		_qset.items = [{ items: _items }]
 

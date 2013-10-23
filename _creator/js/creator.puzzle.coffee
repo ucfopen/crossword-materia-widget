@@ -117,30 +117,35 @@ Namespace('Crossword').Puzzle = do ->
 
 		# My life will forever be lacking the knowledge of why we aren't using -=
 
-		qset
-
 	loopCount = 0
 	loopLimit = 220
 	letterIndex = []
 	puzzleGrid = {}
 
-	generatePuzzle = (items) ->
+	possibleItems = []
+	iterationCount = 0
+
+	generatePuzzle = (_items) ->
 		letterIndex = []
 		puzzleGrid = {}
 		results = []
+		possibleItems = []
 
-		items = randArray(items)
+		items = randArray(_items).slice(0)
 		i = 0
+		console.log 'ponies'
 		console.log items
 		while !firstword? and items.length > 0
 			item = items.pop()
-			item.options.dir = 1
 			firstword = (item.answers[0].text)
 			if !firstword? or firstword.length < 1
 				firstword = null
+			else
+				item.options.dir = 1
+				item.options.x = 0
+				item.options.y = 0
+				results.push item
 
-
-	#console.log(firstword)
 		placeOnGrid(firstword.toUpperCase().split(''), 0, 0, false)
 		c = 1
 
@@ -165,16 +170,64 @@ Namespace('Crossword').Puzzle = do ->
 			else
 				items.splice(0,0,item)
 			i++
-		console.log loopCount
-		console.log(puzzleGrid)
-		console.log "grid"
-		console.log items
 
-		if items.length > 0
+		console.log items
+		console.log results
+		normalizeQSET results
+
+		if items.length == 0
+			iterationCount++
+			possibleItems.push results
+		else
+			console.log 'nope'
+
+		if iterationCount < 9
 			puzzleGrid = {}
+			generatePuzzle(_items)
+
+		minDist = 9999
+		best = null
+		console.log possibleItems
+		for i in [0..possibleItems.length-1]
+			maxX = 0
+			maxY = 0
+			dist = 0
+			for n in [0..possibleItems[i].length-1]
+				letters = possibleItems[i][n].answers[0].text.split ''
+				width = 0
+				height = 0
+				for j in [0..letters.length-1]
+					if possibleItems[i][n].options.dir == 0
+						width++
+					else
+						height++
+
+				width += possibleItems[i][n].options.x
+				height += possibleItems[i][n].options.y
+
+				console.log width
+				console.log height
+				if possibleItems[i][n].options.dir == 0
+					if width > dist
+						dist = width
+				else
+					if height > dist
+						dist = height
+					
+			if dist < minDist
+				best = possibleItems[i]
+				minDist = dist
+				console.log 'accepted ' + dist
+			else
+				console.log 'rejected ' + dist
+
+		console.log 'wat'
+		console.log best
+
+		return best
+
 			#generatePuzzle(items)
 		#items.push firstword
-		results
 
 	generatePuzzle: generatePuzzle
 	normalizeQSET: normalizeQSET
