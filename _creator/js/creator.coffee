@@ -11,13 +11,14 @@ Updated	: 10/13
 
 CrosswordCreator = angular.module('crosswordCreator', [])
 
-CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
+CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	$scope.widget =
 		title: ''
 		puzzleItems: [{question:null,answer:null,hint:null}]
 
 	$scope.addPuzzleItem = (q=null, a=null, h=null) ->	$scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
 	$scope.removePuzzleItem = (index) -> $scope.widget.puzzleItems.splice(index,1)
+]
 
 Namespace('Crossword').Creator = do ->
 	_title = _qset = _scope = null
