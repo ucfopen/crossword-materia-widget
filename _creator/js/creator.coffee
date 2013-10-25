@@ -46,6 +46,9 @@ Namespace('Crossword').Creator = do ->
 	onSaveComplete = (title, widget, qset, version) -> true
 
 	onQuestionImportComplete = (items) ->
+		_scope = angular.element($('body')).scope()
+		_scope.$apply ->
+			_scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint for item in items
 
 	_buildSaveData = ->
 		if !_qset? then _qset = {}
