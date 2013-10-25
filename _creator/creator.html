@@ -24,6 +24,10 @@
 			</div>
 		</header>
 		<section id='main_area'>
+			<div id='rightcontent'>
+				<div id='preview'></div>
+				<input type='button' value='Generate new puzzle' ng-click='generateNewPuzzle()'>
+			</div>
 			<table>
 				<tr>
 					<td>Clue (Question)</td>
@@ -32,7 +36,7 @@
 				</tr>
 				<tr class='question' ng-repeat='item in widget.puzzleItems'>
 					<td><input type='text' value='{{item.question}}' ng-model='item.question'></td>
-					<td><input type='text' value='{{item.answer}}' ng-model='item.answer'></td>
+					<td><input type='text' value='{{item.answer}}' ng-model='item.answer' ng-click='noLongerFresh()'></td>
 					<td><input type='text' value='{{item.hint}}' ng-model='item.hint'></td>
 				</tr>
 			</table>
