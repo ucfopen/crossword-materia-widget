@@ -133,8 +133,7 @@ Namespace('Crossword').Puzzle = do ->
 
 		items = randArray(_items).slice(0)
 		i = 0
-		console.log 'ponies'
-		console.log items
+
 		while !firstword? and items.length > 0
 			item = items.pop()
 			firstword = (item.answers[0].text)
@@ -146,6 +145,9 @@ Namespace('Crossword').Puzzle = do ->
 				item.options.y = 0
 				results.push item
 
+		if !firstword
+			return
+
 		placeOnGrid(firstword.toUpperCase().split(''), 0, 0, false)
 		c = 1
 
@@ -153,6 +155,10 @@ Namespace('Crossword').Puzzle = do ->
 
 		while (items.length > 0 and loopLimit > loopCount++)
 			item = items.pop()
+
+			if item.answers[0].text.length < 1
+				continue
+
 			result = testFitWord(item.answers[0].text.toUpperCase().split(''))
 			
 			if result
@@ -171,15 +177,11 @@ Namespace('Crossword').Puzzle = do ->
 				items.splice(0,0,item)
 			i++
 
-		console.log items
-		console.log results
 		normalizeQSET results
 
 		if items.length == 0
 			iterationCount++
 			possibleItems.push results
-		else
-			console.log 'nope'
 
 		if iterationCount < 9
 			puzzleGrid = {}
@@ -187,7 +189,7 @@ Namespace('Crossword').Puzzle = do ->
 
 		minDist = 9999
 		best = null
-		console.log possibleItems
+
 		for i in [0..possibleItems.length-1]
 			maxX = 0
 			maxY = 0
@@ -205,8 +207,6 @@ Namespace('Crossword').Puzzle = do ->
 				width += possibleItems[i][n].options.x
 				height += possibleItems[i][n].options.y
 
-				console.log width
-				console.log height
 				if possibleItems[i][n].options.dir == 0
 					if width > dist
 						dist = width
@@ -217,12 +217,6 @@ Namespace('Crossword').Puzzle = do ->
 			if dist < minDist
 				best = possibleItems[i]
 				minDist = dist
-				console.log 'accepted ' + dist
-			else
-				console.log 'rejected ' + dist
-
-		console.log 'wat'
-		console.log best
 
 		return best
 
