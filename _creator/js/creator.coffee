@@ -21,10 +21,14 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 ]
 
 Namespace('Crossword').Creator = do ->
-	_title = _qset = _scope = null
+	_title = _qset = _scope = _hasFreshPuzzle = null
 
 	initNewWidget = (widget, baseUrl) ->
 		_scope = angular.element($('body')).scope()
+		_scope.$apply ->
+			_scope.generateNewPuzzle = _buildSaveData
+			_scope.noLongerFresh = ->
+				_hasFreshPuzzle = false
 
 	initExistingWidget = (title,widget,qset,version,baseUrl) ->
 		_qset = qset
@@ -36,10 +40,17 @@ Namespace('Crossword').Creator = do ->
 			_scope.widget.title	= title
 			_scope.widget.puzzleItems = []
 			_scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint) for i in [0.._items.length-1]
+			_scope.generateNewPuzzle = _buildSaveData
+			_scope.noLongerFresh = ->
+				_hasFreshPuzzle = false
+
+		_buildSaveData()
 
 	onSaveClicked = (mode = 'save') ->
-		if _buildSaveData() then Materia.CreatorCore.save _title, _qset
-		else Materia.CreatorCore.cancelSave 'Widget not ready to save.'
+		if not _hasFreshPuzzle
+			if not _buildSaveData()
+				return Materia.CreatorCore.cancelSave 'Widget not ready to save.'
+		Materia.CreatorCore.save _title, _qset
 
 	onSaveComplete = (title, widget, qset, version) -> true
 
@@ -69,9 +80,43 @@ Namespace('Crossword').Creator = do ->
 
 		_items = Crossword.Puzzle.generatePuzzle _items
 
+		_drawCurrentPuzzle _items
+
 		_qset.items = [{ items: _items }]
 
+		_hasFreshPuzzle = _okToSave
+
 		_okToSave
+
+	_drawCurrentPuzzle = (items) ->
+		$('#preview').empty()
+			
+		for item in items
+			letters = item.answers[0].text.split ''
+			x = item.options.x
+			y = item.options.y
+
+			for i in [0..letters.length-1]
+				if item.options.dir == 0
+					letterLeft = x + i
+					letterTop = y
+				else
+					letterLeft = x
+					letterTop = y + i
+				letter = document.createElement 'div'
+				letter.id = 'letter_' + letterLeft + '_' + letterTop
+				letter.className = 'letter'
+
+				letter.style.top = letterTop * 15 + 'px'
+				letter.style.left = letterLeft * 16 + 'px'
+				letter.innerHTML = letters[i].toUpperCase()
+
+				if letters[i] == ' '
+					# if it's a space, make it a black block
+					letter.className += ' space'
+
+				$('#preview').append letter
+
 		
 	_process = (puzzleItem) ->
 		questionObj =

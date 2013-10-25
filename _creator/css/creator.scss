@@ -104,18 +104,50 @@ button {
 		vertical-align: top;
 		border: solid 1px #777;
 		padding: 5px;
+		margin-right: 60px;
 	}
 }
 
 #titles {
 	h1 {
 		display: inline-block;
-		margin-right: 5%;
+	}
+}
+
+#rightcontent {
+	float: right;
+	display: block;
+	width: 308px;
+	background:#fff;
+	padding: 0px;
+}
+
+#preview {
+	position: relative;
+	display: block;
+	width: 308px;
+	height: 308px;
+	background: #eeedee;
+	margin: 0px;
+	overflow: hidden;
+
+	.letter {
+		position: absolute;
+		width: 11px;
+		height: 10px;
+		border: solid 1px #333;
+		color: #333;
+		padding: 2px;
+		font-size: 10px;
+		background: #fff;
+		text-align: center;
+	}
+	.space {
+		background: #000;
 	}
 }
 
 table {
-	width: 100%;
 	padding: 5px;
 }
 
