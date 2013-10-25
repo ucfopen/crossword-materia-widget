@@ -120,6 +120,7 @@ button {
 	width: 308px;
 	background:#fff;
 	padding: 0px;
+	color: #333;
 }
 
 #preview {
@@ -158,4 +159,12 @@ table {
 h1 {
 	color: #fff;
 	font-size: 16px;
+}
+
+input[type='button'] {
+	padding: 4px;
+	border: solid 1px #333;
+	background: #444;
+	color: #fff;
+	font-size: 12px;
 }

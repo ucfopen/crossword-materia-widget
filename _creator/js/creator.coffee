@@ -14,6 +14,8 @@ CrosswordCreator = angular.module('crosswordCreator', [])
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	$scope.widget =
 		title: ''
+		hintPenalty: 50
+		freeWords: 1
 		puzzleItems: [{question:null,answer:null,hint:null}]
 
 	$scope.addPuzzleItem = (q=null, a=null, h=null) ->	$scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
@@ -43,10 +45,13 @@ Namespace('Crossword').Creator = do ->
 			_scope.generateNewPuzzle = _buildSaveData
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
+			_scope.widget.freeWords = qset.options.freeWords
+			_scope.widget.hintPenalty = qset.options.hintPenalty
 
 		_buildSaveData()
 
 	onSaveClicked = (mode = 'save') ->
+		_qset.options = { hintPenalty: _scope.widget.hintPenalty, freeWords: _scope.widget.freeWords }
 		if not _hasFreshPuzzle
 			if not _buildSaveData()
 				return Materia.CreatorCore.cancelSave 'Widget not ready to save.'
@@ -63,7 +68,7 @@ Namespace('Crossword').Creator = do ->
 	_buildSaveData = ->
 		words = []
 		if !_qset? then _qset = {}
-		_qset.options = { hintPenalty: 50, freeWords: 2 }
+		console.log 'freewords: ' + _scope.widget.hintPenalty
 		_qset.assets = []
 		_qset.rand = false
 		_qset.name = ''
