@@ -36,11 +36,12 @@ Namespace('Crossword').Creator = do ->
 			_scope.widget.hintPenalty = qset.options.hintPenalty
 			_scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint) for i in [0.._items.length-1]
 
-		_buildSaveData()
+		_drawCurrentPuzzle _items
+		_hasFreshPuzzle = true
 
 	onSaveClicked = (mode = 'save') ->
 		if not _buildSaveData()
-			return Materia.CreatorCore.cancelSave 'Widget needs a title'
+			return Materia.CreatorCore.cancelSave 'Required fields not filled out'
 		Materia.CreatorCore.save _title, _qset
 
 	onSaveComplete = (title, widget, qset, version) -> true
