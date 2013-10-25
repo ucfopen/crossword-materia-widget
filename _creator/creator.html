@@ -26,7 +26,9 @@
 		<section id='main_area'>
 			<div id='rightcontent'>
 				<div id='preview'></div>
-				<input type='button' value='Generate new puzzle' ng-click='generateNewPuzzle()'>
+				<input type='button' value='Generate new puzzle' ng-click='generateNewPuzzle()'><br>
+				Hint Penalty: <input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'><br>
+				Free words: <input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
 			</div>
 			<table>
 				<tr>
@@ -36,12 +38,11 @@
 				</tr>
 				<tr class='question' ng-repeat='item in widget.puzzleItems'>
 					<td><input type='text' value='{{item.question}}' ng-model='item.question'></td>
-					<td><input type='text' value='{{item.answer}}' ng-model='item.answer' ng-click='noLongerFresh()'></td>
+					<td><input type='text' value='{{item.answer}}' ng-model='item.answer' ng-change='noLongerFresh()'></td>
 					<td><input type='text' value='{{item.hint}}' ng-model='item.hint'></td>
 				</tr>
 			</table>
 			<div id='add_new_question_button' ng-click='addPuzzleItem()'>
-				<button class='add'></button>
 				Add new question
 			</div>
 		</section>
