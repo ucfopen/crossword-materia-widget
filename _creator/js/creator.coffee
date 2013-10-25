@@ -19,7 +19,9 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		puzzleItems: [{question:null,answer:null,hint:null}]
 
 	$scope.addPuzzleItem = (q=null, a=null, h=null) ->	$scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
-	$scope.removePuzzleItem = (index) -> $scope.widget.puzzleItems.splice(index,1)
+	$scope.removePuzzleItem = (index) ->
+		$scope.widget.puzzleItems.splice(index,1)
+		$scope.noLongerFresh()
 ]
 
 Namespace('Crossword').Creator = do ->
@@ -42,7 +44,9 @@ Namespace('Crossword').Creator = do ->
 			_scope.widget.title	= title
 			_scope.widget.puzzleItems = []
 			_scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint) for i in [0.._items.length-1]
-			_scope.generateNewPuzzle = _buildSaveData
+			_scope.generateNewPuzzle = ->
+				_hasFreshPuzzle = false
+				_buildSaveData()
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
 			_scope.widget.freeWords = qset.options.freeWords
@@ -51,10 +55,8 @@ Namespace('Crossword').Creator = do ->
 		_buildSaveData()
 
 	onSaveClicked = (mode = 'save') ->
-		_qset.options = { hintPenalty: _scope.widget.hintPenalty, freeWords: _scope.widget.freeWords }
-		if not _hasFreshPuzzle
-			if not _buildSaveData()
-				return Materia.CreatorCore.cancelSave 'Widget not ready to save.'
+		if not _buildSaveData()
+			return Materia.CreatorCore.cancelSave 'Widget not ready to save.'
 		Materia.CreatorCore.save _title, _qset
 
 	onSaveComplete = (title, widget, qset, version) -> true
@@ -66,8 +68,9 @@ Namespace('Crossword').Creator = do ->
 	onMediaImportComplete = (media) -> null
 
 	_buildSaveData = ->
-		words = []
 		if !_qset? then _qset = {}
+		_qset.options = { hintPenalty: _scope.widget.hintPenalty, freeWords: _scope.widget.freeWords }
+		words = []
 		console.log 'freewords: ' + _scope.widget.hintPenalty
 		_qset.assets = []
 		_qset.rand = false
@@ -75,21 +78,22 @@ Namespace('Crossword').Creator = do ->
 		_title = _scope.widget.title
 		_okToSave = if _title? && _title != '' then true else false
 
-		_items = []
-		_puzzleItems = _scope.widget.puzzleItems
+		if not _hasFreshPuzzle
+			_items = []
+			_puzzleItems = _scope.widget.puzzleItems
 
-		for i in [0.._puzzleItems.length-1]
-			_items.push(_process _puzzleItems[i])
-			words.push _puzzleItems[i].answer
+			for i in [0.._puzzleItems.length-1]
+				_items.push(_process _puzzleItems[i])
+				words.push _puzzleItems[i].answer
 
 
-		_items = Crossword.Puzzle.generatePuzzle _items
+			_items = Crossword.Puzzle.generatePuzzle _items
 
-		_drawCurrentPuzzle _items
+			_drawCurrentPuzzle _items
 
-		_qset.items = [{ items: _items }]
+			_qset.items = [{ items: _items }]
 
-		_hasFreshPuzzle = _okToSave
+			_hasFreshPuzzle = _okToSave
 
 		_okToSave
 

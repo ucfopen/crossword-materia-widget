@@ -35,11 +35,13 @@
 					<td>Clue (Question)</td>
 					<td>Word to guess (Answer)</td>
 					<td>Hint (Optional)</td>
+					<td></td>
 				</tr>
 				<tr class='question' ng-repeat='item in widget.puzzleItems'>
 					<td><input type='text' value='{{item.question}}' ng-model='item.question'></td>
 					<td><input type='text' value='{{item.answer}}' ng-model='item.answer' ng-change='noLongerFresh()'></td>
 					<td><input type='text' value='{{item.hint}}' ng-model='item.hint'></td>
+					<td><input type='button' value='X' ng-click='removePuzzleItem($index)'</td>
 				</tr>
 			</table>
 			<div id='add_new_question_button' ng-click='addPuzzleItem()'>
