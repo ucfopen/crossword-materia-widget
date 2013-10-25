@@ -74,6 +74,8 @@ Namespace('Crossword').Creator = do ->
 
 			# generate the puzzle using the guessing algorithm in puzzle.coffee
 			_items = Crossword.Puzzle.generatePuzzle _items
+			if !_items
+				return false
 
 			_drawCurrentPuzzle _items
 
@@ -152,9 +154,9 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		title: ''
 		hintPenalty: 50
 		freeWords: 1
-		puzzleItems: [{question:null,answer:null,hint:null}]
+		puzzleItems: [{question:'',answer:'',hint:''}]
 
-	$scope.addPuzzleItem = (q=null, a=null, h=null) -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
+	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
 	$scope.removePuzzleItem = (index) ->
 		$scope.widget.puzzleItems.splice(index,1)
 		$scope.noLongerFresh()
