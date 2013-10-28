@@ -119,6 +119,7 @@ Namespace('Crossword').Puzzle = do ->
 
 	loopCount = 0
 	loopLimit = 20
+	attemptCount = 0
 	letterIndex = []
 	puzzleGrid = {}
 
@@ -127,6 +128,7 @@ Namespace('Crossword').Puzzle = do ->
 
 	generatePuzzle = (_items) ->
 		possibleItems = []
+		attemptCount = 0
 		_generatePuzzle _items
 
 
@@ -187,7 +189,9 @@ Namespace('Crossword').Puzzle = do ->
 
 		normalizeQSET results
 
-		if items.length == 0
+		# keep trying to find new ones, unless it fails 50 times, in which case
+		# we assume there is no possible spot for every letter, and cut our losses
+		if items.length == 0 || attemptCount++ > 50
 			iterationCount++
 			possibleItems.push results
 		else
