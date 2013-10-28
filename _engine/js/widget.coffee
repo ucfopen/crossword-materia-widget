@@ -113,9 +113,10 @@ Namespace('Crossword').Engine = do ->
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
 					return
-
-				_left = letterLeft
-				_top = letterTop
+				if letterLeft > _left
+					_left = letterLeft
+				if letterTop > _top
+					_top = letterTop
 				
 				letter = document.createElement 'input'
 				letter.id = 'letter_' + letterLeft + '_' + letterTop
@@ -142,7 +143,7 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').append letter
 
 		# zoom animation
-		if _left > 20 or _top > 20
+		if _left > 17 or _top > 20
 			$('#movable').addClass 'pannedout'
 			setTimeout ->
 				$('#movable').removeClass 'pannedout'
@@ -169,6 +170,8 @@ Namespace('Crossword').Engine = do ->
 	_letterKeydown = (e) ->
 		if not e?
 			e = window.event
+
+		console.log _qset
 
 		currentLetter = e.target or e.srcElement
 		cur = currentLetter.id.split '_'
@@ -225,8 +228,8 @@ Namespace('Crossword').Engine = do ->
 			else
 				next.focus()
 				setTimeout ->
-					if sr = next.get(0).setSelectionRange
-						sr
+					if next.get(0).setSelectionRange
+						next.get(0).setSelectionRange 0, 1
 				,10
 		else
 			if e.stackCount and e.stackCount > 4
