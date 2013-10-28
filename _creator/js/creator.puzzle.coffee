@@ -118,7 +118,7 @@ Namespace('Crossword').Puzzle = do ->
 		# My life will forever be lacking the knowledge of why we aren't using -=
 
 	loopCount = 0
-	loopLimit = 220
+	loopLimit = 20
 	letterIndex = []
 	puzzleGrid = {}
 
@@ -126,10 +126,15 @@ Namespace('Crossword').Puzzle = do ->
 	iterationCount = 0
 
 	generatePuzzle = (_items) ->
+		possibleItems = []
+		_generatePuzzle _items
+
+
+	_generatePuzzle = (_items) ->
 		letterIndex = []
 		puzzleGrid = {}
 		results = []
-		possibleItems = []
+		loopCount = 0
 
 		items = randArray(_items).slice(0)
 		i = 0
@@ -144,6 +149,7 @@ Namespace('Crossword').Puzzle = do ->
 				item.options.x = 0
 				item.options.y = 0
 				results.push item
+				break
 
 		if !firstword
 			return
@@ -177,15 +183,20 @@ Namespace('Crossword').Puzzle = do ->
 				items.splice(0,0,item)
 			i++
 
+		console.log loopCount
+
 		normalizeQSET results
 
 		if items.length == 0
 			iterationCount++
 			possibleItems.push results
+		else
+			puzzleGrid = {}
+			_generatePuzzle(_items)
 
 		if iterationCount < 9
 			puzzleGrid = {}
-			generatePuzzle(_items)
+			_generatePuzzle(_items)
 
 		minDist = 9999
 		best = null
@@ -219,9 +230,6 @@ Namespace('Crossword').Puzzle = do ->
 				minDist = dist
 
 		return best
-
-			#generatePuzzle(items)
-		#items.push firstword
 
 	generatePuzzle: generatePuzzle
 	normalizeQSET: normalizeQSET
