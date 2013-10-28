@@ -108,14 +108,9 @@ Namespace('Crossword').Puzzle = do ->
 			minX = qset[i].options.x if qset[i].options.x < minX
 			minY = qset[i].options.y if qset[i].options.y < minY
 
-		minX = -minX # As passed on from my ancestor developer: "negative 0 is 0"
-		minY = -minY
-		
 		for i in [0..qset.length-1]
-			qset[i].options.x += minX
-			qset[i].options.y += minY
-
-		# My life will forever be lacking the knowledge of why we aren't using -=
+			qset[i].options.x -= minX
+			qset[i].options.y -= minY
 
 	loopCount = 0
 	loopLimit = 20
@@ -184,8 +179,6 @@ Namespace('Crossword').Puzzle = do ->
 			else
 				items.splice(0,0,item)
 			i++
-
-		console.log loopCount
 
 		normalizeQSET results
 
