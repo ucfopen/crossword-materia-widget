@@ -55,8 +55,9 @@
 				<div id='preview'></div>
 				<input type='button' value='Generate new Puzzle' ng-click='generateNewPuzzle()'>
 				<div class='controls'>
-					<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>% Hint Penalty<br>
-					<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>Free words
+					<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>% Hint Cost <span class='helptip' title="When a hint is used, the Hint Cost reduces a word's score by the percent specified."></span>
+<br>
+					<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>Free words <span class='helptip' title='Free words are "wildcards" that allow students to automatically complete a word within a crossword puzzle.'></span>
 				</div>
 			</div>
 		</section>

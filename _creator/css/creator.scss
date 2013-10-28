@@ -76,7 +76,7 @@ div.box {
 		}
 		.question {
 			textarea {
-				font-size: 16px;
+				font-size: 15px;
 				display: inline-block;
 				vertical-align: top;
 				border: solid 1px #ccc;
@@ -93,13 +93,11 @@ div.box {
 .rightcontent {
 	width: 308px;
 	vertical-align: top;
-	text-align: center;
 	position: absolute;
 	right: 0px;
+	font-size: 16px;
 
 	.controls {
-		text-align: left;
-		width: 200px;
 		display: block;
 
 		input[type='number'] {
@@ -130,6 +128,19 @@ div.box {
 		cursor: pointer;
 	}
 
+	.helptip {
+		width: 18px;
+		height: 18px;
+		display: inline-block;
+		background: #333;
+		color: #fff;
+		border-radius: 18px;
+		text-align: center;
+		font-size: 13px;
+		float: right;
+		margin-top: 6px;
+	}
+
 	#preview {
 		display: inline-block;
 		position: relative;
@@ -155,6 +166,10 @@ div.box {
 			background: #000;
 		}
 	}
+}
+
+.helptip:before {
+	content: '?';
 }
 
 h1 {
