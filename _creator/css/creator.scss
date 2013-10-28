@@ -52,9 +52,8 @@ div.box {
 }
 
 .table {
-	position: absolute;
-	left: 0px;
-	right: 380px;
+	position: relative;
+	width: calc(100% - 460px);
 
 	div {
 		display: inline-block;
