@@ -18,7 +18,7 @@ body {
 	font-family: verdana, sans-serif;
 }
 
-#widget-header {
+.header {
 	border-bottom: 20px solid #5d656a;
 	box-shadow: 2px 2px 2px #000;
 	margin: 0;
@@ -30,6 +30,7 @@ body {
 		padding: 0;
 	}
 	input {
+		background-color: #283645;
 		background-color: rgba(0,0,0,0);
 		border: none;
 		color: #fff;
@@ -48,7 +49,6 @@ div.box {
 	border-radius: 5px;
 	border: solid 5px #eee;
 	display: inline-block;
-
 }
 
 .table {
@@ -84,6 +84,8 @@ div.box {
 				margin-right: 15px;
 				width: 90%;
 				resize: none;
+				font-family: verdana;
+				overflow-y: auto;
 			}
 		}
 	}
@@ -157,7 +159,7 @@ div.box {
 			border: solid 1px #999;
 			color: #333;
 			padding: 2px;
-			font-size: 10px;
+			font-size: 9px;
 			background: #fff;
 			text-align: center;
 		}
