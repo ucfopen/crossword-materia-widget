@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>test Creator</title>
+		<title>Crossword Creator</title>
 		<meta charset='utf-8' />
 		<style type='text/css'></style>
 		<script type='text/javascript' src='/js/materia.require.js'></script>
@@ -14,47 +14,51 @@
 		</script>
 	</head>
 	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
-		<div id='modal'></div>
 		<header id='widget-header'>
 			<div>
 				<label>Widget Title:</label>
-				<div>
-					<input type='text' id='title' ng-model='widget.title' value='{{widget.title}}'/>
-				</div>
+				<input type='text' id='title' ng-model='widget.title' value='{{widget.title}}'/>
 			</div>
 		</header>
-		<section id='main_area'>
-			<div id='rightcontent'>
-				<div id='preview'></div>
-				<input type='button' value='Generate new puzzle' ng-click='generateNewPuzzle()'><br>
-				Hint Penalty: <input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'><br>
-				Free words: <input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
+		<section>
+			<div class='box table'>
+				<table cellspacing=0 cellpadding=0>
+					<tr>
+						<td class='count'>#</td>
+						<td>Clue (Question)</td>
+						<td>Word to guess (Answer)</td>
+						<td>Hint (Optional)</td>
+						<td></td>
+					</tr>
+					<tr class='question' ng-repeat='item in widget.puzzleItems'>
+						<td class='count'>{{$index+1}}</td>
+						<td>
+							<textarea ng-model='item.question'>{{item.question}}</textarea>
+						</td>
+						<td>
+							<textarea ng-model='item.answer' ng-change='noLongerFresh()'>{{item.answer}}</textarea>
+						</td>
+						<td>
+							<textarea ng-model='item.hint'>{{item.hint}}</textarea>
+						</td>
+						<td>
+							<span class='icon-cancel-circle delete' ng-click='removePuzzleItem($index)'></span>
+						</td>
+					</tr>
+				</table>
+				<div ng-click='addPuzzleItem()'>
+					<span class='icon-plus'></span>
+					Add new question
+				</div>
 			</div>
-			<table>
-				<tr>
-					<td>Clue (Question)</td>
-					<td>Word to guess (Answer)</td>
-					<td>Hint (Optional)</td>
-					<td></td>
-				</tr>
-				<tr class='question' ng-repeat='item in widget.puzzleItems'>
-					<td><input type='text' value='{{item.question}}' ng-model='item.question'></td>
-					<td><input type='text' value='{{item.answer}}' ng-model='item.answer' ng-change='noLongerFresh()'></td>
-					<td><input type='text' value='{{item.hint}}' ng-model='item.hint'></td>
-					<td><input type='button' value='X' ng-click='removePuzzleItem($index)'</td>
-				</tr>
-			</table>
-			<div id='add_new_question_button' ng-click='addPuzzleItem()'>
-				Add new question
+			<div class='box rightcontent'>
+				<div id='preview'></div>
+				<input type='button' value='Generate new Puzzle' ng-click='generateNewPuzzle()'>
+				<div class='controls'>
+					<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>% Hint Penalty<br>
+					<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>Free words
+				</div>
 			</div>
 		</section>
-
-		<!-- templates -->
-		<div class='template question'>
-			<textarea class='question_text'></textarea>
-			<textarea class='answer_text'></textarea>
-			<button class='delete'></button>
-		</div>
-		<!-- /templates -->
 	</body>
 </html>
