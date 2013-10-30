@@ -166,22 +166,24 @@ html, body {
     -webkit-transition: all 0.5s ease;
     font-style: italic;
   }
-  input {
-    background: #5BAC58;
-    color: #fff;
-    margin-top: 5px;
-    padding: 3px;
-    border: solid 1px #578C54;
-  }
-  input:disabled {
-    opacity: 0.5;
-  }
   div {
     padding: 7px;
     margin: 0px;
     transition: all 0.1s ease;
     -moz-transition: all 0.1s ease;
     -webkit-transition: all 0.1s ease;
+	  div.button {
+		position: relative;
+		background: #5BAC58;
+		color: #fff;
+		margin: 10px 0px;
+		padding: 3px;
+		border: solid 1px #578C54;
+		display: inline-block;
+	  }
+	  div.disabled {
+		opacity: 0.5;
+	  }
   }
   div:nth-child(even) {
     background: #eeeeee;
@@ -330,8 +332,4 @@ input {
 	display: block;
 	font-size: 0px;
 	margin: 40px;
-}
-input {
-	-webkit-appearance:none;
-	border-radius:0;
 }
