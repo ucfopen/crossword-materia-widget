@@ -121,6 +121,7 @@ Namespace('Crossword').Engine = do ->
 				_curDir = -1
 				_curLetter.y++
 			when 8
+				e.preventDefault()
 				if _curDir == '1'
 					_curLetter.y--
 				else
