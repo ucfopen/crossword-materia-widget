@@ -12,7 +12,9 @@ Namespace('Crossword').Engine = do ->
 	_boardLeft				= 0
 
 	_curDir					= -1
-	_curLetter				= {x:1,y:3}
+	_curLetter				= false
+
+	_domCache				= {}
 
 	LETTER_HEIGHT			= 23
 	LETTER_WIDTH			= 27
@@ -32,6 +34,8 @@ Namespace('Crossword').Engine = do ->
 		# once everything is drawn, set the height of the player
 		#Materia.Engine.setHeight()
 	
+	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
+
 	_setupClickHandlers = ->
 		$('#board').click ->
 			$('#boardinput').focus()
@@ -72,25 +76,26 @@ Namespace('Crossword').Engine = do ->
 	_removeHighlight = (id) ->
 		g = document.getElementById('letter_' + _curLetter.x + '_' + _curLetter.y)
 		if g
-			if g.className.indexOf('space') == -1
+			if g.getAttribute('data-space') != 1
 				g.className = 'letter'
 
 	_addHighlight = (id) ->
-		g = document.getElementById('letter_' + _curLetter.x + '_' + _curLetter.y)
-		if g
-			g.className = 'letter focus'
-			document.getElementById('boardinput').style.top = g.style.top
-			document.getElementById('boardinput').style.left = g.style.left
-		clue = $('#clue_'+g.getAttribute('data-q'))
-		if clue.hasClass 'highlight'
+		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+		if highlightedLetter
+			highlightedLetter.className = 'letter focus'
+			bi = _g('boardinput')
+			bi.style.top = highlightedLetter.style.top
+			bi.style.left = highlightedLetter.style.left
+
+		clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
+		if clue.className.indexOf('highlight') != -1
 			return
 
 		for j of _questions
-			$('#clue_'+j).removeClass 'highlight'
+			_g('clue_'+j).className = ''
 
-		scrolly = clue.position().top + $('#clues').scrollTop()
-
-		clue.addClass 'highlight'
+		scrolly = clue.offsetTop
+		clue.className = 'highlight'
 
 		$('#clues').animate scrollTop: scrolly, 150
 
@@ -100,7 +105,7 @@ Namespace('Crossword').Engine = do ->
 		_lastLetter = _curLetter
 		
 		_removeHighlight()
-		g = document.getElementById('letter_' + _curLetter.x + '_' + _curLetter.y)
+		g = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
 			
 		switch e.keyCode
 			when 37 #left
@@ -131,10 +136,11 @@ Namespace('Crossword').Engine = do ->
 					else
 						_curLetter.x++
 					g.innerHTML = String.fromCharCode(e.keyCode)
+					_checkIfDone()
 
-		next = document.getElementById('letter_' + _curLetter.x + '_' + _curLetter.y)
+		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
 
-		if next and next.className.indexOf('space') == -1
+		if next and next.getAttribute('data-space') != '1'
 			_addHighlight()
 		else
 			if not next
@@ -152,7 +158,7 @@ Namespace('Crossword').Engine = do ->
 				if _qset.options.freeWords < 1
 					$('#freewordbtn_'+i).css 'display', 'none'
 				else
-					$('#freewordbtn_'+i).attr 'disabled', true
+					_g('freewordbtn_'+i).className = 'button disabled'
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -177,6 +183,9 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			question = _questions[i].questions[0].text
 
+			if not _curLetter
+				_curLetter = { x: x, y: y }
+
 			questionNumber = parseInt(i) + 1
 			hintPrefix = questionNumber + if dir then ' down' else ' across'
 
@@ -200,9 +209,7 @@ Namespace('Crossword').Engine = do ->
 				letter = document.createElement 'div'
 				letter.id = 'letter_' + letterLeft + '_' + letterTop
 				letter.className = 'letter'
-				letter.type = 'text'
 				letter.setAttribute 'data-q', i
-				letter.setAttribute 'maxlength', 1
 				letter.setAttribute 'dir', dir
 				letter.onclick = _letterClicked
 
@@ -211,7 +218,8 @@ Namespace('Crossword').Engine = do ->
 
 				if letters[l] == ' '
 					# if it's a space, make it a black block
-					letter.className += ' space'
+					letter.style.backgroundColor = '#000'
+					letter.setAttribute 'data-space', '1'
 
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
@@ -225,103 +233,11 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').removeClass 'pannedout'
 			,2500
 
-		$('#letter_'+_left+'_'+_top).focus()
-
 	_letterClicked = (e) ->
 		s = e.target.id.split '_'
 		_removeHighlight()
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
 		_addHighlight()
-
-	_letterFocus = (e) ->
-		if !e?
-			e = window.event
-		clue = $('#clue_'+(e.target or e.srcElement).getAttribute('data-q'))
-		if clue.hasClass 'highlight'
-			return
-
-		for j of _questions
-			$('#clue_'+j).removeClass 'highlight'
-
-		scrolly = clue.position().top + $('#clues').scrollTop()
-
-		clue.addClass 'highlight'
-
-		$('#clues').animate scrollTop: scrolly, 150
-
-	_letterKeydown = (e) ->
-		# LEFT OFF
-		if not e?
-			e = window.event
-
-		currentLetter = e.target or e.srcElement
-		cur = currentLetter.id.split '_'
-		x = parseInt cur[1]
-		y = parseInt cur[2]
-
-		deltaX = 1
-		deltaY = 0
-
-		if _curDir == -1
-			_curDir = currentLetter.getAttribute 'dir'
-		if _curDir == '1'
-			deltaY = 1
-			deltaX = 0
-		switch e.keyCode
-			when 37 #left
-				deltaX = -1
-				deltaY = 0
-				_curDir = -1
-			when 38 #up
-				deltaY = -1
-				deltaX = 0
-				_curDir = -1
-			when 39 #right
-				deltaX = 1
-				deltaY = 0
-				_curDir = -1
-			when 40 #down
-				deltaX = 0
-				deltaY = 1
-				_curDir = -1
-			when 8 #backspace
-				if currentLetter.value == '' or currentLetter.value == ' '
-					if _curDir == '1'
-						deltaX = 0
-						deltaY = -1
-					else
-						deltaX = -1
-						deltaY = 0
-				else
-					return
-			else
-				if currentLetter.value == ''
-					return
-
-		next = $('#letter_' + (x + deltaX) + '_' + (y + deltaY))
-
-		if next.length
-			if next.hasClass 'space'
-				next.val ' '
-				_letterKeydown
-					target: next.get(0),
-					keyCode: e.keyCode
-			else
-				next.focus()
-				setTimeout ->
-					if next.get(0).setSelectionRange
-						next.get(0).setSelectionRange 0, 1
-				,10
-		else
-			if e.stackCount and e.stackCount > 4
-				return
-
-			_curDir = if _curDir == '1' then 0 else -1
-
-			_letterKeydown
-				target: currentLetter,
-				keyCode: e.keyCode,
-				stackCount: (e.stackCount || 0) + 1
 
 	_hintConfirm = (e) ->
 		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
@@ -334,11 +250,11 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
-					$('#letter_' + letterLeft + '_' + letterTop).removeClass 'highlight'
+					_g('letter_' + letterLeft + '_' + letterTop).className = 'letter'
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i == index
-					$('#letter_' + letterLeft + '_' + letterTop).addClass 'highlight'
+					_g('letter_' + letterLeft + '_' + letterTop).className = 'letter highlight'
 
 	_showAlert = (caption, action) ->
 		ab = $('#alertbox')
@@ -374,30 +290,29 @@ Namespace('Crossword').Engine = do ->
 		answer = ''
 
 		forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
-			$('#letter_' + letterLeft + '_' + letterTop).html letters[l].toUpperCase()
+			_g('letter_' + letterLeft + '_' + letterTop).innerHTML = letters[l].toUpperCase()
 
 		_freeWordsRemaining--
 
-		$('#freewordbtn_' + index).css 'opacity', 0
-		hb = $('#hintbtn_' + index)
-		hb.css 'opacity', 0
-		hb.attr 'disabled', 1
+		_g('freewordbtn_' + index).style.opacity = 0
+		hb = _g('hintbtn_' + index)
+		hb.style.opacity = 0
 
 		_captionUpdate()
 
 	_getHint = (index) ->
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
-		hs = $('#hintspot_' + index)
-		hs.html 'Hint: ' + _questions[index].options.hint
-		hs.css 'opacity', 1
+		hs = _g('hintspot_' + index)
+		hs.innerHTML = 'Hint: ' + _questions[index].options.hint
+		hs.style.opacity = 1
 
-		hb = $('#hintbtn_' + index)
-		hb.css 'opacity', 0
+		hb = _g('hintbtn_' + index)
+		hb.style.opacity = 0
 
 		setTimeout ->
-			hb.css 'left', '-43px'
-			$('#freewordbtn_' + index).css 'left', '-43px'
+			hb.style.left = '-43px'
+			_g('freewordbtn_' + index).style.left = '-43px'
 		,190
 
 	_checkIfDone = ->
@@ -406,7 +321,7 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
 				if letters[l] != ' '
-					if $('#letter_' + letterLeft + '_' + letterTop).val() == ''
+					if _g('letter_' + letterLeft + '_' + letterTop).innerHTML == ''
 						done = false
 						return
 		if done
@@ -514,7 +429,7 @@ Namespace('Crossword').Engine = do ->
 			answer = ''
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
 				if letters[l] != ' '
-					answer += $('#letter_' + letterLeft + '_' + letterTop).html() || '_'
+					answer += _g('letter_' + letterLeft + '_' + letterTop).innerHTML || '_'
 				else
 					answer += ' '
 
