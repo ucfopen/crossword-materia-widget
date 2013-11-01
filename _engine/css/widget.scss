@@ -59,6 +59,7 @@ html, body {
 	/* Hidden input panel for iPad/etc */
 	#boardinput {
 		opacity:0;
+		filter:alpha(opacity=0);
 		position: absolute;
 		top:  0px;
 		left:  0px;

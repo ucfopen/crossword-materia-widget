@@ -260,7 +260,9 @@ Namespace('Crossword').Engine = do ->
 					_g('freewordbtn_'+i).className = 'button disabled'
 
 	_letterClicked = (e) ->
-		s = e.target.id.split '_'
+		if !e?
+			e = window.event
+		s = (e.target or e.srcElement).id.split '_'
 		_removeHighlight()
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
 		_curDir = _g('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
