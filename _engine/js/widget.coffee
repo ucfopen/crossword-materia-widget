@@ -47,7 +47,7 @@ Namespace('Crossword').Engine = do ->
 		$('#boardinput').focus()
 
 		# once everything is drawn, set the height of the player
-		#Materia.Engine.setHeight()
+		Materia.Engine.setHeight()
 	
 	# getElementById and cache it, for the sake of performance
 	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
