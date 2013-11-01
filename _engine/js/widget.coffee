@@ -42,6 +42,10 @@ Namespace('Crossword').Engine = do ->
 		_captionUpdate()
 		_setupClickHandlers()
 
+		_letterClicked { target: _g('letter_' + _curLetter.x + '_' + _curLetter.y) }
+
+		$('#boardinput').focus()
+
 		# once everything is drawn, set the height of the player
 		#Materia.Engine.setHeight()
 	
