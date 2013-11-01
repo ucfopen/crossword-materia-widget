@@ -1,3 +1,14 @@
+###
+
+Materia
+It's a thing
+
+Widget	: Crossword
+Authors	: Jonathan Warner
+Updated	: 11/13
+
+###
+
 Namespace('Crossword').Engine = do ->
 	_qset                   = null
 	_questions				= null
@@ -34,6 +45,7 @@ Namespace('Crossword').Engine = do ->
 		# once everything is drawn, set the height of the player
 		#Materia.Engine.setHeight()
 	
+	# getElementById and cache it, for the sake of performance
 	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
 
 	_setupClickHandlers = ->
@@ -61,105 +73,17 @@ Namespace('Crossword').Engine = do ->
 				_boardLeft += (e.screenX - _boardX)
 
 				# if its out of range, stop panning
-				_boardTop = -500 if _boardTop < -500
-				_boardTop = 500 if _boardTop > 500
-				_boardLeft = -500 if _boardLeft < -500
-				_boardLeft = 500 if _boardLeft > 500
+				_boardTop = -600 if _boardTop < -600
+				_boardTop = 600 if _boardTop > 600
+				_boardLeft = -600 if _boardLeft < -600
+				_boardLeft = 600 if _boardLeft > 600
 
 				_boardY = e.screenY
 				_boardX = e.screenX
 
-				m = $('#movable')
-				m.css 'top', _boardTop + 'px'
-				m.css 'left', _boardLeft + 'px'
-
-	_removeHighlight = (id) ->
-		g = document.getElementById('letter_' + _curLetter.x + '_' + _curLetter.y)
-		if g
-			if g.getAttribute('data-space') != 1
-				g.className = 'letter'
-
-	_addHighlight = (id) ->
-		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
-		if highlightedLetter
-			highlightedLetter.className = 'letter focus'
-			bi = _g('boardinput')
-			bi.style.top = highlightedLetter.style.top
-			bi.style.left = highlightedLetter.style.left
-
-		clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
-		if clue.className.indexOf('highlight') != -1
-			return
-
-		for j of _questions
-			_g('clue_'+j).className = ''
-
-		scrolly = clue.offsetTop
-		clue.className = 'highlight'
-
-		$('#clues').animate scrollTop: scrolly, 150
-
-	_inputLetter = (e,iteration) ->
-		iteration = iteration || 0
-
-		_lastLetter = _curLetter
-		
-		_removeHighlight()
-		g = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
-			
-		switch e.keyCode
-			when 37 #left
-				_curLetter.x--
-				_curDir = -1
-			when 38 #up
-				_curLetter.y--
-				_curDir = -1
-			when 39 #right
-				_curLetter.x++
-				_curDir = -1
-			when 40 #down
-				_curDir = -1
-				_curLetter.y++
-			when 8
-				e.preventDefault()
-				if _curDir == '1'
-					_curLetter.y--
-				else
-					_curLetter.x--
-				if g
-					g.innerHTML = ''
-			else
-				if g
-					if _curDir == -1
-						_curDir = g.getAttribute('dir')
-					if _curDir == '1'
-						_curLetter.y++
-					else
-						_curLetter.x++
-					g.innerHTML = String.fromCharCode(e.keyCode)
-					_checkIfDone()
-
-		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
-
-		if next and next.getAttribute('data-space') != '1'
-			_addHighlight()
-		else
-			if not next
-				_curDir = if _curDir == '1' then 0 else -1
-				_curLetter = _lastLetter
-			if iteration < 5
-				_inputLetter e, (iteration || 0)+1
-		
-	_captionUpdate = ->
-		sentence = ' free word' + (if _freeWordsRemaining is 1 then '' else 's') + ' remaining'
-		$('#freeWordsRemaining').html _freeWordsRemaining + sentence
-
-		if _freeWordsRemaining < 1
-			for i of _questions
-				if _qset.options.freeWords < 1
-					$('#freewordbtn_'+i).css 'display', 'none'
-				else
-					_g('freewordbtn_'+i).className = 'button disabled'
+				m = _g('movable')
+				m.style.top = _boardTop + 'px'
+				m.style.left = _boardLeft + 'px'
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -190,7 +114,7 @@ Namespace('Crossword').Engine = do ->
 			questionNumber = parseInt(i) + 1
 			hintPrefix = questionNumber + if dir then ' down' else ' across'
 
-			#_renderNumberLabel questionNumber, x, y
+			_renderNumberLabel questionNumber, x, y
 			_renderClue question, hintPrefix, i
 
 			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
@@ -202,6 +126,9 @@ Namespace('Crossword').Engine = do ->
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
 					return
+				
+				# keep track of the largest dimension of the puzzle
+				# for zooming
 				if letterLeft > _left
 					_left = letterLeft
 				if letterTop > _top
@@ -211,7 +138,7 @@ Namespace('Crossword').Engine = do ->
 				letter.id = 'letter_' + letterLeft + '_' + letterTop
 				letter.className = 'letter'
 				letter.setAttribute 'data-q', i
-				letter.setAttribute 'dir', dir
+				letter.setAttribute 'data-dir', dir
 				letter.onclick = _letterClicked
 
 				letter.style.top = 120 + letterTop * LETTER_HEIGHT + 'px'
@@ -232,7 +159,101 @@ Namespace('Crossword').Engine = do ->
 			$('#movable').addClass 'pannedout'
 			setTimeout ->
 				$('#movable').removeClass 'pannedout'
-			,2500
+			, 2500
+
+	_removeHighlight = (id) ->
+		g = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+		if g?
+			g.className = 'letter'
+
+	_addHighlight = (id) ->
+		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+
+		if highlightedLetter
+			highlightedLetter.className = 'letter focus'
+
+			# move the board input closer to the letter,
+			# in the event the user has zoomed on a mobile device
+			bi = _g('boardinput')
+			bi.style.top = highlightedLetter.style.top
+			bi.style.left = highlightedLetter.style.left
+
+		clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
+
+		if clue.className.indexOf('highlight') != -1
+			return
+
+		for j of _questions
+			_g('clue_'+j).className = ''
+
+		scrolly = clue.offsetTop
+		clue.className = 'highlight'
+
+		$('#clues').animate scrollTop: scrolly, 150
+
+	_inputLetter = (e,iteration) ->
+		iteration = iteration || 0
+
+		_lastLetter = _curLetter
+		
+		_removeHighlight()
+
+		letter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+			
+		switch e.keyCode
+			when 37 #left
+				_curLetter.x--
+				_curDir = -1
+			when 38 #up
+				_curLetter.y--
+				_curDir = -1
+			when 39 #right
+				_curLetter.x++
+				_curDir = -1
+			when 40 #down
+				_curDir = -1
+				_curLetter.y++
+			when 8
+				e.preventDefault()
+				if _curDir == '1'
+					_curLetter.y--
+				else
+					_curLetter.x--
+				if letter?
+					letter.innerHTML = ''
+			else
+				if letter?
+					if _curDir == -1
+						_curDir = letter.getAttribute('data-dir')
+					if _curDir == '1'
+						_curLetter.y++
+					else
+						_curLetter.x++
+
+					letter.innerHTML = String.fromCharCode(e.keyCode)
+					_checkIfDone()
+
+		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+
+		if next and next.getAttribute('data-space') != '1'
+			_addHighlight()
+		else
+			if not next?
+				_curDir = if _curDir == '1' then 0 else -1
+				_curLetter = _lastLetter
+			if iteration < 5
+				_inputLetter e, (iteration || 0)+1
+		
+	_captionUpdate = ->
+		sentence = ' free word' + (if _freeWordsRemaining is 1 then '' else 's') + ' remaining'
+		$('#freeWordsRemaining').html _freeWordsRemaining + sentence
+
+		if _freeWordsRemaining < 1
+			for i of _questions
+				if _qset.options.freeWords < 1
+					$('#freewordbtn_'+i).css 'display', 'none'
+				else
+					_g('freewordbtn_'+i).className = 'button disabled'
 
 	_letterClicked = (e) ->
 		s = e.target.id.split '_'
@@ -362,6 +383,39 @@ Namespace('Crossword').Engine = do ->
 	_clueMouseOut = (e) ->
 		_highlight false
 
+	_submitAnswers = ->
+		forEveryQuestion (i,letters,x,y,dir) ->
+			answer = ''
+			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+				if letters[l] != ' '
+					answer += _g('letter_' + letterLeft + '_' + letterTop).innerHTML || '_'
+				else
+					answer += ' '
+
+			Materia.Score.submitQuestionForScoring _questions[i].id, answer
+
+		Materia.Engine.end()
+
+	# loop iteration functions to prevent redundancy
+	forEveryLetter = (x,y,dir,letters,cb) ->
+		for l in [0..letters.length-1]
+			if dir == 0
+				letterLeft = x + l
+				letterTop = y
+			else
+				letterLeft = x
+				letterTop = y + l
+			cb(letterLeft,letterTop,l)
+
+	forEveryQuestion = (cb) ->
+		for i of _questions
+			letters = _questions[i].answers[0].text.toUpperCase().split ''
+			x = _questions[i].options.x
+			y = _questions[i].options.y
+			dir = _questions[i].options.dir
+			cb i, letters, x, y, dir
+
+	# move this elsewhere?
 	_printBoard = (e) ->
 		frame = document.createElement 'iframe'
 		$('body').append frame
@@ -424,39 +478,6 @@ Namespace('Crossword').Engine = do ->
 				wnd.document.body.appendChild numberLabel
 
 		wnd.print()
-
-	_submitAnswers = ->
-		forEveryQuestion (i,letters,x,y,dir) ->
-			answer = ''
-			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
-				if letters[l] != ' '
-					answer += _g('letter_' + letterLeft + '_' + letterTop).innerHTML || '_'
-				else
-					answer += ' '
-
-			Materia.Score.submitQuestionForScoring _questions[i].id, answer
-
-		Materia.Engine.end()
-
-	# loop iteration functions to prevent redundancy
-	forEveryLetter = (x,y,dir,letters,cb) ->
-		for l in [0..letters.length-1]
-			if dir == 0
-				letterLeft = x + l
-				letterTop = y
-			else
-				letterLeft = x
-				letterTop = y + l
-			cb(letterLeft,letterTop,l)
-
-
-	forEveryQuestion = (cb) ->
-		for i of _questions
-			letters = _questions[i].answers[0].text.toUpperCase().split ''
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
-			cb i, letters, x, y, dir
 
 	#public
 	manualResize: true

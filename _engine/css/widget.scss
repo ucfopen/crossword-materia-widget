@@ -1,9 +1,11 @@
+/* Standardize padding in all browsers */
 * {
 	outline: 0;
 	padding: 0px;
 	margin: 0px;
 }
 
+/* Body font */
 @font-face {
 	font-family: 'Roboto Slab';
 	font-style: normal;
@@ -11,6 +13,7 @@
 	src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(http://themes.googleusercontent.com/static/fonts/robotoslab/v2/y7lebkjgREBJK96VQi37ZrrIa-7acMAeDBVuclsi6Gc.woff) format('woff');
 }
 
+/* Letter font */
 @font-face {
 	font-family: 'Delius Unicase';
 	font-style: normal;
@@ -18,6 +21,7 @@
 	src: local('Delius Unicase'), local('DeliusUnicase-Regular'), url(http://themes.googleusercontent.com/static/fonts/deliusunicase/v6/b2sKujV3Q48RV2PQ0k1vqu0T1_f-eZQ5oLffZi8sUkg.woff) format('woff');
 }
 
+/* Printer glyph */
 @font-face {
 	font-family: 'icomoon';
 	src:url('../font/icomoon_engine.eot');
@@ -51,6 +55,19 @@ html, body {
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
+
+	/* Hidden input panel for iPad/etc */
+	#boardinput {
+		opacity:0;
+		position: absolute;
+		top:  0px;
+		left:  0px;
+		width: 100px;
+		height: 100px;
+		display: block;
+		font-size: 0px;
+		margin: 40px;
+	}
 }
 
 .header {
@@ -66,13 +83,13 @@ html, body {
 
 	h1 {
 		line-height: 65px;
+		width: 77%;
 		height: 90px;
 		margin: 0;
-		padding: 0;
 		margin-left: 14px;
+		padding: 0;
 		position: absolute;
 		overflow: hidden;
-		width: 77%;
 		font-size: 25px;
 		font-weight: normal;
 		span {
@@ -118,10 +135,6 @@ html, body {
 	border: solid 1px #5163A6;
 	background: #E2EAFF;
 }
-
-.letter.space {
-	background: #000;
-}
 .letter.focus {
 	background: #E2EAFF;
 }
@@ -152,7 +165,6 @@ html, body {
 		font-size: 14px;
 		margin: 15px 4px;
 		em {
-			font-size: 14px;
 			opacity: 0.5;
 		}
 	}
@@ -204,7 +216,6 @@ input {
 	-moz-transition: all 0.1s ease;
 	-webkit-transition: all 0.1s ease;
 	position: relative;
-	left: 0px;
 }
 
 .remaining {
@@ -254,20 +265,16 @@ input {
 	z-index: 1;
 }
 
-input {
-	text-transform: capitalize;
-}
-
 #alertbox {
 	display: none;
 	width: 300px;
-	position: absolute;
-	background: #fff;
 	left: 50%;
 	top: 49%;
 	margin-left: -250px;
 	margin-top: -50px;
 	padding: 15px;
+	position: absolute;
+	background: #fff;
 	border: solid 1px #999;
 	border-radius: 5px;
 	z-index: 10000;
@@ -320,14 +327,3 @@ input {
 	@include fadein-keyframes();
 }
 
-#boardinput {
-	opacity:0;
-	position: absolute;
-	top:  0px;
-	left:  0px;
-	width: 100px;
-	height: 100px;
-	display: block;
-	font-size: 0px;
-	margin: 40px;
-}
