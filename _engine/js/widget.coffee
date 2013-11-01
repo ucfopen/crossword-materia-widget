@@ -234,7 +234,11 @@ Namespace('Crossword').Engine = do ->
 					else
 						_curLetter.x++
 
-					letter.innerHTML = String.fromCharCode(e.keyCode)
+					isValid = (e.keyCode > 47 && e.keyCode < 58)		|| # number keys
+								(e.keyCode == 32 || e.keyCode == 13)	|| # spacebar and enter	
+								(e.keyCode > 64 && e.keyCode < 91)	# alphabet keys
+					if isValid
+						letter.innerHTML = String.fromCharCode(e.keyCode)
 					_checkIfDone()
 
 		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
