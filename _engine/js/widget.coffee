@@ -259,6 +259,7 @@ Namespace('Crossword').Engine = do ->
 		s = e.target.id.split '_'
 		_removeHighlight()
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
+		_curDir = _g('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
 		_addHighlight()
 
 	_hintConfirm = (e) ->
