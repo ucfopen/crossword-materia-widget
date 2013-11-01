@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Crossword Creator</title>
+		<meta charset='utf-8' />
+		<style type='text/css'></style>
+		<script type='text/javascript' src='/js/materia.require.js'></script>
+		<link rel='stylesheet' type='text/css' href='css/creator.css'>
+		<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js'></script>
+		<script type='text/javascript'>
+			require(['jquery', 'creatorcore', 'js/creator', 'js/creator.puzzle'], function(util) {
+				Materia.CreatorCore.start(Crossword.Creator);
+			});
+		</script>
+	</head>
+	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
+		<div class='header'>
+			<div>
+				<label>Widget Title:</label>
+				<input type='text' id='title' ng-model='widget.title' value='{{widget.title}}'/>
+			</div>
+		</div>
+		<section>
+			<div class='box table'>
+				<table cellspacing=0 cellpadding=0>
+					<tr class='bold'>
+						<td class='count'>#</td>
+						<td>Clue (Question)</td>
+						<td>Word to guess (Answer)</td>
+						<td>Hint (Optional)</td>
+						<td></td>
+					</tr>
+					<tr class='question' ng-repeat='item in widget.puzzleItems'>
+						<td class='count'>{{$index+1}}</td>
+						<td>
+							<textarea ng-model='item.question'>{{item.question}}</textarea>
+						</td>
+						<td>
+							<textarea ng-model='item.answer' ng-change='noLongerFresh()'>{{item.answer}}</textarea>
+						</td>
+						<td>
+							<textarea ng-model='item.hint'>{{item.hint}}</textarea>
+						</td>
+						<td>
+							<span class='icon-cancel-circle delete' ng-click='removePuzzleItem($index)'></span>
+						</td>
+					</tr>
+				</table>
+				<div ng-click='addPuzzleItem()'>
+					<span class='icon-plus'></span>
+					Add new question
+				</div>
+			</div>
+			<div class='box rightcontent'>
+				<div id='preview'></div>
+				<input type='button' value='Generate new Puzzle' ng-click='generateNewPuzzle()'>
+				<div class='controls'>
+					<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>% Hint Cost <span class='helptip' title="When a hint is used, the Hint Cost reduces a word's score by the percent specified."></span>
+<br>
+					<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>Free words <span class='helptip' title='Free words are "wildcards" that allow students to automatically complete a word within a crossword puzzle.'></span>
+				</div>
+			</div>
+		</section>
+	</body>
+</html>
