@@ -198,7 +198,9 @@ Namespace('Crossword').Engine = do ->
 	_inputLetter = (e,iteration) ->
 		iteration = iteration || 0
 
-		_lastLetter = _curLetter
+		_lastLetter = {}
+		_lastLetter.x = +_curLetter.x
+		_lastLetter.y = +_curLetter.y
 		
 		_removeHighlight()
 
@@ -218,12 +220,16 @@ Namespace('Crossword').Engine = do ->
 				_curDir = -1
 				_curLetter.y++
 			when 8
+				# dont make the page back navigate
 				e.preventDefault()
-				if _curDir == '1'
-					_curLetter.y--
-				else
-					_curLetter.x--
+
 				if letter?
+					if _curDir == -1
+						_curDir = letter.getAttribute('data-dir')
+					if _curDir == '1'
+						_curLetter.y--
+					else
+						_curLetter.x--
 					letter.innerHTML = ''
 			else
 				if letter?
