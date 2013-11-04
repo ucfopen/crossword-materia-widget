@@ -289,11 +289,12 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
-					_g('letter_' + letterLeft + '_' + letterTop).className = 'letter'
+					l = _g('letter_' + letterLeft + '_' + letterTop)
+					l.className = l.className.replace('highlight', '')
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i == index
-					_g('letter_' + letterLeft + '_' + letterTop).className = 'letter highlight'
+					_g('letter_' + letterLeft + '_' + letterTop).className += ' highlight'
 
 	_showAlert = (caption, action) ->
 		ab = $('#alertbox')
