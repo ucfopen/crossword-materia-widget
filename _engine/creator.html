@@ -1,17 +1,25 @@
 <!DOCTYPE html>
-<html>
+<!-- INJECTS IE CLASSES ONTO HTML TAG -->
+<!--[if IE 8 ]>    <html class="IE8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="IE9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
 	<head>
 		<title>Crossword Creator</title>
-		<meta charset='utf-8' />
-		<style type='text/css'></style>
-		<script type='text/javascript' src='/js/materia.require.js'></script>
-		<link rel='stylesheet' type='text/css' href='css/creator.css'>
-		<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js'></script>
-		<script type='text/javascript'>
-			require(['jquery', 'creatorcore', 'js/creator', 'js/creator.puzzle'], function(util) {
-				Materia.CreatorCore.start(Crossword.Creator);
-			});
-		</script>
+		<meta charset="utf-8" />
+
+		<!-- STYLESHEETS -->
+		<link rel="stylesheet" type="text/css" href="creator.css">
+
+		<!-- REQUIRED MATERIA JAVASCRIPT -->
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/materia.creatorcore.js"></script>
+
+		<!-- YOUR PREREQUISITES -->
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.js"></script>
+		<script src="creator.puzzle.js"></script>
+
+		<!-- MAIN CREATOR SCRIPT -->
+		<script src="creator.js"></script>
 	</head>
 	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
 		<div class='header'>
@@ -61,5 +69,10 @@
 				</div>
 			</div>
 		</section>
+
+		<!-- INITIALIZE -->
+		<script type="text/javascript">
+			Materia.CreatorCore.start(Crossword.Creator);
+		</script>
 	</body>
 </html>
