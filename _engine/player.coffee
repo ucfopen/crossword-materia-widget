@@ -298,8 +298,15 @@ Namespace('Crossword').Engine = do ->
 
 	_showAlert = (caption, action) ->
 		ab = $('#alertbox')
-		ab.css 'display', 'block'
-		ab.addClass 'fadein'
+		ab.css 'display','block'
+		bc = $('#backgroundcover')
+		bc.css 'display','block'
+
+		setTimeout ->
+			ab.css 'opacity',1
+			bc.css 'opacity',0.5
+		,10
+
 		$('#alertcaption').html caption
 
 		$('#confirmbtn').unbind('click').click ->
@@ -308,12 +315,13 @@ Namespace('Crossword').Engine = do ->
 
 	_hideAlert = ->
 		ab = $('#alertbox')
-		ab.addClass 'fadeout'
-		
+		bc = $('#backgroundcover')
+		ab.css 'opacity',0
+		bc.css 'opacity',0
+
 		setTimeout ->
-			ab.css 'display', 'none'
-			ab.removeClass 'fadein'
-			ab.removeClass 'fadeout'
+			ab.css 'display','none'
+			bc.css 'display','none'
 		,190
 
 	_freeWord = (index) ->
