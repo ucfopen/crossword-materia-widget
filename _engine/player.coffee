@@ -182,18 +182,22 @@ Namespace('Crossword').Engine = do ->
 			bi.style.top = highlightedLetter.style.top
 			bi.style.left = highlightedLetter.style.left
 
-		clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
+	_updateClue = ->
+		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
 
-		if clue.className.indexOf('highlight') != -1
-			return
+		if highlightedLetter
+			clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
 
-		for j of _questions
-			_g('clue_'+j).className = ''
+			if clue.className.indexOf('highlight') != -1
+				return
 
-		scrolly = clue.offsetTop
-		clue.className = 'highlight'
+			for j of _questions
+				_g('clue_'+j).className = ''
 
-		$('#clues').animate scrollTop: scrolly, 150
+			scrolly = clue.offsetTop
+			clue.className = 'highlight'
+
+			$('#clues').animate scrollTop: scrolly, 150
 
 	_inputLetter = (e,iteration) ->
 		iteration = iteration || 0
@@ -210,15 +214,19 @@ Namespace('Crossword').Engine = do ->
 			when 37 #left
 				_curLetter.x--
 				_curDir = -1
+				_updateClue()
 			when 38 #up
 				_curLetter.y--
 				_curDir = -1
+				_updateClue()
 			when 39 #right
 				_curLetter.x++
 				_curDir = -1
+				_updateClue()
 			when 40 #down
 				_curDir = -1
 				_curLetter.y++
+				_updateClue()
 			when 8
 				# dont make the page back navigate
 				e.preventDefault()
@@ -283,6 +291,7 @@ Namespace('Crossword').Engine = do ->
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
 		_curDir = _g('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
 		_addHighlight()
+		_updateClue()
 
 	_hintConfirm = (e) ->
 		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
