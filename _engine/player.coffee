@@ -249,14 +249,20 @@ Namespace('Crossword').Engine = do ->
 
 		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
 
+		# highlight the next letter, if it exists and is not a space
 		if next and next.getAttribute('data-space') != '1'
 			_addHighlight()
 		else
+			# otherwise, if it does not exist, check if we can move in another direction
 			if not next?
 				_curDir = if _curDir == '1' then 0 else -1
 				_curLetter = _lastLetter
+			# recursively guess
 			if iteration < 5
 				_inputLetter e, (iteration || 0)+1
+			else
+				# highlight the last successful letter
+				_addHighlight()
 		
 	_captionUpdate = ->
 		sentence = ' free word' + (if _freeWordsRemaining is 1 then '' else 's') + ' remaining'
