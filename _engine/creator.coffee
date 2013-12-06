@@ -9,6 +9,22 @@ Updated	: 10/13
 
 ###
 
+CrosswordCreator = angular.module('crosswordCreator', [])
+
+CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
+	$scope.widget =
+		title: ''
+		hintPenalty: 50
+		freeWords: 1
+		puzzleItems: [{question:'',answer:'',hint:''}]
+
+	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
+	$scope.removePuzzleItem = (index) ->
+		$scope.widget.puzzleItems.splice(index,1)
+		$scope.noLongerFresh()
+]
+
+
 Namespace('Crossword').Creator = do ->
 	_title = _qset = _scope = _hasFreshPuzzle = null
 
@@ -146,21 +162,3 @@ Namespace('Crossword').Creator = do ->
 	onQuestionImportComplete : onQuestionImportComplete
 	onSaveComplete           : onSaveComplete
 
-# Now that the creator code is available, load in the controller and bootstrap it
-
-CrosswordCreator = angular.module('crosswordCreator', [])
-
-CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
-	$scope.widget =
-		title: ''
-		hintPenalty: 50
-		freeWords: 1
-		puzzleItems: [{question:'',answer:'',hint:''}]
-
-	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
-	$scope.removePuzzleItem = (index) ->
-		$scope.widget.puzzleItems.splice(index,1)
-		$scope.noLongerFresh()
-]
-
-angular.bootstrap document, ['crosswordCreator']
