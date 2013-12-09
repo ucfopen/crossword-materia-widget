@@ -10,40 +10,51 @@ Updated	: 11/13
 ###
 
 Namespace('Crossword').Engine = do ->
+	# variables to store widget data in this scope
 	_qset                   = null
 	_questions				= null
 	_freeWordsRemaining		= 0
 	_puzzleGrid				= {}
 	_instance				= {}
 
+	# board drag state
 	_boardDown				= false
 	_boardY					= 0
 	_boardTop				= 0
 	_boardX					= 0
 	_boardLeft				= 0
 
+	# the current typing direction
 	_curDir					= -1
+	# the current letter that is highlighted
 	_curLetter				= false
 
+	# cache DOM elements for performance
 	_domCache				= {}
 
+	# constants
 	LETTER_HEIGHT			= 23
 	LETTER_WIDTH			= 27
 
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		_qset = qset
-		_questions = _qset.items[0].items
+		# store widget data
 		_instance = instance
+		_qset = qset
 
+		# easy access to questions
+		_questions = _qset.items[0].items
+
+		# render the widget, hook listeners, update UI
 		_drawBoard instance.name
-
-		_captionUpdate()
 		_setupClickHandlers()
+		_updateFreeWordsRemaining()
 
+		# highlight first letter
 		_letterClicked { target: _g('letter_' + _curLetter.x + '_' + _curLetter.y) }
 
+		# focus the input listener
 		$('#boardinput').focus()
 
 		# once everything is drawn, set the height of the player
@@ -52,15 +63,20 @@ Namespace('Crossword').Engine = do ->
 	# getElementById and cache it, for the sake of performance
 	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
 
+	# set up listeners on UI elements
 	_setupClickHandlers = ->
+		# make sure the hidden input listener stays in focus
 		$('#board').click ->
 			$('#boardinput').focus()
+
 		$('#boardinput').keydown _inputLetter
 		$('#printbtn').click _printBoard
 		$('#cancelbtn').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
 
+		# start dragging the board when the mousedown occurs
+		# coordinates are relative to where we start
 		$('#board').mousedown (e) ->
 			_boardDown = true
 			_boardY = e.screenY
@@ -68,26 +84,27 @@ Namespace('Crossword').Engine = do ->
 
 			_curDir = -1
 
-		$('#board').mouseup (e) ->
-			_boardDown = false
+		# stop dragging
+		$('#board').mouseup (e) -> _boardDown = false
 
 		$('#board').mousemove (e) ->
-			if _boardDown
-				_boardTop += (e.screenY - _boardY)
-				_boardLeft += (e.screenX - _boardX)
+			return if not _boardDown
 
-				# if its out of range, stop panning
-				_boardTop = -600 if _boardTop < -600
-				_boardTop = 600 if _boardTop > 600
-				_boardLeft = -600 if _boardLeft < -600
-				_boardLeft = 600 if _boardLeft > 600
+			_boardTop += (e.screenY - _boardY)
+			_boardLeft += (e.screenX - _boardX)
 
-				_boardY = e.screenY
-				_boardX = e.screenX
+			# if its out of range, stop panning
+			_boardTop = -600 if _boardTop < -600
+			_boardTop = 600 if _boardTop > 600
+			_boardLeft = -600 if _boardLeft < -600
+			_boardLeft = 600 if _boardLeft > 600
 
-				m = _g('movable')
-				m.style.top = _boardTop + 'px'
-				m.style.left = _boardLeft + 'px'
+			_boardY = e.screenY
+			_boardX = e.screenX
+
+			m = _g('movable')
+			m.style.top = _boardTop + 'px'
+			m.style.left = _boardLeft + 'px'
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -105,6 +122,7 @@ Namespace('Crossword').Engine = do ->
 		$('#title').html title
 		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
 
+		# used to track the maximum dimensions of the puzzle
 		_left = 0
 		_top = 0
 
@@ -133,11 +151,10 @@ Namespace('Crossword').Engine = do ->
 				
 				# keep track of the largest dimension of the puzzle
 				# for zooming
-				if letterLeft > _left
-					_left = letterLeft
-				if letterTop > _top
-					_top = letterTop
+				_left = letterLeft if letterLeft > _left
+				_top = letterTop if letterTop > _top
 				
+				# each letter is a div with coordinates as id
 				letter = document.createElement 'div'
 				letter.id = 'letter_' + letterLeft + '_' + letterTop
 				letter.className = 'letter'
@@ -148,28 +165,30 @@ Namespace('Crossword').Engine = do ->
 				letter.style.top = 120 + letterTop * LETTER_HEIGHT + 'px'
 				letter.style.left = 10 + letterLeft * LETTER_WIDTH + 'px'
 
+				# if it's a space, make it a black block
 				if letters[l] == ' '
-					# if it's a space, make it a black block
 					letter.style.backgroundColor = '#000'
 					letter.setAttribute 'data-space', '1'
 
+				# init the puzzle grid for this row and letter
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 
 				$('#movable').append letter
 
-		# zoom animation
+		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
 			$('#movable').addClass 'pannedout'
 			setTimeout ->
 				$('#movable').removeClass 'pannedout'
 			, 2500
 
+	# remove blue letter highlight class by id
 	_removeHighlight = (id) ->
 		g = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
-		if g?
-			g.className = 'letter'
+		g.className = 'letter' if g?
 
+	# apply highlight class by id
 	_addHighlight = (id) ->
 		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
 
@@ -182,15 +201,18 @@ Namespace('Crossword').Engine = do ->
 			bi.style.top = highlightedLetter.style.top
 			bi.style.left = highlightedLetter.style.left
 
+	# update which clue is highlighted and scrolled to on the side list
 	_updateClue = ->
 		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
 
 		if highlightedLetter
 			clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
 
+			# if it's already highlighted, do not try to scroll to it
 			if clue.className.indexOf('highlight') != -1
 				return
 
+			# remove the highlight from all others
 			for j of _questions
 				_g('clue_'+j).className = ''
 
@@ -199,13 +221,17 @@ Namespace('Crossword').Engine = do ->
 
 			$('#clues').animate scrollTop: scrolly, 150
 
+	# triggered by a keydown on the main input
 	_inputLetter = (e,iteration) ->
 		iteration = iteration || 0
 
 		_lastLetter = {}
+
+		# ensure that the coordinates are integers with '+'
 		_lastLetter.x = +_curLetter.x
 		_lastLetter.y = +_curLetter.y
 		
+		# unhighlight current letter
 		_removeHighlight()
 
 		letter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
@@ -227,19 +253,24 @@ Namespace('Crossword').Engine = do ->
 				_curDir = -1
 				_curLetter.y++
 				_updateClue()
-			when 8
+			when 8 #backspace
 				# dont make the page back navigate
 				e.preventDefault()
 
 				if letter?
+					# if the current direction is unknown
 					if _curDir == -1
+						# set to the one stored on the letter element from the qset
 						_curDir = letter.getAttribute('data-dir')
+
+					# '1' is down, since the attributes are stored as strings
 					if _curDir == '1'
 						_curLetter.y--
 					else
 						_curLetter.x--
 					letter.innerHTML = ''
 			else
+				# all else, input the character and advance cursor position
 				if letter?
 					if _curDir == -1
 						_curDir = letter.getAttribute('data-dir')
@@ -253,6 +284,8 @@ Namespace('Crossword').Engine = do ->
 								(e.keyCode > 64 && e.keyCode < 91)	# alphabet keys
 					if isValid
 						letter.innerHTML = String.fromCharCode(e.keyCode)
+
+					# if the puzzle is filled out, highlight the submit button
 					_checkIfDone()
 
 		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
@@ -272,10 +305,12 @@ Namespace('Crossword').Engine = do ->
 				# highlight the last successful letter
 				_addHighlight()
 		
-	_captionUpdate = ->
+	# update the UI elements pertaining to free words
+	_updateFreeWordsRemaining = ->
 		sentence = ' free word' + (if _freeWordsRemaining is 1 then '' else 's') + ' remaining'
 		$('#freeWordsRemaining').html _freeWordsRemaining + sentence
 
+		# hide buttons if no free words remain
 		if _freeWordsRemaining < 1
 			for i of _questions
 				if _qset.options.freeWords < 1
@@ -283,40 +318,75 @@ Namespace('Crossword').Engine = do ->
 				else
 					_g('freewordbtn_'+i).className = 'button disabled'
 
+	# highlight the clicked letter and set up direction
 	_letterClicked = (e) ->
-		if !e?
-			e = window.event
+		e = window.event if not e?
+
+		# parse out the coordinates from the element id
 		s = (e.target or e.srcElement).id.split '_'
+
 		_removeHighlight()
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
+
 		_curDir = _g('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
+
 		_addHighlight()
 		_updateClue()
 
+	# confirm that the user really wants to risk a penalty
 	_hintConfirm = (e) ->
 		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
 			_getHint e.target.getAttribute 'data-i'
 
+	# fired by the free word buttons
 	_getFreeword = (e) ->
-		_freeWord e.target.getAttribute 'data-i'
+		return if _freeWordsRemaining < 1
 
+		# get question index from button attributes
+		index = parseInt(e.target.getAttribute('data-i'))
+
+		# letter array to fill
+		letters = _questions[index].answers[0].text.split('')
+		x = _questions[index].options.x
+		y = _questions[index].options.y
+		dir = _questions[index].options.dir
+
+		answer = ''
+
+		# fill every letter element
+		forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+			_g('letter_' + letterLeft + '_' + letterTop).innerHTML = letters[l].toUpperCase()
+
+		_freeWordsRemaining--
+
+		_g('freewordbtn_' + index).style.opacity = 0
+		hb = _g('hintbtn_' + index)
+		hb.style.opacity = 0
+
+		_updateFreeWordsRemaining()
+
+	# highlight a word (series of letters)
 	_highlight = (index) ->
+		# remove highlight from every letter
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
 					l = _g('letter_' + letterLeft + '_' + letterTop)
 					l.className = l.className.replace('highlight', '')
+		# and add it to the ones we care about
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i == index
 					_g('letter_' + letterLeft + '_' + letterTop).className += ' highlight'
 
+	# show the modal alert dialog
 	_showAlert = (caption, action) ->
 		ab = $('#alertbox')
 		ab.css 'display','block'
 		bc = $('#backgroundcover')
 		bc.css 'display','block'
 
+		# timeout to defer display block
 		setTimeout ->
 			ab.css 'opacity',1
 			bc.css 'opacity',0.5
@@ -328,6 +398,7 @@ Namespace('Crossword').Engine = do ->
 			_hideAlert()
 			action()
 
+	# hide it
 	_hideAlert = ->
 		ab = $('#alertbox')
 		bc = $('#backgroundcover')
@@ -339,30 +410,7 @@ Namespace('Crossword').Engine = do ->
 			bc.css 'display','none'
 		,190
 
-	_freeWord = (index) ->
-		if _freeWordsRemaining < 1
-			return
-
-		index = parseInt(index)
-
-		letters = _questions[index].answers[0].text.split('')
-		x = _questions[index].options.x
-		y = _questions[index].options.y
-		dir = _questions[index].options.dir
-
-		answer = ''
-
-		forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
-			_g('letter_' + letterLeft + '_' + letterTop).innerHTML = letters[l].toUpperCase()
-
-		_freeWordsRemaining--
-
-		_g('freewordbtn_' + index).style.opacity = 0
-		hb = _g('hintbtn_' + index)
-		hb.style.opacity = 0
-
-		_captionUpdate()
-
+	# called after confirm dialog
 	_getHint = (index) ->
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
@@ -373,11 +421,13 @@ Namespace('Crossword').Engine = do ->
 		hb = _g('hintbtn_' + index)
 		hb.style.opacity = 0
 
+		# move freeword button to where it should be
 		setTimeout ->
 			hb.style.left = '-43px'
 			_g('freewordbtn_' + index).style.left = '-43px'
 		,190
 
+	# highlight submit button if all letters are filled in
 	_checkIfDone = ->
 		done = true
 		
@@ -392,6 +442,7 @@ Namespace('Crossword').Engine = do ->
 		else
 			$('#checkBtn').removeClass 'done'
 
+	# draw a number label to identify the question
 	_renderNumberLabel = (questionNumber, x, y) ->
 		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
@@ -400,6 +451,7 @@ Namespace('Crossword').Engine = do ->
 		numberLabel.style.left = 31 + x * LETTER_WIDTH + 'px'
 		$('#movable').append numberLabel
 
+	# draw the clue from template html
 	_renderClue = (question, hintPrefix, i) ->
 		clue = document.createElement 'div'
 		clue.id = 'clue_' + i
@@ -416,18 +468,21 @@ Namespace('Crossword').Engine = do ->
 
 		$('#clues').append clue
 
+	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
-		if !e?
-			e = window.event
+		e = window.event if not e?
 		_highlight (e.target or e.srcElement).getAttribute('data-i')
 
 	_clueMouseOut = (e) ->
 		_highlight false
 
+	# submit every question to the scoring engine
 	_submitAnswers = ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			answer = ''
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
+				# make a word from the letters, 
+				# as a whole word gets compared by the scoring module
 				if letters[l] != ' '
 					answer += _g('letter_' + letterLeft + '_' + letterTop).innerHTML || '_'
 				else
@@ -456,7 +511,7 @@ Namespace('Crossword').Engine = do ->
 			dir = _questions[i].options.dir
 			cb i, letters, x, y, dir
 
-	# move this elsewhere?
+	# mess of rendering HTML to build a printable crossword from the qset
 	_printBoard = (e) ->
 		frame = document.createElement 'iframe'
 		$('body').append frame
