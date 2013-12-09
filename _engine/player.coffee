@@ -92,9 +92,9 @@ Namespace('Crossword').Engine = do ->
 	# Draw the main board.
 	_drawBoard = (title) ->
 		# Disable right click
-		#document.oncontextmenu = -> false
-		#document.addEventListener 'mousedown', (e) ->
-		#	if e.button is 2 then false else true
+		document.oncontextmenu = -> false
+		document.addEventListener 'mousedown', (e) ->
+			if e.button is 2 then false else true
 
 		# hide freewords label if the widget has none
 		_freeWordsRemaining = _qset.options.freeWords
