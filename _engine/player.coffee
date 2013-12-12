@@ -71,9 +71,9 @@ Namespace('Crossword').Engine = do ->
 
 		$('#boardinput').keydown _inputLetter
 		$('#printbtn').click _printBoard
-		$('#cancelbtn').click _hideAlert
+		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
-			_showAlert "Are you sure you're done?<br>This is your last chance!", _submitAnswers
+			_showAlert "Are you sure you're done?", _submitAnswers
 
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
@@ -109,9 +109,9 @@ Namespace('Crossword').Engine = do ->
 	# Draw the main board.
 	_drawBoard = (title) ->
 		# Disable right click
-		document.oncontextmenu = -> false
-		document.addEventListener 'mousedown', (e) ->
-			if e.button is 2 then false else true
+		# document.oncontextmenu = -> false
+		# document.addEventListener 'mousedown', (e) ->
+			# if e.button is 2 then false else true
 
 		# hide freewords label if the widget has none
 		_freeWordsRemaining = _qset.options.freeWords
@@ -214,10 +214,10 @@ Namespace('Crossword').Engine = do ->
 
 			# remove the highlight from all others
 			for j of _questions
-				_g('clue_'+j).className = ''
+				_g('clue_'+j).className = 'clue'
 
 			scrolly = clue.offsetTop
-			clue.className = 'highlight'
+			clue.className = 'clue highlight'
 
 			$('#clues').animate scrollTop: scrolly, 150
 
@@ -394,7 +394,7 @@ Namespace('Crossword').Engine = do ->
 
 		$('#alertcaption').html caption
 
-		$('#confirmbtn').unbind('click').click ->
+		ab.find('.submit').unbind('click').click ->
 			_hideAlert()
 			action()
 
@@ -462,6 +462,7 @@ Namespace('Crossword').Engine = do ->
 			.replace(/{{i}}/g, i)
 
 		clue.setAttribute 'data-i', i
+		clue.className = 'clue'
 
 		clue.onmouseover = _clueMouseOver
 		clue.onmouseout = _clueMouseOut

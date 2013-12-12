@@ -37,7 +37,7 @@
 		<div id='movable' class='crossword-board'>
 		</div>
 		<div id='controlbar'>
-			<input type='button' value='Submit Answers' id='checkBtn'>
+			<input type='button' value='Submit Answers' id='checkBtn' class='button submit'>
 		</div>
 		<div id='clues'>
 			<span style='display:none'>Clues</span>
@@ -45,15 +45,15 @@
 	</div>
 	<div id='backgroundcover' class='fade'></div>
 	<div id='alertbox' class='fade'>
-		<span id='alertcaption'></span><br>
-		<input id='confirmbtn' type='button' value='Understood!'>
-		<input id='cancelbtn' type='button' value='Nevermind'>
+		<div id='alertcaption'></div>
+		<input class='cancel button' type='button' value='No, Cancel'>
+		<input class='submit button' type='button' value='Yep, Submit'>
 	</div>
-	<div id='t_hints' style='display:none'>
+	<div id='t_hints' style='display:none' class="clue">
 		<em>{{hintPrefix}}:</em><br>
 		{{question}}<br>
-		<div class='button' data-i='{{i}}' id='hintbtn_{{i}}'>Hint</div>
-		<div class='button' data-i='{{i}}' id='freewordbtn_{{i}}'>Free word</div>
+		<div class='button hint' data-i='{{i}}' id='hintbtn_{{i}}'>Hint</div>
+		<div class='button free-word' data-i='{{i}}' id='freewordbtn_{{i}}'>Free word</div>
 		<span class='hintspot' id='hintspot_{{i}}'></span>
 	</div>
 
