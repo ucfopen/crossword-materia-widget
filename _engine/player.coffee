@@ -52,7 +52,7 @@ Namespace('Crossword').Engine = do ->
 		_updateFreeWordsRemaining()
 
 		# highlight first letter
-		_letterClicked { target: _g('letter_' + _curLetter.x + '_' + _curLetter.y) }
+		_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
 
 		# focus the input listener
 		$('#boardinput').focus()
@@ -61,7 +61,7 @@ Namespace('Crossword').Engine = do ->
 		Materia.Engine.setHeight()
 	
 	# getElementById and cache it, for the sake of performance
-	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
+	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
 
 	# set up listeners on UI elements
 	_setupClickHandlers = ->
@@ -102,7 +102,7 @@ Namespace('Crossword').Engine = do ->
 			_boardY = e.screenY
 			_boardX = e.screenX
 
-			m = _g('movable')
+			m = _dom('movable')
 			m.style.top = _boardTop + 'px'
 			m.style.left = _boardLeft + 'px'
 
@@ -137,7 +137,7 @@ Namespace('Crossword').Engine = do ->
 			hintPrefix = questionNumber + if dir then ' down' else ' across'
 
 			_renderNumberLabel questionNumber, x, y
-			_renderClue question, hintPrefix, i
+			_renderClue question, hintPrefix, i, dir
 
 			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
 			$('#freewordbtn_'+i).css('display', 'none') if not _questions[i].options.hint
@@ -184,29 +184,29 @@ Namespace('Crossword').Engine = do ->
 			, 2500
 
 	# remove blue letter highlight class by id
-	_removeHighlight = (id) ->
-		g = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+	_removePuzzleLetterHighlight = (id) ->
+		g = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 		g.className = 'letter' if g?
 
 	# apply highlight class by id
-	_addHighlight = (id) ->
-		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+	_highlightPuzzleLetter = (id) ->
+		highlightedLetter = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 
 		if highlightedLetter
 			highlightedLetter.className = 'letter focus'
 
 			# move the board input closer to the letter,
 			# in the event the user has zoomed on a mobile device
-			bi = _g('boardinput')
+			bi = _dom('boardinput')
 			bi.style.top = highlightedLetter.style.top
 			bi.style.left = highlightedLetter.style.left
 
 	# update which clue is highlighted and scrolled to on the side list
 	_updateClue = ->
-		highlightedLetter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+		highlightedLetter = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 
 		if highlightedLetter
-			clue = _g('clue_'+highlightedLetter.getAttribute('data-q'))
+			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
 
 			# if it's already highlighted, do not try to scroll to it
 			if clue.className.indexOf('highlight') != -1
@@ -214,7 +214,7 @@ Namespace('Crossword').Engine = do ->
 
 			# remove the highlight from all others
 			for j of _questions
-				_g('clue_'+j).className = 'clue'
+				_dom('clue_'+j).className = 'clue'
 
 			scrolly = clue.offsetTop
 			clue.className = 'clue highlight'
@@ -232,9 +232,9 @@ Namespace('Crossword').Engine = do ->
 		_lastLetter.y = +_curLetter.y
 		
 		# unhighlight current letter
-		_removeHighlight()
+		_removePuzzleLetterHighlight()
 
-		letter = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+		letter = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 			
 		switch e.keyCode
 			when 37 #left
@@ -288,11 +288,11 @@ Namespace('Crossword').Engine = do ->
 					# if the puzzle is filled out, highlight the submit button
 					_checkIfDone()
 
-		next = _g('letter_' + _curLetter.x + '_' + _curLetter.y)
+		next = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 
 		# highlight the next letter, if it exists and is not a space
 		if next and next.getAttribute('data-space') != '1'
-			_addHighlight()
+			_highlightPuzzleLetter()
 		else
 			# otherwise, if it does not exist, check if we can move in another direction
 			if not next?
@@ -303,7 +303,7 @@ Namespace('Crossword').Engine = do ->
 				_inputLetter e, (iteration || 0)+1
 			else
 				# highlight the last successful letter
-				_addHighlight()
+				_highlightPuzzleLetter()
 		
 	# update the UI elements pertaining to free words
 	_updateFreeWordsRemaining = ->
@@ -316,7 +316,7 @@ Namespace('Crossword').Engine = do ->
 				if _qset.options.freeWords < 1
 					$('#freewordbtn_'+i).css 'display', 'none'
 				else
-					_g('freewordbtn_'+i).className = 'button disabled'
+					_dom('freewordbtn_'+i).className = 'button disabled'
 
 	# highlight the clicked letter and set up direction
 	_letterClicked = (e) ->
@@ -325,12 +325,12 @@ Namespace('Crossword').Engine = do ->
 		# parse out the coordinates from the element id
 		s = (e.target or e.srcElement).id.split '_'
 
-		_removeHighlight()
+		_removePuzzleLetterHighlight()
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
 
-		_curDir = _g('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
+		_curDir = _dom('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
 
-		_addHighlight()
+		_highlightPuzzleLetter()
 		_updateClue()
 
 	# confirm that the user really wants to risk a penalty
@@ -355,29 +355,29 @@ Namespace('Crossword').Engine = do ->
 
 		# fill every letter element
 		forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
-			_g('letter_' + letterLeft + '_' + letterTop).innerHTML = letters[l].toUpperCase()
+			_dom('letter_' + letterLeft + '_' + letterTop).innerHTML = letters[l].toUpperCase()
 
 		_freeWordsRemaining--
 
-		_g('freewordbtn_' + index).style.opacity = 0
-		hb = _g('hintbtn_' + index)
+		_dom('freewordbtn_' + index).style.opacity = 0
+		hb = _dom('hintbtn_' + index)
 		hb.style.opacity = 0
 
 		_updateFreeWordsRemaining()
 
 	# highlight a word (series of letters)
-	_highlight = (index) ->
+	_highlightPuzzleWord = (index) ->
 		# remove highlight from every letter
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
-					l = _g('letter_' + letterLeft + '_' + letterTop)
+					l = _dom('letter_' + letterLeft + '_' + letterTop)
 					l.className = l.className.replace('highlight', '')
 		# and add it to the ones we care about
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i == index
-					_g('letter_' + letterLeft + '_' + letterTop).className += ' highlight'
+					_dom('letter_' + letterLeft + '_' + letterTop).className += ' highlight'
 
 	# show the modal alert dialog
 	_showAlert = (caption, action) ->
@@ -414,17 +414,17 @@ Namespace('Crossword').Engine = do ->
 	_getHint = (index) ->
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
-		hs = _g('hintspot_' + index)
+		hs = _dom('hintspot_' + index)
 		hs.innerHTML = 'Hint: ' + _questions[index].options.hint
 		hs.style.opacity = 1
 
-		hb = _g('hintbtn_' + index)
+		hb = _dom('hintbtn_' + index)
 		hb.style.opacity = 0
 
 		# move freeword button to where it should be
 		setTimeout ->
 			hb.style.left = '-43px'
-			_g('freewordbtn_' + index).style.left = '-43px'
+			_dom('freewordbtn_' + index).style.left = '-43px'
 		,190
 
 	# highlight submit button if all letters are filled in
@@ -434,7 +434,7 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
 				if letters[l] != ' '
-					if _g('letter_' + letterLeft + '_' + letterTop).innerHTML == ''
+					if _dom('letter_' + letterLeft + '_' + letterTop).innerHTML == ''
 						done = false
 						return
 		if done
@@ -452,7 +452,7 @@ Namespace('Crossword').Engine = do ->
 		$('#movable').append numberLabel
 
 	# draw the clue from template html
-	_renderClue = (question, hintPrefix, i) ->
+	_renderClue = (question, hintPrefix, i, dir) ->
 		clue = document.createElement 'div'
 		clue.id = 'clue_' + i
 
@@ -462,20 +462,33 @@ Namespace('Crossword').Engine = do ->
 			.replace(/{{i}}/g, i)
 
 		clue.setAttribute 'data-i', i
+		clue.setAttribute 'data-dir', dir
 		clue.className = 'clue'
 
 		clue.onmouseover = _clueMouseOver
 		clue.onmouseout = _clueMouseOut
+		clue.onmouseup = _clueMouseUp
 
 		$('#clues').append clue
+
+	_clueMouseUp = (e) ->
+		e = window.event if not e?
+		# click on the first letter of the word
+		i = e.target.getAttribute('data-i')
+		dir = e.target.getAttribute('data-dir')
+
+		console.log i, dir, $('.letter[data-q="'+i+'"][data-dir="'+dir+'"]').first().get()[0]
+
+		_letterClicked { target: $('.letter[data-q="'+i+'"][data-dir="'+dir+'"]').first().get()[0] }
+
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
 		e = window.event if not e?
-		_highlight (e.target or e.srcElement).getAttribute('data-i')
+		_highlightPuzzleWord (e.target or e.srcElement).getAttribute('data-i')
 
 	_clueMouseOut = (e) ->
-		_highlight false
+		_highlightPuzzleWord false
 
 	# submit every question to the scoring engine
 	_submitAnswers = ->
@@ -485,7 +498,7 @@ Namespace('Crossword').Engine = do ->
 				# make a word from the letters, 
 				# as a whole word gets compared by the scoring module
 				if letters[l] != ' '
-					answer += _g('letter_' + letterLeft + '_' + letterTop).innerHTML || '_'
+					answer += _dom('letter_' + letterLeft + '_' + letterTop).innerHTML || '_'
 				else
 					answer += ' '
 
