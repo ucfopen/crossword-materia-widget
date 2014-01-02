@@ -24,6 +24,9 @@ Namespace('Crossword').Engine = do ->
 	_boardX					= 0
 	_boardLeft				= 0
 
+	_boardHeight			= 0
+	_boardWidth				= 0
+
 	# the current typing direction
 	_curDir					= -1
 	# the current letter that is highlighted
@@ -94,10 +97,10 @@ Namespace('Crossword').Engine = do ->
 			_boardLeft += (e.screenX - _boardX)
 
 			# if its out of range, stop panning
-			_boardTop = -600 if _boardTop < -600
-			_boardTop = 600 if _boardTop > 600
-			_boardLeft = -600 if _boardLeft < -600
-			_boardLeft = 600 if _boardLeft > 600
+			_boardTop = -_boardHeight if _boardTop < -_boardHeight
+			_boardTop = 100 if _boardTop > 100
+			_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
+			_boardLeft = 100 if _boardLeft > 100
 
 			_boardY = e.screenY
 			_boardX = e.screenX
@@ -178,6 +181,9 @@ Namespace('Crossword').Engine = do ->
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
+			_boardWidth = _left * LETTER_WIDTH
+			_boardHeight = _top * LETTER_HEIGHT
+
 			$('#movable').addClass 'pannedout'
 			setTimeout ->
 				$('#movable').removeClass 'pannedout'
@@ -187,7 +193,6 @@ Namespace('Crossword').Engine = do ->
 	_removePuzzleLetterHighlight = ->
 		g = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 		g.className = g.className.replace(/focus/g,'') if g?
-		console.log g
 
 	# apply highlight class by id
 	_highlightPuzzleLetter = (id) ->
@@ -489,10 +494,7 @@ Namespace('Crossword').Engine = do ->
 		i = e.target.getAttribute('data-i')
 		dir = e.target.getAttribute('data-dir')
 
-		console.log i, dir, $('.letter[data-q="'+i+'"][data-dir="'+dir+'"]').first().get()[0]
-
 		_letterClicked { target: $('.letter[data-q="'+i+'"][data-dir="'+dir+'"]').first().get()[0] }
-
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
