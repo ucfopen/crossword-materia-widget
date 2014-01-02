@@ -73,7 +73,7 @@ Namespace('Crossword').Engine = do ->
 		$('#printbtn').click _printBoard
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
-			_showAlert "Are you sure you're done?", _submitAnswers
+			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
 
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
@@ -183,17 +183,18 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').removeClass 'pannedout'
 			, 2500
 
-	# remove blue letter highlight class by id
-	_removePuzzleLetterHighlight = (id) ->
+	# remove letter focus class from the current letter
+	_removePuzzleLetterHighlight = ->
 		g = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
-		g.className = 'letter' if g?
+		g.className = g.className.replace(/focus/g,'') if g?
+		console.log g
 
 	# apply highlight class by id
 	_highlightPuzzleLetter = (id) ->
 		highlightedLetter = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 
 		if highlightedLetter
-			highlightedLetter.className = 'letter focus'
+			highlightedLetter.className += ' focus'
 
 			# move the board input closer to the letter,
 			# in the event the user has zoomed on a mobile device
@@ -235,7 +236,7 @@ Namespace('Crossword').Engine = do ->
 		_removePuzzleLetterHighlight()
 
 		letter = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
-			
+
 		switch e.keyCode
 			when 37 #left
 				_curLetter.x--
@@ -304,6 +305,8 @@ Namespace('Crossword').Engine = do ->
 			else
 				# highlight the last successful letter
 				_highlightPuzzleLetter()
+		if next and (_curDir is next.getAttribute('data-dir') or _curDir is -1)
+			_highlightPuzzleWord next.getAttribute('data-q')
 		
 	# update the UI elements pertaining to free words
 	_updateFreeWordsRemaining = ->
@@ -331,13 +334,15 @@ Namespace('Crossword').Engine = do ->
 		_curDir = _dom('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
 
 		_highlightPuzzleLetter()
+		_highlightPuzzleWord (e.target or e.srcElement).getAttribute('data-q')
+
 		_updateClue()
 
 	# confirm that the user really wants to risk a penalty
 	_hintConfirm = (e) ->
 		# only do it if the parent clue is highlighted
 		if $('#clue_'+e.target.getAttribute('data-i')).hasClass('highlight')
-			_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
+			_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', 'Okay', 'Nevermind', ->
 				_getHint e.target.getAttribute 'data-i'
 
 	# fired by the free word buttons
@@ -377,15 +382,15 @@ Namespace('Crossword').Engine = do ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
 					l = _dom('letter_' + letterLeft + '_' + letterTop)
-					l.className = l.className.replace('highlight', '')
+					l.className = l.className.replace(/highlight/g, '')
 		# and add it to the ones we care about
 		forEveryQuestion (i,letters,x,y,dir) ->
-			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
-				if i == index
+			if i == index
+				forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 					_dom('letter_' + letterLeft + '_' + letterTop).className += ' highlight'
 
 	# show the modal alert dialog
-	_showAlert = (caption, action) ->
+	_showAlert = (caption, okayCaption, cancelCaption, action) ->
 		ab = $('#alertbox')
 		ab.css 'display','block'
 		bc = $('#backgroundcover')
@@ -398,6 +403,8 @@ Namespace('Crossword').Engine = do ->
 		,10
 
 		$('#alertcaption').html caption
+		$('#okbtn').val okayCaption
+		$('#cancelbtn').val cancelCaption
 
 		ab.find('.submit').unbind('click').click ->
 			_hideAlert()
