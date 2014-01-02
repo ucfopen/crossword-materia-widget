@@ -335,12 +335,17 @@ Namespace('Crossword').Engine = do ->
 
 	# confirm that the user really wants to risk a penalty
 	_hintConfirm = (e) ->
-		_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
-			_getHint e.target.getAttribute 'data-i'
+		# only do it if the parent clue is highlighted
+		if $('#clue_'+e.target.getAttribute('data-i')).hasClass('highlight')
+			_showAlert 'Receiving a hint will result in a ' + _qset.options.hintPenalty + '% penalty for this question', ->
+				_getHint e.target.getAttribute 'data-i'
 
 	# fired by the free word buttons
 	_getFreeword = (e) ->
 		return if _freeWordsRemaining < 1
+
+		# stop if parent clue is not highlighted
+		return if not $('#clue_'+e.target.getAttribute('data-i')).hasClass('highlight')
 
 		# get question index from button attributes
 		index = parseInt(e.target.getAttribute('data-i'))
