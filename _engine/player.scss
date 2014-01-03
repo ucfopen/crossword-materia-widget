@@ -290,10 +290,13 @@ input {
 	bottom: 0px;
 	left: 0px;
 	background: #000;
-	z-index: 9999;
-
-	display: none;
+	z-index: -5;
 	opacity: 0;
+
+	&.show {
+		opacity: 0.5;
+		z-index: 9999;
+	}
 }
 
 #alertbox {
@@ -311,7 +314,7 @@ input {
 	box-shadow: 0px 0px 5px #000;
 	text-align: center;
 	opacity: 0;
-	display: none;
+	z-index: -5;
 
 	.button {
 		margin: 20px 10px 10px;
@@ -327,10 +330,15 @@ input {
 			color:white
 		}
 	}
+
+	&.show {
+		opacity: 1;
+		z-index: 10000;
+	}
 }
 
 .fade {
-	-webkit-transition: opacity 0.2s ease;
-	transition: opacity 0.2s ease;
+	-webkit-transition: all 0.2s ease;
+	transition: all 0.2s ease;
 }
 
