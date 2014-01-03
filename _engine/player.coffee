@@ -397,15 +397,8 @@ Namespace('Crossword').Engine = do ->
 	# show the modal alert dialog
 	_showAlert = (caption, okayCaption, cancelCaption, action) ->
 		ab = $('#alertbox')
-		ab.css 'display','block'
-		bc = $('#backgroundcover')
-		bc.css 'display','block'
-
-		# timeout to defer display block
-		setTimeout ->
-			ab.css 'opacity',1
-			bc.css 'opacity',0.5
-		,10
+		ab.addClass 'show'
+		$('#backgroundcover').addClass 'show'
 
 		$('#alertcaption').html caption
 		$('#okbtn').val okayCaption
@@ -417,15 +410,8 @@ Namespace('Crossword').Engine = do ->
 
 	# hide it
 	_hideAlert = ->
-		ab = $('#alertbox')
-		bc = $('#backgroundcover')
-		ab.css 'opacity',0
-		bc.css 'opacity',0
-
-		setTimeout ->
-			ab.css 'display','none'
-			bc.css 'display','none'
-		,190
+		$('#alertbox').removeClass 'show'
+		$('#backgroundcover').removeClass 'show'
 
 	# called after confirm dialog
 	_getHint = (index) ->
@@ -440,8 +426,8 @@ Namespace('Crossword').Engine = do ->
 
 		# move freeword button to where it should be
 		setTimeout ->
-			hb.style.left = '-43px'
-			_dom('freewordbtn_' + index).style.left = '-43px'
+			hb.style.left = '-52px'
+			_dom('freewordbtn_' + index).style.left = '-52px'
 		,190
 
 	# highlight submit button if all letters are filled in
