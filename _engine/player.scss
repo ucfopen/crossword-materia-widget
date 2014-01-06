@@ -255,11 +255,10 @@ input {
 	bottom: 10px;
 	font-size: 14px;
 	margin-top: 5px;
-}
 
-#checkBtn.done {
-	box-shadow: 0px 0px 10px #5163A6,
-	0px 0px 15px #5163A6;
+	&.done {
+		box-shadow: 0 0 10px #1D421C,0 0 35px #47C342;
+	}
 }
 
 #movable {
