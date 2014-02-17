@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!-- INJECTS IE CLASSES ONTO HTML TAG -->
+<!--[if IE 8 ]>    <html class="IE8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="IE9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
+	<head>
+		<title>Crossword Widget Player</title>
+		<meta charset="utf-8" />
+
+		<!-- STYLESHEETS -->
+		<link rel="stylesheet" type="text/css" href="player.css">
+
+		<!-- REQUIRED MATERIA JAVASCRIPT -->
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/materia.enginecore.js"></script>
+		<script type="text/javascript" src="/js/materia.score.js"></script>
+
+		<!-- OPTIONAL MATERIA JAVASCRIPT -->
+		<!-- <script type="text/javascript" src="/js/materia.storage.manager.js"></script> -->
+		<!-- <script type="text/javascript" src="/js/materia.storage.table.js"></script> -->
+
+		<!-- YOUR PREREQUISITES -->
+
+		<!-- MAIN PLAYER SCRIPT -->
+		<script type="text/javascript" src="player.js"></script>
+	</head>
+	<body>
+	<div id="board" class="screen board">
+		<textarea type='text' id='boardinput' autocomplete='off' autocorrect='off' autocapitalize='off' autocapitalize="off" spellcheck="false"></textarea>
+		<div class="header">
+			<h1 id='title'></h1>
+			<div class='remaining'>
+				<span id='freeWordsRemaining'></span>
+			</div>
+			<div class='icon-print' id='printbtn' title='Print'></div>
+		</div>
+		<div id='movable' class='crossword-board'>
+		</div>
+		<div id='controlbar'>
+			<input type='button' value='Submit Answers' id='checkBtn' class='button submit'>
+		</div>
+		<div id='clues'>
+			<span style='display:none'>Clues</span>
+		</div>
+	</div>
+	<div id='backgroundcover' class='fade'></div>
+	<div id='alertbox' class='fade'>
+		<div id='alertcaption'></div>
+		<input id='cancelbtn' class='cancel button' type='button'>
+		<input id='okbtn' class='submit button' type='button'>
+	</div>
+	<div id='t_hints' style='display:none' class="clue">
+		<em>{{hintPrefix}}:</em><br>
+		{{question}}<br>
+		<div class='hint button' data-i='{{i}}' id='hintbtn_{{i}}'>Hint</div>
+		<div class='free-word button' data-i='{{i}}' id='freewordbtn_{{i}}'>Free word</div>
+		<span class='hintspot' id='hintspot_{{i}}'></span>
+	</div>
+
+	<!-- INITIALIZE -->
+	<script type="text/javascript">
+		Materia.Engine.start(Crossword.Engine);
+	</script>
+
+	</body>
+</html>

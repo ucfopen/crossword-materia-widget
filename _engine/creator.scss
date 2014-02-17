@@ -1,0 +1,213 @@
+html, body, div {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	min-height: 100%;
+}
+
+body {
+	background: #283645;
+	background: -webkit-linear-gradient(top, #142432, #283645, #142432);
+	background: -moz-linear-gradient(top, #142432, #283645, #142432);
+	background: -ms-linear-gradient(top, #142432, #283645, #142432);
+	background: -o-linear-gradient(top, #142432, #283645, #142432);
+	background-repeat: repeat-x;
+	color: #fff;
+	font-family: verdana, sans-serif;
+}
+
+.header {
+	border-bottom: 20px solid #5d656a;
+	box-shadow: 2px 2px 2px #000;
+	margin: 0;
+	padding: 15px 0px;
+	width: 100%;
+	div {
+		margin: 0 10px;
+		overflow: hidden;
+		padding: 0;
+	}
+	input {
+		background-color: #283645;
+		background-color: rgba(0,0,0,0);
+		border: none;
+		color: #fff;
+		font-size: 16px;
+		width: 90%;
+		margin-left: 10px;
+	}
+}
+
+
+div.box {
+	background: #fafafa;
+	color: #333;
+	padding: 15px;
+	margin: 15px;
+	border-radius: 5px;
+	border: solid 5px #eee;
+	display: inline-block;
+}
+
+.table {
+	position: relative;
+	width: calc(100% - 460px);
+
+	div {
+		display: inline-block;
+		cursor: pointer;
+		margin: 25px 0px 5px 10px;
+	}
+
+	table {
+		width: 100%;
+		td.count {
+			padding: 0px 15px;
+		}
+		td {
+			padding: 3px;
+			font-size: 14px;
+		}
+		tr:nth-child(even) {
+			background-color: #f0f0f0;
+		}
+		.question {
+			textarea {
+				font-size: 15px;
+				display: inline-block;
+				vertical-align: top;
+				border: solid 1px #ccc;
+				padding: 5px;
+				margin: 0 -1px;
+				margin-right: 15px;
+				width: 90%;
+				resize: none;
+				font-family: verdana;
+				overflow-y: auto;
+			}
+		}
+	}
+}
+
+.rightcontent {
+	width: 308px;
+	vertical-align: top;
+	position: absolute;
+	right: 0px;
+	font-size: 16px;
+
+	.controls {
+		display: block;
+
+		input[type='number'] {
+			width: 41px;
+			font-size: 14px;
+			margin-right: 8px;
+		}
+		input {
+			margin: 3px 0px;
+		}
+	}
+
+	input[type='button'] {
+		width: 310px;
+		padding: 8px;
+		border: solid 1px #555;
+		background: #222;
+		color: #fafafa;
+		font-size: 16px;
+		display: inline-block;
+		background: #45484d; /* Old browsers */
+		background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
+		background: -ms-linear-gradient(top, #45484d 0%,#000000 100%); /* IE10+ */
+		background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+		outline: 0;
+		cursor: pointer;
+	}
+
+	.helptip {
+		width: 18px;
+		height: 18px;
+		display: inline-block;
+		background: #333;
+		color: #fff;
+		border-radius: 18px;
+		text-align: center;
+		font-size: 13px;
+		float: right;
+		margin-top: 6px;
+	}
+
+	#preview {
+		display: inline-block;
+		position: relative;
+		width: 308px;
+		height: 308px;
+		background: #eeedee;
+		margin: 0px;
+		overflow: hidden;
+		border: solid 1px #ccc;
+
+		.letter {
+			position: absolute;
+			width: 11px;
+			height: 10px;
+			border: solid 1px #999;
+			color: #333;
+			padding: 2px;
+			font-size: 9px;
+			background: #fff;
+			text-align: center;
+		}
+		.space {
+			background: #000;
+		}
+	}
+}
+
+.helptip:before {
+	content: '?';
+}
+
+h1 {
+	color: #fff;
+	font-size: 16px;
+}
+
+@font-face {
+	font-family: 'icomoon';
+	src:url('assets/font/icomoon.eot');
+	src:url('assets/font/icomoon.eot?#iefix') format('embedded-opentype'),
+		url('assets/font/icomoon.ttf') format('truetype'),
+		url('assets/font/icomoon.woff') format('woff'),
+		url('assets/font/icomoon.svg#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class*="icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	margin-right: 8px;
+	cursor: pointer;
+}
+
+.icon-cancel-circle:before {
+	content: "\e600";
+}
+.icon-plus:before {
+	content: "\e601";
+}

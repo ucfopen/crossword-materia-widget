@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- INJECTS IE CLASSES ONTO HTML TAG -->
+<!--[if IE 8 ]>    <html class="IE8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="IE9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
+	<head>
+		<title>Crossword Creator</title>
+		<meta charset="utf-8" />
+
+		<!-- STYLESHEETS -->
+		<link rel="stylesheet" type="text/css" href="creator.css">
+
+		<!-- REQUIRED MATERIA JAVASCRIPT -->
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/materia.creatorcore.js"></script>
+
+		<!-- YOUR PREREQUISITES -->
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.js"></script>
+		<script src="creator.puzzle.js"></script>
+
+		<!-- MAIN CREATOR SCRIPT -->
+		<script src="creator.js"></script>
+	</head>
+	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
+		<div class='header'>
+			<div>
+				<label>Widget Title:</label>
+				<input type='text' id='title' ng-model='widget.title' value='{{widget.title}}'/>
+			</div>
+		</div>
+		<section>
+			<div class='box table'>
+				<table cellspacing=0 cellpadding=0>
+					<tr class='bold'>
+						<td class='count'>#</td>
+						<td>Clue (Question)</td>
+						<td>Word to guess (Answer)</td>
+						<td>Hint (Optional)</td>
+						<td></td>
+					</tr>
+					<tr class='question' ng-repeat='item in widget.puzzleItems'>
+						<td class='count'>{{$index+1}}</td>
+						<td>
+							<textarea ng-model='item.question'>{{item.question}}</textarea>
+						</td>
+						<td>
+							<textarea ng-model='item.answer' ng-change='noLongerFresh()'>{{item.answer}}</textarea>
+						</td>
+						<td>
+							<textarea ng-model='item.hint'>{{item.hint}}</textarea>
+						</td>
+						<td>
+							<span class='icon-cancel-circle delete' ng-click='removePuzzleItem($index)'></span>
+						</td>
+					</tr>
+				</table>
+				<div ng-click='addPuzzleItem()'>
+					<span class='icon-plus'></span>
+					Add new question
+				</div>
+			</div>
+			<div class='box rightcontent'>
+				<div id='preview'></div>
+				<input type='button' value='Generate new Puzzle' ng-click='generateNewPuzzle()'>
+				<div class='controls'>
+					<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>% Hint Cost <span class='helptip' title="When a hint is used, the Hint Cost reduces a word's score by the percent specified."></span>
+<br>
+					<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>Free words <span class='helptip' title='Free words are "wildcards" that allow students to automatically complete a word within a crossword puzzle.'></span>
+				</div>
+			</div>
+		</section>
+
+		<!-- INITIALIZE -->
+		<script type="text/javascript">
+			angular.bootstrap(document, ['crosswordCreator']);
+			Materia.CreatorCore.start(Crossword.Creator);
+		</script>
+	</body>
+</html>
