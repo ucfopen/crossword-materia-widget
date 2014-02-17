@@ -12,8 +12,8 @@ general:
   is_storage_enabled: No
   api_version: 2
 files:
-  creator: swf/crossword-creator.swf
-  player: swf/crossword-engine.swf
+  creator: creator.html
+  player: player.html
   flash_version: 10
 score:
   is_scorable: Yes
