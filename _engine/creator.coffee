@@ -36,6 +36,11 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 
 	$scope.hideCover = ->
 		$('#backgroundcover, .title, .intro').removeClass 'show'
+	
+	$scope.showOptions = ->
+		$('#backgroundcover, .options').addClass 'show'
+		$('.options input[type=button]').click ->
+			$('#backgroundcover, .options').removeClass 'show'
 ]
 
 
@@ -52,6 +57,7 @@ Namespace('Crossword').Creator = do ->
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
 
+		_scope.showOptions()
 		return
 		$('#backgroundcover, .intro').addClass 'show'
 
