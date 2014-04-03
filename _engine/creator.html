@@ -9,6 +9,7 @@
 
 		<!-- STYLESHEETS -->
 		<link rel="stylesheet" type="text/css" href="creator.css">
+		<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700|Roboto+Slab:400,300|Delius+Unicase' rel='stylesheet' type='text/css'>
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -22,26 +23,23 @@
 		<script src="creator.js"></script>
 	</head>
 	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
-		<div class='header'>
-			<div>
-				<label>Widget Title:</label>
-				<input type='text' id='title' ng-model='widget.title' value='{{widget.title}}'/>
-			</div>
+		<div id='header'>
+			<div class='logo'></div>
+			<h1 id='title' ng-bind='widget.title'></h1>
+			<div class='link' ng-click='changeTitle()'>Edit...</div>
 		</div>
 		<section>
-			<div class='box table'>
+			<div class='table'>
 				<table cellspacing=0 cellpadding=0>
 					<tr class='bold'>
-						<td class='count'>#</td>
-						<td>Clue (Question)</td>
-						<td>Word to guess (Answer)</td>
+						<td>Puzzle Word</td>
+						<td>Clue</td>
 						<td>Hint (Optional)</td>
 						<td></td>
 					</tr>
 					<tr class='question' ng-repeat='item in widget.puzzleItems'>
-						<td class='count'>{{$index+1}}</td>
 						<td>
-							<textarea ng-model='item.question'>{{item.question}}</textarea>
+							<textarea class='unicase' ng-model='item.question'>{{item.question}}</textarea>
 						</td>
 						<td>
 							<textarea ng-model='item.answer' ng-change='noLongerFresh()'>{{item.answer}}</textarea>
@@ -59,16 +57,64 @@
 					Add new question
 				</div>
 			</div>
-			<div class='box rightcontent'>
-				<div id='preview'></div>
-				<input type='button' value='Generate new Puzzle' ng-click='generateNewPuzzle()'>
+			<div class='rightcontent'>
 				<div class='controls'>
-					<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>% Hint Cost <span class='helptip' title="When a hint is used, the Hint Cost reduces a word's score by the percent specified."></span>
-<br>
-					<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>Free words <span class='helptip' title='Free words are "wildcards" that allow students to automatically complete a word within a crossword puzzle.'></span>
+					<div class='control'>
+						<h2>Options</h2>
+						<span class='link' ng-click='showOptions()'>Edit options...</span>
+					</div>
+					
+					<div class='control'>
+						<h2>Hint penalty</h2>
+						<b>-</b><input class='negative' type='text' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
+					</div>
+
+					<div class='control'>
+						<h2>Free words</h2>
+						<input type='text' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
+					</div>
+
+					<div class='question_tip'>
+						?
+						<div class='qtip_box'>
+							<p>
+								Students can ask for a hint (if one is provided) but
+								using one will reduce that word's score by the <b>Hint penalty</b>
+								percentage you specify.
+							</p>
+							<p>
+								Alternatively students can get a word revealed for free if they're
+								stuck by using a <b>Free word</b>. Specify the number of Free words available.
+							</p>
+						</div>
+					</div>
 				</div>
+				<hr>
+				<div id='preview'></div>
 			</div>
 		</section>
+
+		<div id='backgroundcover'></div>
+		<div class='box intro'>
+			<img src='assets/creator_example.png'>
+			<h1>Crossword</h1>
+			<p>Enter <b>words</b> to build a puzzle.</p>
+			<p>Addd <b>clues &amp; hints</b> to help students guess the words.</p>
+			<p>Set <b>options</b> that define how hints and free words impact the score.</p>
+			<hr>
+			<b>Start by giving your Crossword widget a title</b><br>
+			<form ng-submit='introComplete()'>
+				<input type='text' placeholder='My Crossword widget' autofocus='1'>
+				<input type='submit' value='Get Started'>
+			</form>
+		</div>
+		<div class='box title'>
+			<b>Give your Crossword widget a title</b><br>
+			<form ng-submit='hideCover()'>
+				<input type='text' placeholder='My Crossword widget' ng-model='widget.title'>
+				<input type='submit' value='Done'>
+			</form>
+		</div>
 
 		<!-- INITIALIZE -->
 		<script type="text/javascript">
