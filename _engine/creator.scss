@@ -133,20 +133,11 @@ body {
 			h2 {
 				font-size: 14px;
 			}
-			input {
-				background: none;
-				border: none;
-				outline: none;
-				font-size: 26px;
-				font-weight: 700;
-				font-family: 'Lato';
-				width: 32px;
-				margin: 0px;
-				margin-top: -5px;
-				padding: 0px;
-			}
-			.negative {
-				margin-top: -5px;
+			span.number {
+				position: relative;
+				font-size: 28px;
+				top: -5px;
+				margin: 2px;
 			}
 			b {
 				font-size: 28px;
@@ -338,6 +329,23 @@ h1 {
 			padding: 11px;
 			margin-left: 0px;
 		}
+	}
+}
+
+.options {
+	width: 500px;
+	left: 50%;
+	margin-left: -250px;
+
+	input {
+		&[type=text] {
+			width: 25px;
+			padding: 5px 2px;
+			border: 1px solid #ccc;
+		}
+	}
+	strong {
+		margin-right: 30px;
 	}
 }
 

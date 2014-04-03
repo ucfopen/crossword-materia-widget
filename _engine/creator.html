@@ -66,12 +66,12 @@
 					
 					<div class='control'>
 						<h2>Hint penalty</h2>
-						<b>-</b><input class='negative' type='text' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
+						<b>-</b><span class='number' ng-bind='widget.hintPenalty'></span>%
 					</div>
 
 					<div class='control'>
 						<h2>Free words</h2>
-						<input type='text' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
+						<span class='number' ng-bind='widget.freeWords'></span>
 					</div>
 
 					<div class='question_tip'>
@@ -114,6 +114,29 @@
 				<input type='text' placeholder='My Crossword widget' ng-model='widget.title'>
 				<input type='submit' value='Done'>
 			</form>
+		</div>
+		<div class='box options'>
+			<h2>Options</h2>
+			
+			<strong>Hint penalty</strong>
+			-<input type='text' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
+			<p>
+				Students can ask for a hint (if one is provided) but
+				using one will reduce that word's score by the <b>Hint penalty</b>
+				percentage you specify.
+			</p>
+			<br>
+
+			<strong>Free words</strong>
+			<input type='text' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
+
+			<p>
+				Students can get a word revealed for free if they're
+				stuck by using a <b>Free word</b>. Specify the number of Free words available.
+			</p>
+
+
+			<input type='button' value='Close'>
 		</div>
 
 		<!-- INITIALIZE -->
