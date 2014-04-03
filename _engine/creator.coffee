@@ -16,7 +16,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		title: ''
 		hintPenalty: 50
 		freeWords: 1
-		puzzleItems: [{question:'',answer:'',hint:''}]
+		puzzleItems: []
 
 	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
 	$scope.removePuzzleItem = (index) ->
@@ -57,7 +57,6 @@ Namespace('Crossword').Creator = do ->
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
 
-		_scope.showOptions()
 		return
 		$('#backgroundcover, .intro').addClass 'show'
 

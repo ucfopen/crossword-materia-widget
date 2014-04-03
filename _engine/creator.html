@@ -34,8 +34,8 @@
 					<tr class='bold'>
 						<td>Puzzle Word</td>
 						<td>Clue</td>
-						<td>Hint (Optional)</td>
-						<td></td>
+						<td class='hint'>Hint (Optional)</td>
+						<td class='last'><div class='dot'></div></td>
 					</tr>
 					<tr class='question' ng-repeat='item in widget.puzzleItems'>
 						<td>
@@ -44,18 +44,18 @@
 						<td>
 							<textarea ng-model='item.answer' ng-change='noLongerFresh()'>{{item.answer}}</textarea>
 						</td>
-						<td>
+						<td class='hint'>
 							<textarea ng-model='item.hint'>{{item.hint}}</textarea>
 						</td>
-						<td>
-							<span class='icon-cancel-circle delete' ng-click='removePuzzleItem($index)'></span>
+						<td class='last'>
+							<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
 						</td>
 					</tr>
 				</table>
-				<div ng-click='addPuzzleItem()'>
-					<span class='icon-plus'></span>
-					Add new question
-				</div>
+			</div>
+			<div class='add' ng-click='addPuzzleItem()'>
+				<div class='icon-plus'></div>
+				Add Word
 			</div>
 			<div class='rightcontent'>
 				<div class='controls'>
