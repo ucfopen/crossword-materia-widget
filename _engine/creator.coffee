@@ -22,6 +22,20 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	$scope.removePuzzleItem = (index) ->
 		$scope.widget.puzzleItems.splice(index,1)
 		$scope.noLongerFresh()
+
+	$scope.changeTitle = ->
+		$('#backgroundcover, .title').addClass 'show'
+		$('.title input[type=text]').focus()
+		$('.title input[type=button]').click ->
+			$('#backgroundcover, .title').removeClass 'show'
+	
+	$scope.introComplete = ->
+		$('#backgroundcover, .intro').removeClass 'show'
+		$scope.widget.title = $('.intro input[type=text]').val() or $scope.widget.title
+		$scope.step = 1
+
+	$scope.hideCover = ->
+		$('#backgroundcover, .title, .intro').removeClass 'show'
 ]
 
 
@@ -37,6 +51,12 @@ Namespace('Crossword').Creator = do ->
 				_buildSaveData()
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
+
+		return
+		$('#backgroundcover, .intro').addClass 'show'
+
+		$('.intro input[type=button]').click ->
+			$scope.$apply $scope.introComplete
 
 	initExistingWidget = (title,widget,qset,version,baseUrl) ->
 		# Set up the scope functions
