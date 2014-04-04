@@ -514,17 +514,63 @@ hr {
 }
 
 .loading_anim {
-	animation: loading 0.4s steps(3,end) infinite;
 	background: url(assets/crossword.png);
 	width: 49px;
 	height: 50px;
 	display: block;
 	background-repeat: no-repeat;
 	margin: 12px 8px;
+	position: absolute;
+
+	&.a1 {
+		background-position: 0px;
+		animation: loading1 0.4s infinite;
+	}
+
+	&.a2 {
+		background-position: -98px;
+		animation: loading2 0.4s infinite;
+	}
+
+	&.a3 {
+		background-position: -49px;
+		animation: loading3 0.4s infinite;
+	}
 }
 
-@keyframes loading {
-	from { background-position: 0px; }
-	to { background-position: -147px; }
+@keyframes loading1 {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes loading2 {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes loading3 {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
 }
 
