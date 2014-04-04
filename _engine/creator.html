@@ -45,7 +45,7 @@
 							<textarea ng-model='item.answer' ng-change='noLongerFresh()'>{{item.answer}}</textarea>
 						</td>
 						<td class='hint'>
-							<textarea ng-model='item.hint'>{{item.hint}}</textarea>
+							<textarea ng-model='item.hint' ng-click='generateNewPuzzle()'>{{item.hint}}</textarea>
 						</td>
 						<td class='last'>
 							<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
@@ -90,7 +90,13 @@
 					</div>
 				</div>
 				<hr>
-				<div id='preview'></div>
+				<div id='preview'>
+					<div id='preview_kids'></div>
+					<div class='loading'>
+						BUILDING
+						<div class='loading_anim'></div>
+					</div>
+				</div>
 			</div>
 		</section>
 
@@ -134,7 +140,6 @@
 				Students can get a word revealed for free if they're
 				stuck by using a <b>Free word</b>. Specify the number of Free words available.
 			</p>
-
 
 			<input type='button' value='Close'>
 		</div>

@@ -128,7 +128,7 @@ Namespace('Crossword').Creator = do ->
 		_okToSave
 
 	_drawCurrentPuzzle = (items) ->
-		$('#preview').empty()
+		$('#preview_kids').empty()
 			
 		for item in items
 			letters = item.answers[0].text.split ''
@@ -155,7 +155,7 @@ Namespace('Crossword').Creator = do ->
 					# if it's a space, make it a black block
 					letter.className += ' space'
 
-				$('#preview').append letter
+				$('#preview_kids').append letter
 
 		
 	_process = (puzzleItem) ->
