@@ -52,10 +52,25 @@ Namespace('Crossword').Creator = do ->
 		_scope.$apply ->
 			_scope.widget.title	= 'New Crossword Widget'
 			_scope.generateNewPuzzle = ->
-				_hasFreshPuzzle = false
-				_buildSaveData()
+				return if _hasFreshPuzzle
+				$('.loading').show()
+				setTimeout ->
+					_hasFreshPuzzle = false
+					_buildSaveData()
+					$('.loading').hide()
+				,100
+				_scope.stopTimer()
+
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
+				_scope.resetTimer()
+			_scope.startTimer = ->
+				_scope.timer = setInterval(_scope.generateNewPuzzle, 1000)
+			_scope.stopTimer = -> clearInterval(_scope.timer)
+			_scope.resetTimer = ->
+				console.log 'reset'
+				_scope.stopTimer()
+				_scope.startTimer()
 
 		return
 		$('#backgroundcover, .intro').addClass 'show'
