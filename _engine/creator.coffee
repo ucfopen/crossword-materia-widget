@@ -16,7 +16,12 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		title: ''
 		hintPenalty: 50
 		freeWords: 1
-		puzzleItems: []
+		puzzleItems: [
+			{ question: "Test question", answer: "Test answer", hint: "dont need" },
+			{ question: "1Test question very long so long zomg", answer: "Test answer so long very long test test test zog", hint: "dont need" },
+			{ question: "2Test question", answer: "Test answer", hint: "dont need" },
+			{ question: "3Test question", answer: "Test answer", hint: "dont need" },
+		]
 
 	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
 	$scope.removePuzzleItem = (index) ->
@@ -51,8 +56,8 @@ Namespace('Crossword').Creator = do ->
 		_scope = angular.element($('body')).scope()
 		_scope.$apply ->
 			_scope.widget.title	= 'New Crossword Widget'
-			_scope.generateNewPuzzle = ->
-				return if _hasFreshPuzzle
+			_scope.generateNewPuzzle = (force = false) ->
+				return if _hasFreshPuzzle and not force
 				$('.loading').show()
 				setTimeout ->
 					_hasFreshPuzzle = false
@@ -65,6 +70,7 @@ Namespace('Crossword').Creator = do ->
 				_hasFreshPuzzle = false
 				_scope.resetTimer()
 			_scope.startTimer = ->
+				_scope.stopTimer()
 				_scope.timer = setInterval(_scope.generateNewPuzzle, 1000)
 			_scope.stopTimer = -> clearInterval(_scope.timer)
 			_scope.resetTimer = ->
@@ -144,6 +150,8 @@ Namespace('Crossword').Creator = do ->
 
 	_drawCurrentPuzzle = (items) ->
 		$('#preview_kids').empty()
+
+		_left = _top = 0
 			
 		for item in items
 			letters = item.answers[0].text.split ''
@@ -158,12 +166,15 @@ Namespace('Crossword').Creator = do ->
 					letterLeft = x
 					letterTop = y + i
 
+				_left = letterLeft if letterLeft > _left
+				_top = letterTop if letterTop > _top
+
 				letter = document.createElement 'div'
 
 				letter.id = 'letter_' + letterLeft + '_' + letterTop
 				letter.className = 'letter'
-				letter.style.top = letterTop * 15 + 'px'
-				letter.style.left = letterLeft * 16 + 'px'
+				letter.style.top = letterTop * 25 + 'px'
+				letter.style.left = letterLeft * 27 + 'px'
 				letter.innerHTML = letters[i].toUpperCase()
 
 				if letters[i] == ' '
@@ -171,6 +182,10 @@ Namespace('Crossword').Creator = do ->
 					letter.className += ' space'
 
 				$('#preview_kids').append letter
+
+		_scope.$apply ->
+			_scope.tooBig = _left > 17 or _top > 20
+			console.log 'l=' + _left + ' t=' + _top
 
 		
 	_process = (puzzleItem) ->
