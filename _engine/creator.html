@@ -90,7 +90,10 @@
 					</div>
 				</div>
 				<hr>
-				<div class='previewarea' ng-click='generateNewPuzzle(true)' ng-class=' { sucks: tooBig } '>
+				<div class='puzzleintro' ng-hide='widget.puzzleItems.length'>
+					Add words to build a puzzle
+				</div>
+				<div class='previewarea' ng-show='widget.puzzleItems.length' ng-click='generateNewPuzzle(true)' ng-class=' { sucks: tooBig } '>
 					<div id='preview'>
 						<div class='right'></div>
 						<div id='preview_kids'></div>
