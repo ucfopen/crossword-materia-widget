@@ -1,5 +1,9 @@
 $green: #70bd34;
 
+* {
+	user-select: none;
+}
+
 html, body, div {
 	margin: 0;
 	padding: 0;
@@ -187,24 +191,115 @@ body {
 		margin-top: 6px;
 	}
 
+	.previewarea {
+		margin: -4px 4px;
+		bottom: 0px;
+		top: 0px;
+		padding-bottom: 4px;
+
+		&:hover {
+			outline: solid 4px $green;
+
+			&:before {
+				display: block;
+				width: 190px;
+				padding-top: 140px;
+				padding-left: 5px;
+				padding-right: 5px;
+				padding-bottom: 30px;
+				background: $green;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				margin-left: -100px;
+				margin-top: -50px;
+				content: 'Click to redraw puzzle';
+				text-align: center;
+				color: #fff;
+				z-index: 1000;
+			}
+			&:after {
+				content: "\e600";
+				font-family: 'icomoon';
+				color: #fff;
+				font-size: 90px;
+				position: absolute;
+				left: 50%;
+				margin-left: -44px;
+				margin-top: -20px;
+				top: 50%;
+				z-index: 1001;
+			}
+		}
+
+		&.sucks {
+			background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
+			background-size: 570px 600px;
+			background-repeat: no-repeat;
+			background-position: 0px;
+
+			&:hover {
+				outline: none;
+			}
+			&:before {
+				display: block;
+				width: 220px;
+				padding: 20px 25px;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				margin-left: -145px;
+				margin-top: -10px;
+				text-align: center;
+				font-size: 14px;
+				color: #fff;
+				z-index: 1000;
+				background: #f13751;
+				content: 'This puzzle will be difficult to view. Click here to redraw this puzzle or modify the puzzle words so they fit inside the box.';
+				line-height: 20px;
+			}
+			&:after {
+				content: '';
+			}
+
+			#preview {
+				outline: solid 3px #f00;
+			}
+
+			.right {
+				position: absolute;
+				top: -11px;
+				right: -120px;
+				width: 116px;
+				bottom: 0px;
+				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
+				z-index: 19999;
+			}
+		}
+
+	}
+
 	#preview {
 		display: inline-block;
 		position: relative;
-		top: 25px;
-		left: 95px;
-		width: 480px;
-		height: 480px;
+		top: 10px;
+		left: 65px;
+		width: 500px;
+		height: 500px;
 		margin: 0px;
 		border: solid 1px #ccc;
 
+		background: #eee;
+
 		.letter {
 			position: absolute;
-			width: 11px;
-			height: 10px;
+			width: 22px;
+			height: 20px;
 			border: solid 1px #999;
 			color: #333;
 			padding: 2px;
-			font-size: 9px;
+			font-size: 18px;
+			font-family: 'Delius Unicase';
 			background: #fff;
 			text-align: center;
 		}
@@ -510,6 +605,7 @@ hr {
 	right: 0px;
 	left: 0px;
 	background: rgba(0,0,0,0.1);
+	display: none;
 }
 
 .loading_anim {
