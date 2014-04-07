@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Crossword, Creator
 Authors	: Jonathan Warner
-Updated	: 10/13
+Updated	: 4/14
 
 ###
 
@@ -16,12 +16,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		title: ''
 		hintPenalty: 50
 		freeWords: 1
-		puzzleItems: [
-			{ question: "Test question", answer: "Test answer", hint: "dont need" },
-			{ question: "1Test question very long so long zomg", answer: "Test answer so long very long test test test zog", hint: "dont need" },
-			{ question: "2Test question", answer: "Test answer", hint: "dont need" },
-			{ question: "3Test question", answer: "Test answer", hint: "dont need" },
-		]
+		puzzleItems: []
 
 	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
 	$scope.removePuzzleItem = (index) ->
