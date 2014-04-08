@@ -198,13 +198,14 @@ body {
 	}
 
 	.previewarea {
-		margin: -4px 4px;
+		margin: -8px 0px;
 		bottom: 0px;
 		top: 0px;
 		padding-bottom: 4px;
 
 		&:hover {
 			outline: solid 4px $green;
+			outline-offset: -4px;
 
 			&:before {
 				display: block;
@@ -279,10 +280,9 @@ body {
 				width: 116px;
 				bottom: 0px;
 				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
-				z-index: 19999;
+				z-index: 19;
 			}
 		}
-
 	}
 
 	#preview {
@@ -509,7 +509,7 @@ h1 {
 		margin: -2px;
 
 		.qtip_box {
-			z-index: 9999;
+			z-index: 99999999999;
 			opacity: 1;
 			overflow: inherit;
 			height: auto;
