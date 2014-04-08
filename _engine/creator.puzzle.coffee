@@ -126,12 +126,14 @@ Namespace('Crossword').Puzzle = do ->
 
 	randomIndex = Math.random()
 
-	generatePuzzle = (_items) ->
+	lastBest = 0
+
+	generatePuzzle = (_items, force = false) ->
 		possibleItems = []
 		attemptCount = 0
-		_generatePuzzle _items
+		_generatePuzzle _items, force
 
-	_generatePuzzle = (_items) ->
+	_generatePuzzle = (_items, force) ->
 		letterIndex = []
 		puzzleGrid = {}
 		results = []
@@ -192,12 +194,18 @@ Namespace('Crossword').Puzzle = do ->
 			iterationCount++
 			possibleItems.push results
 		else
+			if attemptCount > 25
+				# we couldnt place them, so ditch our random
+				resetRandom()
 			puzzleGrid = {}
-			_generatePuzzle(_items)
+			_generatePuzzle(_items, force)
 
 		if iterationCount < 9
 			puzzleGrid = {}
-			_generatePuzzle(_items)
+			_generatePuzzle(_items, force)
+
+		if not force
+			return possibleItems[lastBest]
 
 		minDist = 9999
 		best = null
@@ -228,6 +236,7 @@ Namespace('Crossword').Puzzle = do ->
 					
 			if dist < minDist
 				best = possibleItems[i]
+				lastBest = i
 				minDist = dist
 
 		return best
