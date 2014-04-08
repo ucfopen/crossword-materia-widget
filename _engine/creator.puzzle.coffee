@@ -95,11 +95,14 @@ Namespace('Crossword').Puzzle = do ->
 
 		w2 = []
 		while w.length > 0
-			i = Math.floor(Math.random()*w.length)
+			i = Math.floor(fakeRandom()*w.length)
 			w2.push(w[i])
 			w.splice(i,1)
 		
 		w2
+	
+	fakeRandom = ->
+		return randomIndex
 
 	normalizeQSET = (qset) ->
 		minX = 0
@@ -121,11 +124,12 @@ Namespace('Crossword').Puzzle = do ->
 	possibleItems = []
 	iterationCount = 0
 
+	randomIndex = Math.random()
+
 	generatePuzzle = (_items) ->
 		possibleItems = []
 		attemptCount = 0
 		_generatePuzzle _items
-
 
 	_generatePuzzle = (_items) ->
 		letterIndex = []
@@ -228,5 +232,9 @@ Namespace('Crossword').Puzzle = do ->
 
 		return best
 
+	resetRandom = ->
+		randomIndex = Math.random()
+
 	generatePuzzle: generatePuzzle
 	normalizeQSET: normalizeQSET
+	resetRandom: resetRandom
