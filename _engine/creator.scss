@@ -201,7 +201,8 @@ body {
 		margin: -8px 0px;
 		bottom: 0px;
 		top: 0px;
-		padding-bottom: 4px;
+		padding-bottom: 10px;
+		overflow: hidden;
 
 		&.stationary {
 
@@ -219,9 +220,8 @@ body {
 					background: $green;
 					position: absolute;
 					left: 50%;
-					top: 50%;
+					top: 250px;
 					margin-left: -100px;
-					margin-top: -50px;
 					content: 'Click to redraw puzzle';
 					text-align: center;
 					color: #fff;
@@ -235,13 +235,12 @@ body {
 					position: absolute;
 					left: 50%;
 					margin-left: -44px;
-					margin-top: -20px;
-					top: 50%;
+					top: 280px;
 					z-index: 1001;
 				}
 			}
 
-			&.sucks {
+			&.toobig {
 				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
 				background-size: 570px 600px;
 				background-repeat: no-repeat;
@@ -256,9 +255,8 @@ body {
 					padding: 20px 25px;
 					position: absolute;
 					left: 50%;
-					top: 50%;
+					top: 300px;
 					margin-left: -145px;
-					margin-top: -10px;
 					text-align: center;
 					font-size: 14px;
 					color: #fff;
@@ -280,7 +278,7 @@ body {
 					top: -11px;
 					right: -120px;
 					width: 116px;
-					bottom: 0px;
+					bottom: -4px;
 					background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
 					z-index: 19;
 				}
@@ -605,7 +603,7 @@ hr {
 
 .loading {
 	position: absolute;
-	padding-top: 150px;
+	padding-top: 200px;
 	padding-left: 44%;
 	font-size: 13px;
 	font-weight: 700;
