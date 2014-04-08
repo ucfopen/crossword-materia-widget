@@ -55,6 +55,7 @@ Namespace('Crossword').Creator = do ->
 			_scope.generateNewPuzzle = (force = false, reset = false) ->
 				return if _hasFreshPuzzle and not force
 				$('.loading').show()
+				_scope.isBuilding = true
 
 				setTimeout ->
 					if reset
@@ -64,6 +65,9 @@ Namespace('Crossword').Creator = do ->
 					_buildSaveData(reset)
 					$('.loading').hide()
 					_scope.stopTimer()
+
+					_scope.$apply ->
+						_scope.isBuilding = false
 				,300
 
 			_scope.noLongerFresh = ->
