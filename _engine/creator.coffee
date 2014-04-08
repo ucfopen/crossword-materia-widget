@@ -22,6 +22,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	$scope.removePuzzleItem = (index) ->
 		$scope.widget.puzzleItems.splice(index,1)
 		$scope.noLongerFresh()
+		$scope.generateNewPuzzle()
 
 	$scope.changeTitle = ->
 		$('#backgroundcover, .title').addClass 'show'
@@ -55,13 +56,15 @@ Namespace('Crossword').Creator = do ->
 				return if _hasFreshPuzzle and not force
 				$('.loading').show()
 
-				if reset
-					Crossword.Puzzle.resetRandom()
+				setTimeout ->
+					if reset
+						Crossword.Puzzle.resetRandom()
 
-				_hasFreshPuzzle = false
-				_buildSaveData()
-				$('.loading').hide()
-				_scope.stopTimer()
+					_hasFreshPuzzle = false
+					_buildSaveData(reset)
+					$('.loading').hide()
+					_scope.stopTimer()
+				,300
 
 			_scope.noLongerFresh = ->
 				_hasFreshPuzzle = false
@@ -110,7 +113,7 @@ Namespace('Crossword').Creator = do ->
 		_scope.$apply ->
 			_scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint for item in items
 
-	_buildSaveData = ->
+	_buildSaveData = (force = false) ->
 		if !_qset? then _qset = {}
 
 		_qset.options = { hintPenalty: _scope.widget.hintPenalty, freeWords: _scope.widget.freeWords }
@@ -133,7 +136,7 @@ Namespace('Crossword').Creator = do ->
 				words.push _puzzleItems[i].answer
 
 			# generate the puzzle using the guessing algorithm in puzzle.coffee
-			_items = Crossword.Puzzle.generatePuzzle _items
+			_items = Crossword.Puzzle.generatePuzzle _items, force
 			if !_items
 				return false
 
@@ -179,11 +182,9 @@ Namespace('Crossword').Creator = do ->
 					letter.className += ' space'
 
 				$('#preview_kids').append letter
-
+		
 		_scope.$apply ->
 			_scope.tooBig = _left > 17 or _top > 20
-			console.log 'l=' + _left + ' t=' + _top
-
 		
 	_process = (puzzleItem) ->
 		questionObj =
