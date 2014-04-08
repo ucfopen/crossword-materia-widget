@@ -51,14 +51,16 @@ Namespace('Crossword').Creator = do ->
 		_scope = angular.element($('body')).scope()
 		_scope.$apply ->
 			_scope.widget.title	= 'New Crossword Widget'
-			_scope.generateNewPuzzle = (force = false) ->
+			_scope.generateNewPuzzle = (force = false, reset = false) ->
 				return if _hasFreshPuzzle and not force
 				$('.loading').show()
-				setTimeout ->
-					_hasFreshPuzzle = false
-					_buildSaveData()
-					$('.loading').hide()
-				,100
+
+				if reset
+					Crossword.Puzzle.resetRandom()
+
+				_hasFreshPuzzle = false
+				_buildSaveData()
+				$('.loading').hide()
 				_scope.stopTimer()
 
 			_scope.noLongerFresh = ->
