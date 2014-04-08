@@ -82,6 +82,11 @@ Namespace('Crossword').Creator = do ->
 				_scope.stopTimer()
 				_scope.startTimer()
 
+		$('#printbtn').click (e) ->
+			_scope.generateNewPuzzle()
+			setTimeout ->
+				Crossword.Print.printBoard(e, { name: _scope.widget.title }, _qset.items[0].items)
+			,500
 		return
 		$('#backgroundcover, .intro').addClass 'show'
 

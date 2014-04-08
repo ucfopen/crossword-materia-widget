@@ -201,7 +201,7 @@ body {
 		margin: -8px 0px;
 		bottom: 0px;
 		top: 0px;
-		padding-bottom: 10px;
+		padding-bottom: 16px;
 		overflow: hidden;
 
 		&.stationary {
@@ -278,7 +278,7 @@ body {
 					top: -11px;
 					right: -120px;
 					width: 116px;
-					bottom: -4px;
+					bottom: -10px;
 					background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
 					z-index: 19;
 				}
@@ -350,6 +350,14 @@ h1 {
 	-moz-osx-font-smoothing: grayscale;
 	margin-right: 8px;
 	cursor: pointer;
+}
+
+.icon-print:before {
+	content: "\e603";
+	position: relative;
+	float: right;
+	margin: 20px 74px;
+	opacity: 0.5;
 }
 
 .icon-spinner:before {

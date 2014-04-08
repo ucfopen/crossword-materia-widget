@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Crossword
 Authors	: Jonathan Warner
-Updated	: 11/13
+Updated	: 4/14
 
 ###
 
@@ -73,7 +73,8 @@ Namespace('Crossword').Engine = do ->
 			$('#boardinput').focus()
 
 		$('#boardinput').keydown _inputLetter
-		$('#printbtn').click _printBoard
+		$('#printbtn').click (e) ->
+			Crossword.Print.printBoard(e, _instance, _questions)
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
@@ -524,70 +525,6 @@ Namespace('Crossword').Engine = do ->
 			y = _questions[i].options.y
 			dir = _questions[i].options.dir
 			cb i, letters, x, y, dir
-
-	# mess of rendering HTML to build a printable crossword from the qset
-	_printBoard = (e) ->
-		frame = document.createElement 'iframe'
-		$('body').append frame
-		wnd = frame.contentWindow
-		frame.style.display = 'none'
-		
-		wnd.document.write '<h1>' + _instance.name + '</h1>'
-		wnd.document.write "<h1 style='page-break-before:always'>" + _instance.name + '</h1>'
-
-		downClues = document.createElement 'div'
-		downClues.innerHTML = '<strong>Down</strong>'
-
-		acrossClues = document.createElement 'div'
-		acrossClues.innerHTML = '<strong>Across</strong>'
-
-		wnd.document.body.appendChild downClues
-		wnd.document.body.appendChild acrossClues
-
-		forEveryQuestion (i,letters,x,y,dir) ->
-			question = _questions[i].questions[0].text
-			questionNumber = parseInt(i) + 1
-			
-			clue = '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
-
-			if dir
-				downClues.innerHTML += clue
-			else
-				acrossClues.innerHTML += clue
-				
-			_puzzleGrid = {}
-
-			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
-				numberLabel = document.createElement 'div'
-				numberLabel.innerHTML = questionNumber
-				numberLabel.style.position = 'absolute'
-				numberLabel.style.top = 129 + y * LETTER_HEIGHT + 'px'
-				numberLabel.style.left = 80 + x * LETTER_WIDTH + 'px'
-				numberLabel.style.fontSize = 10 + 'px'
-				numberLabel.style.zIndex = '1000'
-
-				# overlapping connectors should not be duplicated
-				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
-					return
-
-				letter = wnd.document.createElement 'input'
-				letter.type = 'text'
-				letter.setAttribute 'maxlength', 1
-				letter.style.position = 'absolute'
-				letter.style.top = 120 + letterTop * LETTER_HEIGHT + 'px'
-				letter.style.left = 60 + letterLeft * LETTER_WIDTH + 'px'
-				letter.style.border = 'solid 1px #333'
-				letter.style.width = '28px'
-				letter.style.height = '24px'
-
-				if letters[l] == ' '
-					# if it's a space, make it a black block
-					letter.style.backgroundColor = '#000'
-
-				wnd.document.body.appendChild letter
-				wnd.document.body.appendChild numberLabel
-
-		wnd.print()
 
 	#public
 	manualResize: true

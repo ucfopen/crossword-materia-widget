@@ -23,16 +23,33 @@ $green:#5BAC58;
 	src: local('Delius Unicase'), local('DeliusUnicase-Regular'), url(http://themes.googleusercontent.com/static/fonts/deliusunicase/v6/b2sKujV3Q48RV2PQ0k1vqu0T1_f-eZQ5oLffZi8sUkg.woff) format('woff');
 }
 
-/* Printer glyph */
 @font-face {
 	font-family: 'icomoon';
-	src:url('assets/font/icomoon_engine.eot');
-	src:url('assets/font/icomoon_engine.eot?#iefix') format('embedded-opentype'),
-	url('assets/font/icomoon_engine.ttf') format('truetype'),
-	url('assets/font/icomoon_engine.woff') format('woff'),
-	url('assets/font/icomoon_engine.svg#icomoon') format('svg');
+	src:url('assets/font/icomoon.eot?-jn78cs');
+	src:url('assets/font/icomoon.eot?#iefix-jn78cs') format('embedded-opentype'),
+		url('assets/font/icomoon.woff?-jn78cs') format('woff'),
+		url('assets/font/icomoon.ttf?-jn78cs') format('truetype'),
+		url('assets/font/icomoon.svg?-jn78cs#icomoon') format('svg');
 	font-weight: normal;
 	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-print:before {
+	content: "\e603";
 }
 
 html, body {
@@ -116,9 +133,6 @@ html, body {
 		text-transform: none;
 		line-height: 1;
 		-webkit-font-smoothing: antialiased;
-	}
-	.icon-print:before {
-		content: "\e600";
 	}
 }
 
