@@ -136,10 +136,11 @@ Namespace('Crossword').Creator = do ->
 		_title = _scope.widget.title
 		_okToSave = if _title? && _title != '' then true else false
 
+		_puzzleItems = _scope.widget.puzzleItems
+
 		# if the puzzle has changed, regenerate
 		if not _hasFreshPuzzle
 			_items = []
-			_puzzleItems = _scope.widget.puzzleItems
 
 			for i in [0.._puzzleItems.length-1]
 				_items.push _process _puzzleItems[i]
@@ -155,6 +156,10 @@ Namespace('Crossword').Creator = do ->
 			_qset.items = [{ items: _items }]
 
 			_hasFreshPuzzle = _okToSave
+
+		for i in [0.._puzzleItems.length-1]
+			_qset.items[0].items[i].questions[0].text = _puzzleItems[i].question
+			_qset.items[0].items[i].options.hint = _puzzleItems[i].hint
 
 		_okToSave
 
