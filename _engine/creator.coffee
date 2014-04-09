@@ -48,7 +48,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 Namespace('Crossword').Creator = do ->
 	_title = _qset = _scope = _hasFreshPuzzle = null
 
-	initNewWidget = (widget, baseUrl) ->
+	initScope = ->
 		_scope = angular.element($('body')).scope()
 		_scope.$apply ->
 			_scope.widget.title	= 'New Crossword Widget'
@@ -87,7 +87,10 @@ Namespace('Crossword').Creator = do ->
 			setTimeout ->
 				Crossword.Print.printBoard(e, { name: _scope.widget.title }, _qset.items[0].items)
 			,500
-		return
+
+	initNewWidget = (widget, baseUrl) ->
+		initScope()
+
 		$('#backgroundcover, .intro').addClass 'show'
 
 		$('.intro input[type=button]').click ->
@@ -95,7 +98,7 @@ Namespace('Crossword').Creator = do ->
 
 	initExistingWidget = (title,widget,qset,version,baseUrl) ->
 		# Set up the scope functions
-		initNewWidget widget, baseUrl
+		initScope()
 
 		_qset = qset
 		_items = qset.items[0].items
