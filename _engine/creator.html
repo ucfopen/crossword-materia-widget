@@ -31,6 +31,9 @@
 		</div>
 		<section>
 			<div class='table'>
+				<div class='arrow_box' ng-show='step && !widget.puzzleItems.length'>
+					Add your first word
+				</div>
 				<table cellspacing=0 cellpadding=0>
 					<tr class='bold'>
 						<td>Puzzle Word</td>
@@ -138,7 +141,7 @@
 			-<input type='text' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
 			<p>
 				Students can ask for a hint (if one is provided) but
-				using one will reduce that word's score by the <b>Hint penalty</b>
+				using one will reduce that word's score by the <b>Hint penalty </b>
 				percentage you specify.
 			</p>
 			<br>

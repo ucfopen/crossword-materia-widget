@@ -17,6 +17,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		hintPenalty: 50
 		freeWords: 1
 		puzzleItems: []
+	
+	$scope.step = 0
 
 	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
 	$scope.removePuzzleItem = (index) ->
