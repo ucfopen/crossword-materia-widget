@@ -13,7 +13,7 @@ CrosswordCreator = angular.module('crosswordCreator', [])
 
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	$scope.widget =
-		title: ''
+		title: 'New Crossword Widget'
 		hintPenalty: 50
 		freeWords: 1
 		puzzleItems: []
@@ -51,7 +51,6 @@ Namespace('Crossword').Creator = do ->
 	initScope = ->
 		_scope = angular.element($('body')).scope()
 		_scope.$apply ->
-			_scope.widget.title	= 'New Crossword Widget'
 			_scope.generateNewPuzzle = (force = false, reset = false) ->
 				return if _hasFreshPuzzle and not force
 				$('.loading').show()
@@ -78,7 +77,6 @@ Namespace('Crossword').Creator = do ->
 				_scope.timer = setInterval(_scope.generateNewPuzzle, 1000)
 			_scope.stopTimer = -> clearInterval(_scope.timer)
 			_scope.resetTimer = ->
-				console.log 'reset'
 				_scope.stopTimer()
 				_scope.startTimer()
 
