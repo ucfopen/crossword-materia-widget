@@ -684,3 +684,52 @@ hr {
 	}
 }
 
+.arrow_box {
+	right: -250px;
+	position: absolute;
+	top: 50px;
+	background: #9c52a4;
+	border: 2px solid #9c52a4;
+	width: 140px;
+	height: 16px;
+	z-index: 10;
+	padding: 24px;
+	color: #fff;
+	text-align: center;
+	animation: pounce 1.5s infinite;
+}
+.arrow_box:after, .arrow_box:before {
+	right: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.arrow_box:after {
+	border-color: rgba(156, 82, 164, 0);
+	border-right-color: #9c52a4;
+	border-width: 55px;
+	margin-top: -55px;
+}
+.arrow_box:before {
+	border-color: rgba(156, 82, 164, 0);
+	border-right-color: #9c52a4;
+	border-width: 58px;
+	margin-top: -58px;
+}
+
+@keyframes pounce {
+	0% {
+		transform: translate(0px, 0px);
+	}
+	50% {
+		transform: translate(20px, 0px);
+	}
+	100% {
+		transform: translate(0px, 0px);
+	}
+}
+
