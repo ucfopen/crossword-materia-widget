@@ -279,17 +279,17 @@ Namespace('Crossword').Engine = do ->
 			else
 				# all else, input the character and advance cursor position
 				if letter?
-					if _curDir == -1
-						_curDir = letter.getAttribute('data-dir')
-					if _curDir == '1'
-						_curLetter.y++
-					else
-						_curLetter.x++
-
 					isValid = (e.keyCode > 47 && e.keyCode < 58)		|| # number keys
 								(e.keyCode == 32 || e.keyCode == 13)	|| # spacebar and enter	
-								(e.keyCode > 64 && e.keyCode < 91)	# alphabet keys
+								(e.keyCode > 64 && e.keyCode < 91)		# alphabet keys
 					if isValid
+						if _curDir == -1
+							_curDir = letter.getAttribute('data-dir')
+						if _curDir == '1'
+							_curLetter.y++
+						else
+							_curLetter.x++
+
 						letter.innerHTML = String.fromCharCode(e.keyCode)
 
 					# if the puzzle is filled out, highlight the submit button
