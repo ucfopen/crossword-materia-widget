@@ -185,7 +185,7 @@ body {
 	}
 
 	.previewarea {
-		margin: -8px 0px;
+		margin: 0px 6px;
 		bottom: 0px;
 		top: 0px;
 		padding-bottom: 16px;
@@ -209,7 +209,7 @@ body {
 					background: $green;
 					position: absolute;
 					left: 50%;
-					top: 250px;
+					top: 270px;
 					margin-left: -100px;
 					content: 'Click to redraw puzzle';
 					text-align: center;
@@ -224,7 +224,7 @@ body {
 					position: absolute;
 					left: 50%;
 					margin-left: -44px;
-					top: 280px;
+					top: 300px;
 					z-index: 1001;
 				}
 			}
