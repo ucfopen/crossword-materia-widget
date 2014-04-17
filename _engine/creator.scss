@@ -636,6 +636,10 @@ hr {
 	}
 }
 
+.loading2, .loading3 {
+	opacity:0;
+}
+
 @keyframes loading1 {
 	0% {
 		opacity: 1;
