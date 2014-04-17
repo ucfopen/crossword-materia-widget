@@ -41,7 +41,7 @@
 						<td class='hint'>Hint (Optional)</td>
 						<td class='last'><div class='dot'></div></td>
 					</tr>
-					<tr class='question' ng-repeat='item in widget.puzzleItems'>
+					<tr class='question' ng-repeat='item in widget.puzzleItems' ng-class='{ unused: !item.found }'>
 						<td>
 							<textarea class='unicase' ng-focus='startTimer()' ng-model='item.answer' ng-change='noLongerFresh()' ng-blur='generateNewPuzzle()'>{{item.answer}}</textarea>
 						</td>
@@ -97,7 +97,7 @@
 				<div class='puzzleintro' ng-hide='widget.puzzleItems.length'>
 					Add words to build a puzzle
 				</div>
-				<div class='previewarea' ng-show='widget.puzzleItems.length' ng-click='generateNewPuzzle(true, true)' ng-class=' { toobig: tooBig, stationary: !isBuilding } '>
+				<div class='previewarea' ng-show='widget.puzzleItems.length' ng-click='generateNewPuzzle(true, true)' ng-class=' { error: error, toobig: tooBig, unused: unused, stationary: !isBuilding } '>
 					<div id='preview'>
 						<div class='right'></div>
 						<div id='preview_kids'></div>
