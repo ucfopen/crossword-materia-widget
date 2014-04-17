@@ -82,6 +82,8 @@ Namespace('Crossword').Engine = do ->
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
 		$('#board').mousedown (e) ->
+			return if e.screenX > 630
+
 			_boardDown = true
 			_boardY = e.screenY
 			_boardX = e.screenX
