@@ -20,7 +20,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	
 	$scope.step = 0
 
-	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h }
+	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h, found: true }
 	$scope.removePuzzleItem = (index) ->
 		$scope.widget.puzzleItems.splice(index,1)
 		$scope.noLongerFresh()
@@ -168,10 +168,24 @@ Namespace('Crossword').Creator = do ->
 
 			_hasFreshPuzzle = _okToSave
 
-		for i in [0.._puzzleItems.length-1]
-			continue if not _qset.items[0].items[i]?
+		console.log 'generating'
+
+		for i in [0..._puzzleItems.length]
+			if not _qset.items[0].items[i]?
+				continue
 			_qset.items[0].items[i].questions[0].text = _puzzleItems[i].question
 			_qset.items[0].items[i].options.hint = _puzzleItems[i].hint
+
+		for item in _scope.widget.puzzleItems
+			found = false
+			for qitem in _qset.items[0].items
+				if item.answer == qitem.answers[0].text
+					found = true
+
+			item.found = found
+			if not found
+				_scope.unused = true
+				_scope.error = _scope.unused or _scope.tooBig
 
 		_okToSave
 
@@ -212,6 +226,7 @@ Namespace('Crossword').Creator = do ->
 		
 		_scope.$apply ->
 			_scope.tooBig = _left > 17 or _top > 20
+			_scope.error = _scope.tooBig or _scope.unused
 		
 	_process = (puzzleItem) ->
 		questionObj =
