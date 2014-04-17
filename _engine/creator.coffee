@@ -44,6 +44,15 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		$('#backgroundcover, .options').addClass 'show'
 		$('.options input[type=button]').click ->
 			$('#backgroundcover, .options').removeClass 'show'
+	
+	$scope.$watch('widget.hintPenalty', (newValue, oldValue) ->
+		if not newValue.match(/^[0-9]?[0-9]?$/)
+			$scope.widget.hintPenalty = oldValue
+	)
+	$scope.$watch('widget.freeWords', (newValue, oldValue) ->
+		if not newValue.match(/^[0-9]?[0-9]?$/)
+			$scope.widget.freeWords = oldValue
+	)
 ]
 
 
@@ -160,6 +169,7 @@ Namespace('Crossword').Creator = do ->
 			_hasFreshPuzzle = _okToSave
 
 		for i in [0.._puzzleItems.length-1]
+			continue if not _qset.items[0].items[i]?
 			_qset.items[0].items[i].questions[0].text = _puzzleItems[i].question
 			_qset.items[0].items[i].options.hint = _puzzleItems[i].hint
 
