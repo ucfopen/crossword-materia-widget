@@ -178,19 +178,6 @@ body {
 		}
 	}
 
-	.helptip {
-		width: 18px;
-		height: 18px;
-		display: inline-block;
-		background: #333;
-		color: #fff;
-		border-radius: 18px;
-		text-align: center;
-		font-size: 13px;
-		float: right;
-		margin-top: 6px;
-	}
-
 	.puzzleintro {
 		text-align: center;
 		margin: 256px 16px;
@@ -316,9 +303,6 @@ body {
 	}
 }
 
-.helptip:before {
-	content: '?';
-}
 
 h1 {
 	color: #fff;
@@ -507,6 +491,8 @@ h1 {
 	text-align: center;
 	opacity: 0.5;
 	z-index: 500;
+
+	cursor: pointer;
 
 	font-family: 'Lato';
 
