@@ -98,10 +98,10 @@ Namespace('Crossword').Engine = do ->
 			_boardLeft += (e.screenX - _boardX)
 
 			# if its out of range, stop panning
-			_boardTop = -_boardHeight if _boardTop < -_boardHeight
-			_boardTop = 100 if _boardTop > 100
-			_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
-			_boardLeft = 100 if _boardLeft > 100
+			_boardTop = -_boardHeight / 3 if _boardTop < -_boardHeight / 3
+			_boardTop = _boardHeight / 3 if _boardTop > _boardHeight / 3
+			_boardLeft = -_boardWidth / 3 if _boardLeft < -_boardWidth / 3
+			_boardLeft = _boardWidth / 3 if _boardLeft > _boardWidth / 3
 
 			_boardY = e.screenY
 			_boardX = e.screenX
@@ -180,10 +180,11 @@ Namespace('Crossword').Engine = do ->
 
 				$('#movable').append letter
 
+		_boardWidth = _left * LETTER_WIDTH
+		_boardHeight = _top * LETTER_HEIGHT
+
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
-			_boardWidth = _left * LETTER_WIDTH
-			_boardHeight = _top * LETTER_HEIGHT
 
 			$('#movable').addClass 'pannedout'
 			setTimeout ->
