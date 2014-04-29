@@ -46,11 +46,11 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 			$('#backgroundcover, .options').removeClass 'show'
 	
 	$scope.$watch('widget.hintPenalty', (newValue, oldValue) ->
-		if not newValue.match(/^[0-9]?[0-9]?$/)
+		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
 			$scope.widget.hintPenalty = oldValue
 	)
 	$scope.$watch('widget.freeWords', (newValue, oldValue) ->
-		if not newValue.match(/^[0-9]?[0-9]?$/)
+		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
 			$scope.widget.freeWords = oldValue
 	)
 ]
@@ -176,8 +176,9 @@ Namespace('Crossword').Creator = do ->
 			_qset.items[0].items[i].questions[0].text = _puzzleItems[i].question
 			_qset.items[0].items[i].options.hint = _puzzleItems[i].hint
 
+		_scope.unused = false
 		for item in _scope.widget.puzzleItems
-			found = false
+			found = false if item.answer != ''
 			for qitem in _qset.items[0].items
 				if item.answer == qitem.answers[0].text
 					found = true
@@ -185,7 +186,7 @@ Namespace('Crossword').Creator = do ->
 			item.found = found
 			if not found
 				_scope.unused = true
-				_scope.error = _scope.unused or _scope.tooBig
+		_scope.error = _scope.unused or _scope.tooBig
 
 		_okToSave
 
