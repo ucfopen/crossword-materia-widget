@@ -168,8 +168,6 @@ Namespace('Crossword').Creator = do ->
 
 			_hasFreshPuzzle = _okToSave
 
-		console.log 'generating'
-
 		for i in [0..._puzzleItems.length]
 			if not _qset.items[0].items[i]?
 				continue
