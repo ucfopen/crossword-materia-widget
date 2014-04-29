@@ -107,13 +107,32 @@ Namespace('Crossword').Puzzle = do ->
 	normalizeQSET = (qset) ->
 		minX = 0
 		minY = 0
-		for i in [0..qset.length-1]
+		maxX = 0
+		maxY = 0
+
+		for i in [0...qset.length]
 			minX = qset[i].options.x if qset[i].options.x < minX
 			minY = qset[i].options.y if qset[i].options.y < minY
 
-		for i in [0..qset.length-1]
+		for i in [0...qset.length]
 			qset[i].options.x -= minX
 			qset[i].options.y -= minY
+
+		for i in [0...qset.length]
+			maxX = qset[i].options.x if qset[i].options.x > maxX
+			maxY = qset[i].options.y if qset[i].options.y > maxY
+
+		xShift = (17 / 2 - maxX / 2)
+		yShift = (20 / 2 - maxY / 2)
+
+		for i in [0...qset.length]
+			qset[i].options.x += xShift
+			qset[i].options.y += yShift
+			if qset[i].options.x > 17 or qset[i].options.y > 22
+				for i in [0...qset.length]
+					qset[i].options.x -= xShift
+					qset[i].options.y -= yShift
+				break
 
 	loopCount = 0
 	loopLimit = 20
