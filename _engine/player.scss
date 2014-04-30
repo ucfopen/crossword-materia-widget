@@ -7,22 +7,6 @@ $green:#5BAC58;
 	margin: 0px;
 }
 
-/* Body font */
-@font-face {
-	font-family: 'Roboto Slab';
-	font-style: normal;
-	font-weight: 400;
-	src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(http://themes.googleusercontent.com/static/fonts/robotoslab/v2/y7lebkjgREBJK96VQi37ZrrIa-7acMAeDBVuclsi6Gc.woff) format('woff');
-}
-
-/* Letter font */
-@font-face {
-	font-family: 'Delius Unicase';
-	font-style: normal;
-	font-weight: 400;
-	src: local('Delius Unicase'), local('DeliusUnicase-Regular'), url(http://themes.googleusercontent.com/static/fonts/deliusunicase/v6/b2sKujV3Q48RV2PQ0k1vqu0T1_f-eZQ5oLffZi8sUkg.woff) format('woff');
-}
-
 @font-face {
 	font-family: 'icomoon';
 	src:url('assets/font/icomoon.eot?-jn78cs');
@@ -101,17 +85,28 @@ html, body {
 
 	border-bottom: solid 1px #333;
 
+	.logo {
+		display: block;
+		background: url(assets/materialogo.png) no-repeat;
+		width: 60px;
+		height: 50px;
+		float: left;
+		margin-left: 17px;
+		margin-top: 16px;
+	}
+
 	h1 {
 		line-height: 65px;
 		width: 77%;
 		height: 90px;
 		margin: 0;
-		margin-left: 14px;
+		margin-left: 83px;
 		padding: 0;
 		position: absolute;
 		overflow: hidden;
-		font-size: 25px;
-		font-weight: normal;
+		font-size: 28px;
+		font-family: 'Roboto Slab';
+		font-weight: 300;
 		span {
 			display: inline-block;
 			line-height: normal;
