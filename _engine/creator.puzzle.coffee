@@ -122,8 +122,8 @@ Namespace('Crossword').Puzzle = do ->
 			maxX = qset[i].options.x if qset[i].options.x > maxX
 			maxY = qset[i].options.y if qset[i].options.y > maxY
 
-		xShift = Math.ceil((9 / 2 - maxX / 2))
-		yShift = Math.ceil((9 / 2 - maxY / 2))
+		xShift = Math.ceil((11 / 2 - maxX / 2))
+		yShift = Math.ceil((11 / 2 - maxY / 2))
 
 		for i in [0...qset.length]
 			qset[i].options.x += xShift
