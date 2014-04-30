@@ -122,16 +122,17 @@ Namespace('Crossword').Puzzle = do ->
 			maxX = qset[i].options.x if qset[i].options.x > maxX
 			maxY = qset[i].options.y if qset[i].options.y > maxY
 
-		xShift = (17 / 2 - maxX / 2)
-		yShift = (20 / 2 - maxY / 2)
+		xShift = Math.ceil((9 / 2 - maxX / 2))
+		yShift = Math.ceil((9 / 2 - maxY / 2))
 
 		for i in [0...qset.length]
 			qset[i].options.x += xShift
 			qset[i].options.y += yShift
-			if qset[i].options.x > 17 or qset[i].options.y > 22
-				for i in [0...qset.length]
-					qset[i].options.x -= xShift
-					qset[i].options.y -= yShift
+			len = qset[i].questions[0].text.length
+			if qset[i].options.x < 0 or qset[i].options.y < 0 or len + qset[i].options.x > 12 or len + qset[i].options.y > 12
+				for j in [0..i]
+					qset[j].options.x -= xShift
+					qset[j].options.y -= yShift
 				break
 
 	loopCount = 0
