@@ -9,6 +9,7 @@
 
 		<!-- STYLESHEETS -->
 		<link rel="stylesheet" type="text/css" href="player.css">
+		<link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,300|Delius+Unicase' rel='stylesheet' type='text/css'>
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -29,14 +30,14 @@
 	<div id="board" class="screen board">
 		<textarea type='text' id='boardinput' autocomplete='off' autocorrect='off' autocapitalize='off' autocapitalize="off" spellcheck="false"></textarea>
 		<div class="header">
+			<div class='logo'></div>
 			<h1 id='title'></h1>
 			<div class='remaining'>
 				<span id='freeWordsRemaining'></span>
 			</div>
 			<div class='icon-print' id='printbtn' title='Print'></div>
 		</div>
-		<div id='movable' class='crossword-board'>
-		</div>
+		<div id='movable' class='crossword-board'></div>
 		<div id='controlbar'>
 			<input type='button' value='Submit Answers' id='checkBtn' class='button submit'>
 		</div>
