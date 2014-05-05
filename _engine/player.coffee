@@ -82,11 +82,11 @@ Namespace('Crossword').Engine = do ->
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
 		$('#board').mousedown (e) ->
-			return if e.screenX > 630
+			return if e.clientX > 515
 
 			_boardDown = true
-			_boardY = e.screenY
-			_boardX = e.screenX
+			_boardY = e.clientY
+			_boardX = e.clientX
 
 			_curDir = -1
 
@@ -96,8 +96,8 @@ Namespace('Crossword').Engine = do ->
 		$('#board').mousemove (e) ->
 			return if not _boardDown
 
-			_boardTop += (e.screenY - _boardY)
-			_boardLeft += (e.screenX - _boardX)
+			_boardTop += (e.clientY - _boardY)
+			_boardLeft += (e.clientX - _boardX)
 
 			# if its out of range, stop panning
 			_boardTop = -_boardHeight / 3 if _boardTop < -_boardHeight / 3
@@ -105,8 +105,8 @@ Namespace('Crossword').Engine = do ->
 			_boardLeft = -_boardWidth / 3 if _boardLeft < -_boardWidth / 3
 			_boardLeft = _boardWidth / 3 if _boardLeft > _boardWidth / 3
 
-			_boardY = e.screenY
-			_boardX = e.screenX
+			_boardY = e.clientY
+			_boardX = e.clientX
 
 			m = _dom('movable')
 			m.style.top = _boardTop + 'px'
