@@ -27,10 +27,12 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		$scope.generateNewPuzzle()
 
 	$scope.changeTitle = ->
-		$('#backgroundcover, .title').addClass 'show'
-		$('.title input[type=text]').focus()
-		$('.title input[type=button]').click ->
-			$('#backgroundcover, .title').removeClass 'show'
+		setTimeout ->
+			$('#backgroundcover, .title').addClass 'show'
+			$('.title input[type=text]').focus()
+			$('.title input[type=button]').click ->
+				$('#backgroundcover, .title').removeClass 'show'
+		,0
 	
 	$scope.introComplete = ->
 		$('#backgroundcover, .intro').removeClass 'show'
@@ -38,7 +40,9 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		$scope.step = 1
 
 	$scope.hideCover = ->
-		$('#backgroundcover, .title, .intro').removeClass 'show'
+		setTimeout ->
+			$('#backgroundcover, .title, .intro').removeClass 'show'
+		,0
 	
 	$scope.showOptions = ->
 		$('#backgroundcover, .options').addClass 'show'
