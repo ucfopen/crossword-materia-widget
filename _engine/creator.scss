@@ -207,51 +207,6 @@ body {
 
 		&.stationary {
 
-			&:hover {
-				outline: solid 4px $green;
-				outline-offset: -4px;
-
-				&:before {
-					display: block;
-					width: 190px;
-					padding-top: 140px;
-					padding-left: 5px;
-					padding-right: 5px;
-					padding-bottom: 30px;
-					background: $green;
-					position: absolute;
-					left: 50%;
-					top: 270px;
-					margin-left: -100px;
-					content: 'Click to redraw puzzle';
-					text-align: center;
-					color: #fff;
-					z-index: 1000;
-				}
-				&:after {
-					content: "\e600";
-					font-family: 'icomoon';
-					color: #fff;
-					font-size: 90px;
-					position: absolute;
-					left: 50%;
-					margin-left: -44px;
-					top: 300px;
-					z-index: 1001;
-				}
-			}
-
-			&.toobig {
-				&:before {
-					content: 'This puzzle will be difficult to view. Click here to redraw this puzzle or modify the puzzle words so they fit inside the box.';
-				}
-			}
-			&.unused {
-				&:before {
-					content: 'The words in red could not be included in the puzzle. Make sure they share common letters with the other words in the puzzle.';
-				}
-			}
-
 			&.error {
 				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
 				background-size: 570px 600px;
@@ -294,6 +249,52 @@ body {
 					z-index: 19;
 				}
 			}
+
+			&.toobig {
+				&:before {
+					content: 'This puzzle will be difficult to view. Click here to redraw this puzzle or modify the puzzle words so they fit inside the box.';
+				}
+			}
+			&.unused {
+				&:before {
+					content: 'The words in red could not be included in the puzzle. Make sure they share common letters with the other words in the puzzle.';
+				}
+			}
+
+			&:hover {
+				outline: solid 4px $green;
+				outline-offset: -4px;
+
+				&:before {
+					display: block;
+					width: 190px;
+					padding-top: 140px;
+					padding-left: 5px;
+					padding-right: 5px;
+					padding-bottom: 30px;
+					background: $green;
+					position: absolute;
+					left: 50%;
+					top: 270px;
+					margin-left: -100px;
+					content: 'Click to redraw puzzle';
+					text-align: center;
+					color: #fff;
+					z-index: 1000;
+				}
+				&:after {
+					content: "\e600";
+					font-family: 'icomoon';
+					color: #fff;
+					font-size: 90px;
+					position: absolute;
+					left: 50%;
+					margin-left: -44px;
+					top: 300px;
+					z-index: 1001;
+				}
+			}
+
 		}
 	}
 
