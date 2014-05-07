@@ -128,6 +128,13 @@ html, body {
 		text-transform: none;
 		line-height: 1;
 		-webkit-font-smoothing: antialiased;
+		transition: color 0.2s ease;
+
+		cursor: pointer;
+
+		&:hover {
+			color: #444;
+		}
 	}
 }
 
