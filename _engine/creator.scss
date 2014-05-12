@@ -49,6 +49,9 @@ body {
 		margin-top: 3px;
 		float: left;
 		cursor: pointer;
+		max-width: 800px;
+		white-space: nowrap;
+		overflow: hidden;
 	}
 	div.link {
 		float: left;
@@ -362,12 +365,17 @@ h1 {
 	cursor: pointer;
 }
 
-.icon-print:before {
-	content: "\e603";
-	position: relative;
-	float: right;
-	margin: 20px 74px;
-	opacity: 0.5;
+.icon-print {
+	&:before {
+		content: "\e603";
+		position: relative;
+		float: right;
+		margin: 20px 74px;
+		opacity: 0.5;
+	}
+	&:hover:before{
+		opacity: 1;
+	}
 }
 
 .icon-spinner:before {
@@ -481,6 +489,11 @@ h1 {
 			border: solid 2px #70bd34;
 			padding: 11px;
 			margin-left: 0px;
+		}
+		&[type=button]:hover, &[type=submit]:hover {
+			background: #78DD5E;
+			color: #000;
+			cursor: pointer;
 		}
 	}
 }
@@ -712,6 +725,7 @@ hr {
 	padding: 24px;
 	color: #fff;
 	text-align: center;
+	cursor:default;
 	animation: pounce 1.5s infinite;
 }
 .arrow_box:after, .arrow_box:before {
