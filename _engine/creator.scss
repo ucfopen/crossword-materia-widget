@@ -68,47 +68,47 @@ body {
 	}
 }
 
-.table {
+.content-table {
 	position: relative;
 	width: calc(100% - 650px);
 	
-	div {
-		display: inline-block;
-		cursor: pointer;
-		margin: 25px 0px 5px 10px;
-	}
 
 	table {
 		width: 100%;
-		td.count {
-			padding: 0px 15px;
+		th {
+			font-weight: 700;
+			font-size: 16px;
+			cursor:default;
 		}
-		td {
+		td, th {
 			padding: 12px;
 			font-size: 14px;
 			border-left: 1px solid #eee;
 			border-bottom: 1px solid #eee;
 			width: 32%;
-		}
-		td.hint {
-			width: 26%;
-		}
-		td.last {
-			width: 10%;
-			.dot {
-				padding: 3px;
-				border-radius: 10px;
-				margin: auto;
-				display: inline-block;
-				position: relative;
-				left: 40%;
-				background: #ccc;
+			&.count {
+				padding: 0px 15px;
+			}
+			&.hint {
+				width: 26%;
+			}
+			&.last {
+				width: 10%;
+				.dot {
+					padding: 3px;
+					border-radius: 10px;
+					margin: auto;
+					display: inline-block;
+					position: relative;
+					background: #ccc;
+				}
+			}
+			&.editable:hover
+			{
+				outline: #008000 solid 2px;
 			}
 		}
-		tr.bold {
-			font-weight: 700;
-			font-size: 16px;
-		}
+
 		.question {
 			&.unused {
 				background: #fcd9dc;
@@ -145,6 +145,13 @@ body {
 				font-size: 14px;
 			}
 		}
+		tbody {
+			div {
+				display: inline-block;
+				cursor: pointer;
+				margin: 25px 0px 5px 10px;
+			}
+		}
 	}
 }
 
@@ -162,6 +169,7 @@ body {
 
 	.controls {
 		padding: 8px;
+		cursor:pointer;
 
 		.control {
 			display: inline-block;
@@ -192,12 +200,17 @@ body {
 			color: #4f9fd1;
 			cursor: pointer;
 		}
+		&:hover{
+			background:#F7FAB3;
+
+		}
 	}
 
 	.puzzleintro {
 		text-align: center;
 		margin: 256px 16px;
 		opacity: 0.5;
+		cursor:default;
 	}
 
 	.previewarea {
@@ -387,7 +400,10 @@ h1 {
 	padding: 0px;
 	margin: 0px;
 	display: inline-block;
-	width: 95%;
+	width: 100%;
+	height: 45px;
+	padding-top: 15px;
+	box-sizing: border-box;
 
 	&:hover {
 		opacity: 1;
@@ -424,7 +440,7 @@ h1 {
 	margin-left: -317px;
 	margin-top: -210px;
 	padding: 15px;
-	position: absolute;
+	position: fixed;
 	background: #fff;
 	border: solid 1px #777;
 	z-index: -1;
@@ -506,8 +522,14 @@ h1 {
 	input {
 		&[type=text] {
 			width: 25px;
-			padding: 5px 2px;
+			padding: 5px 7px;
 			border: 1px solid #ccc;
+			font-weight: 600;
+			font-size: 20px;
+			margin: 4px;
+			&:hover{
+				background: #F7FAB3;
+			}
 		}
 		&[type=button] {
 			position: relative;
@@ -631,6 +653,13 @@ hr {
 		font-size: 22px;
 		background: $green;
 		margin: 10px auto;
+	}
+	&:hover{
+		background: #F7FAB3;
+		div {
+			background: #78DD5E;
+			color:#000;
+		}
 	}
 }
 

@@ -26,35 +26,37 @@
 	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
 		<div id='header'>
 			<div class='logo'></div>
-			<h1 id='title' ng-bind='widget.title' ng-click='changeTitle()'></h1>
-			<div class='link' ng-click='changeTitle()'>Edit...</div>
+			<h1 id='title' ng-bind='widget.title' ng-click='showTitleDialog = true'></h1>
+			<div class='link' ng-click='showTitleDialog = true'>Edit...</div>
 		</div>
 		<section>
-			<div class='table'>
-				<div class='arrow_box' ng-show='step && !widget.puzzleItems.length'>
-					Add your first word
-				</div>
+			<div class='content-table'>
+				<div class='arrow_box' ng-show='!showIntroDialog && !widget.puzzleItems.length'>Add your first word</div>
 				<table cellspacing=0 cellpadding=0>
-					<tr class='bold'>
-						<td>Puzzle Word</td>
-						<td>Clue</td>
-						<td class='hint'>Hint (Optional)</td>
-						<td class='last'><div class='dot'></div></td>
-					</tr>
-					<tr class='question' ng-repeat='item in widget.puzzleItems' ng-class='{ unused: !item.found }'>
-						<td>
-							<textarea class='unicase' ng-focus='startTimer()' ng-model='item.answer' ng-change='noLongerFresh()' ng-blur='generateNewPuzzle()'>{{item.answer}}</textarea>
-						</td>
-						<td>
-							<textarea ng-model='item.question'>{{item.question}}</textarea>
-						</td>
-						<td class='hint'>
-							<textarea ng-model='item.hint'>{{item.hint}}</textarea>
-						</td>
-						<td class='last'>
-							<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
-						</td>
-					</tr>
+					<thead>
+						<tr>
+							<th>Puzzle Word</th>
+							<th>Clue</th>
+							<th class='hint'>Hint (Optional)</th>
+							<th class='last'><div class='dot'></div></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class='question' ng-repeat='item in widget.puzzleItems' ng-class='{ unused: !item.found }'>
+							<td class="answer editable">
+								<textarea class='unicase' ng-focus='startTimer()' ng-model='item.answer' ng-change='noLongerFresh()' ng-blur='generateNewPuzzle()'>{{item.answer}}</textarea>
+							</td>
+							<td class="question editable">
+								<textarea ng-model='item.question'>{{item.question}}</textarea>
+							</td>
+							<td class='hint editable'>
+								<textarea ng-model='item.hint'>{{item.hint}}</textarea>
+							</td>
+							<td class='last'>
+								<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
+							</td>
+						</tr>
+					</tbody>
 				</table>
 			</div>
 			<div class='add' ng-click='addPuzzleItem()'>
@@ -62,10 +64,10 @@
 				Add Word
 			</div>
 			<div class='rightcontent'>
-				<div class='controls'>
+				<div class='controls' ng-click='showOptions()'>
 					<div class='control'>
 						<h2>Options</h2>
-						<span class='link' ng-click='showOptions()'>Edit options...</span>
+						<span class='link' >Edit options...</span>
 					</div>
 					
 					<div class='control'>
@@ -109,12 +111,13 @@
 						</div>
 					</div>
 				</div>
-				<div class='icon-print' id='printbtn' title='Print'></div>
+				<div ng-show='widget.puzzleItems.length' class='icon-print' id='printbtn' title='Print'></div>
 			</div>
 		</section>
 
-		<div id='backgroundcover' ng-click='hideCover()'></div>
-		<div class='box intro'>
+		<div ng-show='showIntroDialog || showTitleDialog || showOptionsDialog' ng-click="closeDialog()" id='backgroundcover' class="show"></div>
+
+		<div ng-show="showIntroDialog" class='box intro show'>
 			<img src='assets/creator_example.png'>
 			<h1>Crossword</h1>
 			<p>Enter <b>words</b> to build a puzzle.</p>
@@ -122,19 +125,21 @@
 			<p>Set <b>options</b> that define how hints and free words impact the score.</p>
 			<hr>
 			<b>Start by giving your Crossword widget a title</b><br>
-			<form ng-submit='introComplete()'>
-				<input type='text' placeholder='My Crossword widget' autofocus='1'>
+			<form ng-submit='closeDialog()'>
+				<input type='text' placeholder='My Crossword widget' autofocus='1' ng-model='widget.title'>
 				<input type='submit' value='Get Started'>
 			</form>
 		</div>
-		<div class='box title'>
+
+		<div ng-show="showTitleDialog" class='box title show'>
 			<b>Give your Crossword widget a title</b><br>
-			<form ng-submit='hideCover()'>
+			<form ng-submit="closeDialog()">
 				<input type='text' placeholder='My Crossword widget' ng-model='widget.title'>
 				<input type='submit' value='Done'>
 			</form>
 		</div>
-		<div class='box options'>
+
+		<div ng-show="showOptionsDialog" class='box options show'>
 			<h2>Options</h2>
 			
 			<strong>Hint penalty</strong>
@@ -144,7 +149,6 @@
 				using one will reduce that word's score by the <b>Hint penalty </b>
 				percentage you specify.
 			</p>
-			<br>
 
 			<strong>Free words</strong>
 			<input type='text' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
@@ -154,7 +158,7 @@
 				stuck by using a <b>Free word</b>. Specify the number of Free words available.
 			</p>
 
-			<input type='button' value='Close'>
+			<input type='button' ng-click="closeDialog()" value='Close'>
 		</div>
 
 		<!-- INITIALIZE -->
