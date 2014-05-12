@@ -18,36 +18,28 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		freeWords: 1
 		puzzleItems: []
 	
-	$scope.step = 0
 
-	$scope.addPuzzleItem = (q='', a='', h='') -> $scope.widget.puzzleItems.push { question: q, answer: a, hint: h, found: true }
+	# dialogs
+	$scope.showIntroDialog = true
+	$scope.showOptionsDialog = false
+	$scope.showTitleDialog = false
+
+	$scope.addPuzzleItem = (q='', a='', h='') ->
+		$scope.widget.puzzleItems.push { question: q, answer: a, hint: h, found: true }
+
 	$scope.removePuzzleItem = (index) ->
 		$scope.widget.puzzleItems.splice(index,1)
 		$scope.noLongerFresh()
 		$scope.generateNewPuzzle()
-
-	$scope.changeTitle = ->
-		setTimeout ->
-			$('#backgroundcover, .title').addClass 'show'
-			$('.title input[type=text]').focus()
-			$('.title input[type=button]').click ->
-				$('#backgroundcover, .title').removeClass 'show'
-		,0
 	
 	$scope.introComplete = ->
-		$('#backgroundcover, .intro').removeClass 'show'
-		$scope.widget.title = $('.intro input[type=text]').val() or $scope.widget.title
-		$scope.step = 1
-
-	$scope.hideCover = ->
-		setTimeout ->
-			$('#backgroundcover, .title, .intro').removeClass 'show'
-		,0
+		$scope.showIntroDialog = false
 	
+	$scope.closeDialog = ->
+		$scope.showIntroDialog = $scope.showTitleDialog = $scope.showOptionsDialog = false
+
 	$scope.showOptions = ->
-		$('#backgroundcover, .options').addClass 'show'
-		$('.options input[type=button]').click ->
-			$('#backgroundcover, .options').removeClass 'show'
+		$scope.showOptionsDialog = true
 	
 	$scope.$watch('widget.hintPenalty', (newValue, oldValue) ->
 		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
@@ -104,11 +96,6 @@ Namespace('Crossword').Creator = do ->
 
 	initNewWidget = (widget, baseUrl) ->
 		initScope()
-
-		$('#backgroundcover, .intro').addClass 'show'
-
-		$('.intro input[type=button]').click ->
-			$scope.$apply $scope.introComplete
 
 	initExistingWidget = (title,widget,qset,version,baseUrl) ->
 		# Set up the scope functions
