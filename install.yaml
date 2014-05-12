@@ -22,6 +22,7 @@ meta_data:
   features:
     - Customizable
     - Scorable
+    - Mobile Friendly
   supported_data:
     - Question/Answer
   about: 'In Crossword, fill in the blank squares with: (a) words based on the clues provided in the text and/or (b) by the letters overlapping from other words.'
