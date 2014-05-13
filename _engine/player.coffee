@@ -74,7 +74,7 @@ Namespace('Crossword').Engine = do ->
 
 		$('#boardinput').keydown _inputLetter
 		$('#printbtn').click (e) ->
-			Crossword.Print.printBoard(e, _instance, _questions)
+			Crossword.Print.printBoard(_instance, _questions)
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
