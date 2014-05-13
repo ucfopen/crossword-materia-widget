@@ -157,11 +157,11 @@ body {
 
 .rightcontent {
 	top: 64px;
-	bottom: 0px;
+	height: 750px;
 	right: 0px;
 	width: 650px;
 	vertical-align: top;
-	position: fixed;
+	position: absolute;
 	font-size: 16px;
 
 	background: #eeedee;
@@ -551,7 +551,7 @@ h1 {
 	width: 18px;
 	text-align: center;
 	opacity: 0.5;
-	z-index: 500;
+	z-index: 5;
 
 	cursor: pointer;
 
@@ -565,7 +565,7 @@ h1 {
 		margin: -2px;
 
 		.qtip_box {
-			z-index: 99999999999;
+			z-index: 999;
 			opacity: 1;
 			overflow: inherit;
 			height: auto;
