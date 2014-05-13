@@ -23,7 +23,7 @@
 		<!-- MAIN CREATOR SCRIPT -->
 		<script src="creator.js"></script>
 	</head>
-	<body ng-cloak ng-controller='crosswordCreatorCtrl'>
+	<body ng-app='crosswordCreator' ng-controller='crosswordCreatorCtrl'>
 		<div id='header'>
 			<div class='logo'></div>
 			<h1 id='title' ng-bind='widget.title' ng-click='showTitleDialog = true'></h1>
@@ -111,13 +111,13 @@
 						</div>
 					</div>
 				</div>
-				<div ng-show='widget.puzzleItems.length' class='icon-print' id='printbtn' title='Print'></div>
+				<div ng-show='widget.puzzleItems.length' ng-click='printPuzzle()' class='icon-print' title='Print'></div>
 			</div>
 		</section>
 
-		<div ng-show='showIntroDialog || showTitleDialog || showOptionsDialog' ng-click="closeDialog()" id='backgroundcover' class="show"></div>
+		<div ng-class='{ show: showIntroDialog || showTitleDialog || showOptionsDialog }' ng-click="closeDialog()" id='backgroundcover'></div>
 
-		<div ng-show="showIntroDialog" class='box intro show'>
+		<div ng-class="{ show: showIntroDialog }" class='box intro'>
 			<img src='assets/creator_example.png'>
 			<h1>Crossword</h1>
 			<p>Enter <b>words</b> to build a puzzle.</p>
@@ -131,7 +131,7 @@
 			</form>
 		</div>
 
-		<div ng-show="showTitleDialog" class='box title show'>
+		<div ng-class="{ show: showTitleDialog }" class='box title'>
 			<b>Give your Crossword widget a title</b><br>
 			<form ng-submit="closeDialog()">
 				<input type='text' placeholder='My Crossword widget' ng-model='widget.title'>
@@ -139,7 +139,7 @@
 			</form>
 		</div>
 
-		<div ng-show="showOptionsDialog" class='box options show'>
+		<div ng-class="{ show: showOptionsDialog }" class='box options'>
 			<h2>Options</h2>
 			
 			<strong>Hint penalty</strong>
@@ -160,11 +160,5 @@
 
 			<input type='button' ng-click="closeDialog()" value='Close'>
 		</div>
-
-		<!-- INITIALIZE -->
-		<script type="text/javascript">
-			angular.bootstrap(document, ['crosswordCreator']);
-			Materia.CreatorCore.start(Crossword.Creator);
-		</script>
 	</body>
 </html>

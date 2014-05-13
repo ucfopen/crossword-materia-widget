@@ -4,7 +4,7 @@ Namespace('Crossword').Print = do ->
 	LETTER_WIDTH			= 27
 
 	# mess of rendering HTML to build a printable crossword from the qset
-	_printBoard = (e, _instance, _questions) ->
+	_printBoard = (_instance, _questions) ->
 		frame = document.createElement 'iframe'
 		$('body').append frame
 		wnd = frame.contentWindow
