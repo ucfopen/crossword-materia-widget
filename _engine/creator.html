@@ -134,7 +134,7 @@
 		<div ng-class="{ show: showTitleDialog }" class='box title'>
 			<b>Give your Crossword widget a title</b><br>
 			<form ng-submit="closeDialog()">
-				<input type='text' placeholder='My Crossword widget' ng-model='widget.title'>
+				<input type='text' placeholder='My Crossword widget' ng-model='widget.title' focus-me='showTitleDialog'>
 				<input type='submit' value='Done'>
 			</form>
 		</div>
