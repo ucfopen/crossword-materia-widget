@@ -132,9 +132,8 @@ class Score_Modules_Crossword extends Score_Module
 		return  preg_match('/^[0-9a-z]+$/i', $char);
 	}
 
-	public function get_score_page_answer($log)
+	public function get_ss_answer($log, $question)
 	{
-		$question  = $this->questions[$log->item_id];
 		$answer    = $this->normalize_string($question->answers[0]['text']);
 		$submitted = $this->normalize_string($log->text);
 
