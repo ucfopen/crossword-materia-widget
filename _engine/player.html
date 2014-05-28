@@ -8,23 +8,21 @@
 		<meta charset="utf-8" />
 
 		<!-- STYLESHEETS -->
-		<link rel="stylesheet" type="text/css" href="player.css">
-		<link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,300|Delius+Unicase' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="player.css" data-embed>
+		<link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,300|Delius+Unicase' rel='stylesheet' type='text/css'>
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script type="text/javascript" src="../../../js/materia.enginecore.js"></script>
-		<script type="text/javascript" src="../../../js/materia.score.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="materia.enginecore.js"></script>
+		<script src="materia.score.js"></script>
 
 		<!-- OPTIONAL MATERIA JAVASCRIPT -->
-		<!-- <script type="text/javascript" src="../../../js/materia.storage.manager.js"></script> -->
-		<!-- <script type="text/javascript" src="../../../js/materia.storage.table.js"></script> -->
-		<script src="print.js"></script>
+		<script src="print.js" data-embed></script>
 
 		<!-- YOUR PREREQUISITES -->
 
 		<!-- MAIN PLAYER SCRIPT -->
-		<script type="text/javascript" src="player.js"></script>
+		<script src="player.js" data-embed></script>
 	</head>
 	<body>
 	<div id="board" class="screen board">
@@ -60,7 +58,7 @@
 	</div>
 
 	<!-- INITIALIZE -->
-	<script type="text/javascript">
+	<script>
 		Materia.Engine.start(Crossword.Engine);
 	</script>
 
