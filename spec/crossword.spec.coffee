@@ -5,7 +5,7 @@ describe 'Testing framework', ->
 		require('./widgets.coffee') 'crossword', ->
 			client = this
 			done()
-	, 15000
+	, 25000
 
 crosswordClick = (id) ->
 	client.execute "$('" + id + "').click()", null, ->
