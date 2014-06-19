@@ -47,7 +47,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 			$scope.widget.puzzleItems = []
 			$scope.widget.freeWords = qset.options.freeWords
 			$scope.widget.hintPenalty = qset.options.hintPenalty
-			$scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint) for i in [0.._items.length-1]
+			$scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint, _items[i].id) for i in [0.._items.length-1]
 
 		_drawCurrentPuzzle _items
 		_hasFreshPuzzle = true
@@ -60,18 +60,18 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 	$scope.onSaveComplete = (title, widget, qset, version) -> true
 
 	$scope.onQuestionImportComplete = (items) ->
-		$scope = angular.element($('body')).scope()
 		$scope.$apply ->
-			$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint for item in items
+			$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint, item.id for item in items
 	
 	$scope.onMediaImportComplete = (media) -> null
 
 	# Actions from view
-	$scope.addPuzzleItem = (q='', a='', h='') ->
+	$scope.addPuzzleItem = (q='', a='', h='', id='') ->
 		$scope.widget.puzzleItems.push
 			question: q
 			answer: a
 			hint: h
+			id: id
 			found: true
 
 	$scope.removePuzzleItem = (index) ->
@@ -242,7 +242,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 
 		questions: [questionObj]
 		answers: [answerObj]
-		id: ''
+		id: puzzleItem.id
 		type: 'QA'
 		assets: []
 		options:
