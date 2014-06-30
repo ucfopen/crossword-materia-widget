@@ -333,9 +333,13 @@ Namespace('Crossword').Engine = do ->
 	# highlight the clicked letter and set up direction
 	_letterClicked = (e) ->
 		e = window.event if not e?
+		target = e.target or e.srcElement
+
+		# just a bubble
+		return if not target
 
 		# parse out the coordinates from the element id
-		s = (e.target or e.srcElement).id.split '_'
+		s = target.id.split '_'
 
 		_removePuzzleLetterHighlight()
 		_curLetter = { x: parseInt(s[1]), y: parseInt(s[2]) }
@@ -467,6 +471,7 @@ Namespace('Crossword').Engine = do ->
 			.replace(/{{hintPrefix}}/g, hintPrefix)
 			.replace(/{{question}}/g, question)
 			.replace(/{{i}}/g, i)
+			.replace(/{{dir}}/g, dir)
 
 		clue.setAttribute 'data-i', i
 		clue.setAttribute 'data-dir', dir
@@ -480,6 +485,7 @@ Namespace('Crossword').Engine = do ->
 
 	_clueMouseUp = (e) ->
 		e = window.event if not e?
+
 		# click on the first letter of the word
 		i = e.target.getAttribute('data-i')
 		dir = e.target.getAttribute('data-dir')
