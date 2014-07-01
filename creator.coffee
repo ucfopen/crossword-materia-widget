@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Crossword, Creator
 Authors	: Jonathan Warner, Ian Turgeon
-Updated	: 5/14
+Updated	: 7/14
 
 ###
 
@@ -41,12 +41,14 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 		puzzleItems: []
 
 	# dialogs
-	$scope.showIntroDialog = true
+	$scope.showIntroDialog = false
 	$scope.showOptionsDialog = false
 	$scope.showTitleDialog = false
 
 	# Materia Engine Interfaces
-	$scope.initNewWidget = (widget, baseUrl) -> true
+	$scope.initNewWidget = (widget, baseUrl) ->
+		$scope.$apply ->
+			$scope.showIntroDialog = true
 
 	$scope.initExistingWidget = (title,widget,qset,version,baseUrl) ->
 		_qset = qset
@@ -184,14 +186,16 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 			_hasFreshPuzzle = _okToSave
 
 		for i in [0..._puzzleItems.length]
-			if not _qset.items[0].items[i]?
-				continue
-			_qset.items[0].items[i].questions[0].text = _puzzleItems[i].question
-			_qset.items[0].items[i].options.hint = _puzzleItems[i].hint
+			for item in _qset.items[0].items
+				if item.answers[0].text == _puzzleItems[i].answer
+					item.questions[0].text = _puzzleItems[i].question
+					item.options.hint = _puzzleItems[i].hint
+					break
 
 		$scope.unused = false
 		for item in $scope.widget.puzzleItems
-			found = false if item.answer != ''
+			continue if item.answer == ''
+			found = false
 			for qitem in _qset.items[0].items
 				if item.answer == qitem.answers[0].text
 					found = true
