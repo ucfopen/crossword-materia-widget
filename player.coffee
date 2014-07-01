@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Crossword
 Authors	: Jonathan Warner
-Updated	: 4/14
+Updated	: 7/14
 
 ###
 
@@ -146,7 +146,7 @@ Namespace('Crossword').Engine = do ->
 			_renderClue question, hintPrefix, i, dir
 
 			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
-			$('#freewordbtn_'+i).css('display', 'none') if not _questions[i].options.hint
+			$('#freewordbtn_'+i).css('display', 'none') if not _freeWordsRemaining
 			$('#hintbtn_'+i).click _hintConfirm
 			$('#freewordbtn_'+i).click _getFreeword
 
