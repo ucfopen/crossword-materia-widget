@@ -24,9 +24,9 @@ Namespace('Crossword').Print = do ->
 
 		for i of _questions
 			letters = _questions[i].answers[0].text.toUpperCase().split ''
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
+			x = ~~_questions[i].options.x
+			y = ~~_questions[i].options.y
+			dir = ~~_questions[i].options.dir
 
 			question = _questions[i].questions[0].text
 			questionNumber = parseInt(i) + 1
