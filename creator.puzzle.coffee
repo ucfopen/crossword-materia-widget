@@ -111,6 +111,9 @@ Namespace('Crossword').Puzzle = do ->
 		maxY = 0
 
 		for i in [0...qset.length]
+			qset[i].options.x = ~~qset[i].options.x
+			qset[i].options.y = ~~qset[i].options.y
+
 			minX = qset[i].options.x if qset[i].options.x < minX
 			minY = qset[i].options.y if qset[i].options.y < minY
 

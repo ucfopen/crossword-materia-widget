@@ -27,6 +27,8 @@ Namespace('Crossword').Engine = do ->
 	_boardHeight			= 0
 	_boardWidth				= 0
 
+	_movableEase			= 0
+
 	# the current typing direction
 	_curDir					= -1
 	# the current letter that is highlighted
@@ -42,6 +44,8 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
+		_normalizeForPlayer qset.items[0].items
+
 		# store widget data
 		_instance = instance
 		_qset = qset
@@ -66,6 +70,34 @@ Namespace('Crossword').Engine = do ->
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
 
+	_normalizeForPlayer = (qset) ->
+		minX = 0
+		minY = 0
+		maxX = 0
+		maxY = 0
+
+		for i in [0...qset.length]
+			qset[i].options.x = ~~qset[i].options.x
+			qset[i].options.y = ~~qset[i].options.y
+
+			minX = qset[i].options.x if qset[i].options.x < minX
+			minY = qset[i].options.y if qset[i].options.y < minY
+
+		for i in [0...qset.length]
+			qset[i].options.x -= minX
+			qset[i].options.y -= minY
+
+		for i in [0...qset.length]
+			maxX = qset[i].options.x if qset[i].options.x > maxX
+			maxY = qset[i].options.y if qset[i].options.y > maxY
+
+		xShift = Math.ceil((11 / 2 - maxX / 2))
+		yShift = Math.ceil((11 / 2 - maxY / 2))
+
+		for i in [0...qset.length]
+			qset[i].options.x += xShift
+			qset[i].options.y += yShift
+
 	# set up listeners on UI elements
 	_setupClickHandlers = ->
 		# make sure the hidden input listener stays in focus
@@ -81,7 +113,7 @@ Namespace('Crossword').Engine = do ->
 
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
-		$('#board').mousedown (e) ->
+		document.addEventListener 'mousedown', (e) ->
 			return if e.clientX > 515
 
 			_boardDown = true
@@ -91,19 +123,19 @@ Namespace('Crossword').Engine = do ->
 			_curDir = -1
 
 		# stop dragging
-		$('#board').mouseup (e) -> _boardDown = false
+		document.addEventListener 'mouseup', (e) -> _boardDown = false
 
-		$('#board').mousemove (e) ->
+		document.addEventListener 'mousemove', (e) ->
 			return if not _boardDown
 
 			_boardTop += (e.clientY - _boardY)
 			_boardLeft += (e.clientX - _boardX)
 
 			# if its out of range, stop panning
-			_boardTop = -_boardHeight / 3 if _boardTop < -_boardHeight / 3
-			_boardTop = _boardHeight / 3 if _boardTop > _boardHeight / 3
-			_boardLeft = -_boardWidth / 3 if _boardLeft < -_boardWidth / 3
-			_boardLeft = _boardWidth / 3 if _boardLeft > _boardWidth / 3
+			_boardTop = -_boardHeight / 1 if _boardTop < -_boardHeight / 1
+			_boardTop = _boardHeight / 1 if _boardTop > _boardHeight / 1
+			_boardLeft = -_boardWidth / 1 if _boardLeft < -_boardWidth / 1
+			_boardLeft = _boardWidth / 1 if _boardLeft > _boardWidth / 1
 
 			_boardY = e.clientY
 			_boardX = e.clientX
@@ -182,15 +214,22 @@ Namespace('Crossword').Engine = do ->
 
 				$('#movable').append letter
 
-		_boardWidth = _left * LETTER_WIDTH
-		_boardHeight = _top * LETTER_HEIGHT
+		_boardWidth = _left * LETTER_WIDTH - 400
+		_boardHeight = _top * LETTER_HEIGHT - 400
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
+			val = 420 / (_boardWidth + 400)
+			trans = 'scale(' + val + ')'
+			$('#movable').css('-webkit-transform', trans)
+				.css('-moz-transform', trans)
+				.css('transform', trans)
 
-			$('#movable').addClass 'pannedout'
 			setTimeout ->
-				$('#movable').removeClass 'pannedout'
+				trans = ''
+				$('#movable').css('-webkit-transform', trans)
+					.css('-moz-transform', trans)
+					.css('transform', trans)
 			, 2500
 
 	# remove letter focus class from the current letter
@@ -210,6 +249,27 @@ Namespace('Crossword').Engine = do ->
 			bi = _dom('boardinput')
 			bi.style.top = highlightedLetter.style.top
 			bi.style.left = highlightedLetter.style.left
+
+			left = _curLetter.x * LETTER_WIDTH + _boardLeft
+			top = _curLetter.y * LETTER_HEIGHT + _boardTop
+
+			leftOut = left < 0 or left > 480
+			topOut = top < 0 or top > 420
+
+			if leftOut or topOut
+				if leftOut
+					_boardLeft = -_curLetter.x * LETTER_WIDTH + 100
+				if topOut
+					_boardTop = -_curLetter.y * LETTER_HEIGHT + 100
+
+				m = _dom('movable')
+				m.className += ' animateall'
+				m.style.top = _boardTop + 'px'
+				m.style.left = _boardLeft + 'px'
+				clearTimeout _movableEase
+				_movableEase = setTimeout ->
+					m.className = m.className.replace /animateall/g, ''
+				, 1000
 
 	# update which clue is highlighted and scrolled to on the side list
 	_updateClue = ->
@@ -370,9 +430,9 @@ Namespace('Crossword').Engine = do ->
 
 		# letter array to fill
 		letters = _questions[index].answers[0].text.split('')
-		x = _questions[index].options.x
-		y = _questions[index].options.y
-		dir = _questions[index].options.dir
+		x = ~~_questions[index].options.x
+		y = ~~_questions[index].options.y
+		dir = ~~_questions[index].options.dir
 
 		answer = ''
 
@@ -459,7 +519,7 @@ Namespace('Crossword').Engine = do ->
 		numberLabel.innerHTML = questionNumber
 		numberLabel.className = 'numberlabel'
 		numberLabel.style.top = 129 + y * LETTER_HEIGHT + 'px'
-		numberLabel.style.left = 31 + x * LETTER_WIDTH + 'px'
+		numberLabel.style.left = x * LETTER_WIDTH + 'px'
 		$('#movable').append numberLabel
 
 	# draw the clue from template html
@@ -530,9 +590,9 @@ Namespace('Crossword').Engine = do ->
 	forEveryQuestion = (cb) ->
 		for i of _questions
 			letters = _questions[i].answers[0].text.toUpperCase().split ''
-			x = _questions[i].options.x
-			y = _questions[i].options.y
-			dir = _questions[i].options.dir
+			x = ~~_questions[i].options.x
+			y = ~~_questions[i].options.y
+			dir = ~~_questions[i].options.dir
 			cb i, letters, x, y, dir
 
 	#public

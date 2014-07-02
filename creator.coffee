@@ -214,8 +214,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', ($scope) ->
 			
 		for item in items
 			letters = item.answers[0].text.split ''
-			x = item.options.x
-			y = item.options.y
+			x = ~~item.options.x
+			y = ~~item.options.y
 
 			for i in [0..letters.length-1]
 				if item.options.dir == 0
