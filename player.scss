@@ -287,10 +287,10 @@ input {
 	-webkit-transition: -webkit-transform 1s ease;
 	-moz-transition: -moz-transform 1s ease;
 	transition: transform 1s ease;
-	transform-origin: -100%;
+
 
 	&.animateall {
-		transition: all 1s ease;
+		transition-property: left, top, transform;
 	}
 }
 

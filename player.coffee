@@ -26,6 +26,8 @@ Namespace('Crossword').Engine = do ->
 
 	_boardHeight			= 0
 	_boardWidth				= 0
+	_boardYOverflow			= 0
+	_boardXOverflow			= 0
 
 	_movableEase			= 0
 
@@ -44,6 +46,8 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
+		qset = window.qset.data
+
 		_normalizeForPlayer qset.items[0].items
 
 		# store widget data
@@ -132,10 +136,10 @@ Namespace('Crossword').Engine = do ->
 			_boardLeft += (e.clientX - _boardX)
 
 			# if its out of range, stop panning
-			_boardTop = -_boardHeight / 1 if _boardTop < -_boardHeight / 1
-			_boardTop = _boardHeight / 1 if _boardTop > _boardHeight / 1
-			_boardLeft = -_boardWidth / 1 if _boardLeft < -_boardWidth / 1
-			_boardLeft = _boardWidth / 1 if _boardLeft > _boardWidth / 1
+			_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
+			_boardTop = -_boardHeight if _boardTop < -_boardHeight
+			_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+			_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
 
 			_boardY = e.clientY
 			_boardX = e.clientX
@@ -163,6 +167,8 @@ Namespace('Crossword').Engine = do ->
 		# used to track the maximum dimensions of the puzzle
 		_left = 0
 		_top = 0
+		_minLeft = Number.MAX_VALUE
+		_minTop = Number.MAX_VALUE
 
 		# generate elements for questions
 		forEveryQuestion (i,letters,x,y,dir) ->
@@ -191,6 +197,8 @@ Namespace('Crossword').Engine = do ->
 				# for zooming
 				_left = letterLeft if letterLeft > _left
 				_top = letterTop if letterTop > _top
+				_minLeft = letterLeft if letterLeft < _minLeft
+				_minTop = letterTop if letterTop < _minTop
 				
 				# each letter is a div with coordinates as id
 				letter = document.createElement 'div'
@@ -216,12 +224,17 @@ Namespace('Crossword').Engine = do ->
 
 		_boardWidth = _left * LETTER_WIDTH - 400
 		_boardHeight = _top * LETTER_HEIGHT - 400
+		_boardXOverflow = _minLeft * LETTER_WIDTH
+		_boardYOverflow = _minTop * LETTER_HEIGHT
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
 			val = 420 / (_boardWidth + 400)
 			trans = 'scale(' + val + ')'
-			$('#movable').css('-webkit-transform', trans)
+			$('#movable').css('-webkit-transform-origin', -_boardWidth + 'px')
+				.css('-moz-transform-origin', -_boardWidth + 'px')
+				.css('transform-origin', -_boardWidth + 'px')
+				.css('-webkit-transform', trans)
 				.css('-moz-transform', trans)
 				.css('transform', trans)
 
