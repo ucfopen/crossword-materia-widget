@@ -17,7 +17,7 @@ Namespace('Crossword').Print = do ->
 		downClues.innerHTML = '<strong>Down</strong>'
 
 		acrossClues = document.createElement 'div'
-		acrossClues.innerHTML = '<strong>Across</strong>'
+		acrossClues.innerHTML = '<br><strong>Across</strong>'
 
 		wnd.document.body.appendChild downClues
 		wnd.document.body.appendChild acrossClues
@@ -33,11 +33,6 @@ Namespace('Crossword').Print = do ->
 			
 			clue = '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
 
-			if dir
-				downClues.innerHTML += clue
-			else
-				acrossClues.innerHTML += clue
-				
 			_puzzleGrid = {}
 
 			for l in [0..letters.length-1]
@@ -70,12 +65,20 @@ Namespace('Crossword').Print = do ->
 				letter.style.width = '28px'
 				letter.style.height = '24px'
 
+				clue += '<div style="border: solid 1px #333; width: 28px; height: 24px; display: inline-block;"> </div>';
+
 				if letters[l] == ' '
 					# if it's a space, make it a black block
 					letter.style.backgroundColor = '#000'
 
 				wnd.document.body.appendChild letter
 				wnd.document.body.appendChild numberLabel
+
+			if dir
+				downClues.innerHTML += clue
+			else
+				acrossClues.innerHTML += clue
+				
 
 		wnd.print()
 	
