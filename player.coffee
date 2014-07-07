@@ -46,8 +46,6 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		qset = window.qset.data
-
 		_normalizeForPlayer qset.items[0].items
 
 		# store widget data
@@ -61,9 +59,6 @@ Namespace('Crossword').Engine = do ->
 		_drawBoard instance.name
 		_setupClickHandlers()
 		_updateFreeWordsRemaining()
-
-		# highlight first letter
-		_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
 
 		# focus the input listener
 		$('#boardinput').focus()
@@ -222,27 +217,37 @@ Namespace('Crossword').Engine = do ->
 
 				$('#movable').append letter
 
-		_boardWidth = _left * LETTER_WIDTH - 400
-		_boardHeight = _top * LETTER_HEIGHT - 400
+		SCREEN_WIDTH = 440
+		SCREEN_HEIGHT = 400
+
+		_boardWidth = _left * LETTER_WIDTH - SCREEN_WIDTH
+		_boardHeight = _top * LETTER_HEIGHT - SCREEN_HEIGHT
 		_boardXOverflow = _minLeft * LETTER_WIDTH
 		_boardYOverflow = _minTop * LETTER_HEIGHT
 
+		# highlight first letter
+		_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
+
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
-			val = 420 / (_boardWidth + 400)
-			trans = 'scale(' + val + ')'
-			$('#movable').css('-webkit-transform-origin', -_boardWidth + 'px')
-				.css('-moz-transform-origin', -_boardWidth + 'px')
-				.css('transform-origin', -_boardWidth + 'px')
-				.css('-webkit-transform', trans)
+			valx = SCREEN_WIDTH / (Math.abs(_boardWidth) + Math.abs(_boardXOverflow) + SCREEN_WIDTH)
+			valy = SCREEN_HEIGHT / (Math.abs(_boardHeight) + Math.abs(_boardYOverflow) + SCREEN_HEIGHT)
+
+			val = if valx > valy then valy else valx
+
+			translateX = (-(_boardWidth + 10) + (-_boardXOverflow - 10)) / val - _boardLeft
+			translateY = (-(_boardHeight) + (-_boardYOverflow)) / val - _boardTop
+
+			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
+			$('#movable').css('-webkit-transform', trans)
 				.css('-moz-transform', trans)
 				.css('transform', trans)
-
 			setTimeout ->
 				trans = ''
 				$('#movable').css('-webkit-transform', trans)
 					.css('-moz-transform', trans)
 					.css('transform', trans)
+					.removeClass 'animateall'
 			, 2500
 
 	# remove letter focus class from the current letter
@@ -269,20 +274,27 @@ Namespace('Crossword').Engine = do ->
 			leftOut = left < 0 or left > 480
 			topOut = top < 0 or top > 420
 
+			m = _dom('movable')
+
 			if leftOut or topOut
 				if leftOut
 					_boardLeft = -_curLetter.x * LETTER_WIDTH + 100
 				if topOut
 					_boardTop = -_curLetter.y * LETTER_HEIGHT + 100
 
-				m = _dom('movable')
+				_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
+				_boardTop = -_boardHeight if _boardTop < -_boardHeight
+				_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+				_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
+
 				m.className += ' animateall'
-				m.style.top = _boardTop + 'px'
-				m.style.left = _boardLeft + 'px'
 				clearTimeout _movableEase
 				_movableEase = setTimeout ->
 					m.className = m.className.replace /animateall/g, ''
 				, 1000
+
+			m.style.top = _boardTop + 'px'
+			m.style.left = _boardLeft + 'px'
 
 	# update which clue is highlighted and scrolled to on the side list
 	_updateClue = ->
