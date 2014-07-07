@@ -282,16 +282,16 @@ Namespace('Crossword').Engine = do ->
 				if topOut
 					_boardTop = -_curLetter.y * LETTER_HEIGHT + 100
 
-				_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
-				_boardTop = -_boardHeight if _boardTop < -_boardHeight
-				_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
-				_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
-
 				m.className += ' animateall'
 				clearTimeout _movableEase
 				_movableEase = setTimeout ->
 					m.className = m.className.replace /animateall/g, ''
 				, 1000
+
+			_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
+			_boardTop = -_boardHeight if _boardTop < -_boardHeight
+			_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+			_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
 
 			m.style.top = _boardTop + 'px'
 			m.style.left = _boardLeft + 'px'
@@ -545,6 +545,8 @@ Namespace('Crossword').Engine = do ->
 		numberLabel.className = 'numberlabel'
 		numberLabel.style.top = 129 + y * LETTER_HEIGHT + 'px'
 		numberLabel.style.left = x * LETTER_WIDTH + 'px'
+		numberLabel.onclick = ->
+			_letterClicked target: $('#letter_' + x + '_' + y)[0]
 		$('#movable').append numberLabel
 
 	# draw the clue from template html
