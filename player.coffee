@@ -141,10 +141,10 @@ Namespace('Crossword').Engine = do ->
 			m.style.left = _boardLeft + 'px'
 	
 	_boundBoardPosition = ->
-		_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
 		_boardTop = -_boardHeight if _boardTop < -_boardHeight
-		_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+		_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
 		_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
+		_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
 
 	# Draw the main board.
 	_drawBoard = (title) ->
