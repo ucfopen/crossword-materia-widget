@@ -230,7 +230,7 @@ Namespace('Crossword').Engine = do ->
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
-			_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
+			_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }, false
 
 			valx = (515) / (Math.abs(_boardWidth) + Math.abs(_boardXOverflow) + 515)
 			valy = (515) / (Math.abs(_boardHeight) + Math.abs(_boardYOverflow) + 515)
@@ -239,6 +239,11 @@ Namespace('Crossword').Engine = do ->
 
 			translateX = (-_boardXOverflow - _boardLeft / val) / (valx / val)
 			translateY = (-_boardYOverflow - _boardTop / val) / (valy / val)
+
+			if valx > valy
+				translateX += SCREEN_WIDTH
+			else
+				translateY += SCREEN_HEIGHT
 
 			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
 			$('#movable')
@@ -260,8 +265,8 @@ Namespace('Crossword').Engine = do ->
 		g = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 		g.className = g.className.replace(/focus/g,'') if g?
 
-	# apply highlight class by id
-	_highlightPuzzleLetter = (id) ->
+	# apply highlight class
+	_highlightPuzzleLetter = (animate = true) ->
 		highlightedLetter = _dom('letter_' + _curLetter.x + '_' + _curLetter.y)
 
 		if highlightedLetter
@@ -287,7 +292,8 @@ Namespace('Crossword').Engine = do ->
 				if topOut
 					_boardTop = -_curLetter.y * LETTER_HEIGHT + 100
 
-				m.className = 'animateall'
+				if animate
+					m.className = 'animateall'
 				clearTimeout _movableEase
 				_movableEase = setTimeout ->
 					m.className = m.className.replace /animateall/g, ''
@@ -423,7 +429,7 @@ Namespace('Crossword').Engine = do ->
 					_dom('freewordbtn_'+i).className = 'button disabled'
 
 	# highlight the clicked letter and set up direction
-	_letterClicked = (e) ->
+	_letterClicked = (e, animate = true) ->
 		e = window.event if not e?
 		target = e.target or e.srcElement
 
@@ -438,7 +444,7 @@ Namespace('Crossword').Engine = do ->
 
 		_curDir = _dom('letter_' + _curLetter.x + '_' + _curLetter.y).getAttribute('data-dir')
 
-		_highlightPuzzleLetter()
+		_highlightPuzzleLetter(animate)
 		_highlightPuzzleWord (e.target or e.srcElement).getAttribute('data-q')
 
 		_updateClue()
