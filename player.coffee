@@ -238,16 +238,17 @@ Namespace('Crossword').Engine = do ->
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
-			valx = SCREEN_WIDTH / (Math.abs(_boardWidth) + Math.abs(_boardXOverflow) + SCREEN_WIDTH)
-			valy = SCREEN_HEIGHT / (Math.abs(_boardHeight) + Math.abs(_boardYOverflow) + SCREEN_HEIGHT)
+			valx = (515) / (Math.abs(_boardWidth) + Math.abs(_boardXOverflow) + 515)
+			valy = (515) / (Math.abs(_boardHeight) + Math.abs(_boardYOverflow) + 515)
 
 			val = if valx > valy then valy else valx
 
-			translateX = (-(_boardWidth + 10) + (-_boardXOverflow - 10) - _boardLeft + 50) / val
-			translateY = (-(_boardHeight) + (-_boardYOverflow) - _boardTop + 50) / val
+			translateX = -_boardXOverflow
+			translateY = -_boardYOverflow
 
 			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
-			$('#movable').css('-webkit-transform', trans)
+			$('#movable')
+				.css('-webkit-transform', trans)
 				.css('-moz-transform', trans)
 				.css('transform', trans)
 			setTimeout ->
@@ -259,7 +260,7 @@ Namespace('Crossword').Engine = do ->
 				setTimeout ->
 					_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
 				, 1000
-			, 2500
+			, 9992500
 		else
 			# highlight first letter
 			_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
