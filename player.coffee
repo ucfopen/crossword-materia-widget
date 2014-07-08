@@ -46,7 +46,7 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		#qset = window.qset.data
+		qset = window.qset.data
 
 		_normalizeForPlayer qset.items[0].items
 
@@ -243,10 +243,8 @@ Namespace('Crossword').Engine = do ->
 
 			val = if valx > valy then valy else valx
 
-			translateX = (-(_boardWidth + 10) + (-_boardXOverflow - 10) - _boardLeft) / val
-			translateY = (-(_boardHeight) + (-_boardYOverflow) - _boardTop) / val
-			translateX = 0
-			translateY = 0
+			translateX = (-(_boardWidth + 10) + (-_boardXOverflow - 10) - _boardLeft + 50) / val
+			translateY = (-(_boardHeight) + (-_boardYOverflow) - _boardTop + 50) / val
 
 			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
 			$('#movable').css('-webkit-transform', trans)
