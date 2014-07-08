@@ -46,8 +46,6 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		qset = window.qset.data
-
 		_normalizeForPlayer qset.items[0].items
 
 		# store widget data
@@ -131,12 +129,6 @@ Namespace('Crossword').Engine = do ->
 
 			_boardTop += (e.clientY - _boardY)
 			_boardLeft += (e.clientX - _boardX)
-
-			console.log _boardTop
-			console.log _boardLeft
-
-			console.log _boardXOverflow
-			console.log _boardYOverflow
 
 			# if its out of range, stop panning
 			_boundBoardPosition()
@@ -238,13 +230,15 @@ Namespace('Crossword').Engine = do ->
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
+			_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
+
 			valx = (515) / (Math.abs(_boardWidth) + Math.abs(_boardXOverflow) + 515)
 			valy = (515) / (Math.abs(_boardHeight) + Math.abs(_boardYOverflow) + 515)
 
 			val = if valx > valy then valy else valx
 
-			translateX = -_boardXOverflow
-			translateY = -_boardYOverflow
+			translateX = (-_boardXOverflow - _boardLeft / val) / (valx / val)
+			translateY = (-_boardYOverflow - _boardTop / val) / (valy / val)
 
 			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
 			$('#movable')
@@ -256,11 +250,7 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').css('-webkit-transform', trans)
 					.css('-moz-transform', trans)
 					.css('transform', trans)
-
-				setTimeout ->
-					_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
-				, 1000
-			, 9992500
+			, 2500
 		else
 			# highlight first letter
 			_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
