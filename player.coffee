@@ -46,6 +46,8 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
+		#qset = window.qset.data
+
 		_normalizeForPlayer qset.items[0].items
 
 		# store widget data
@@ -130,11 +132,14 @@ Namespace('Crossword').Engine = do ->
 			_boardTop += (e.clientY - _boardY)
 			_boardLeft += (e.clientX - _boardX)
 
+			console.log _boardTop
+			console.log _boardLeft
+
+			console.log _boardXOverflow
+			console.log _boardYOverflow
+
 			# if its out of range, stop panning
-			_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
-			_boardTop = -_boardHeight if _boardTop < -_boardHeight
-			_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
-			_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
+			_boundBoardPosition()
 
 			_boardY = e.clientY
 			_boardX = e.clientX
@@ -142,6 +147,12 @@ Namespace('Crossword').Engine = do ->
 			m = _dom('movable')
 			m.style.top = _boardTop + 'px'
 			m.style.left = _boardLeft + 'px'
+	
+	_boundBoardPosition = ->
+		_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
+		_boardTop = -_boardHeight if _boardTop < -_boardHeight
+		_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+		_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -217,16 +228,13 @@ Namespace('Crossword').Engine = do ->
 
 				$('#movable').append letter
 
-		SCREEN_WIDTH = 440
+		SCREEN_WIDTH = 400
 		SCREEN_HEIGHT = 400
 
 		_boardWidth = _left * LETTER_WIDTH - SCREEN_WIDTH
 		_boardHeight = _top * LETTER_HEIGHT - SCREEN_HEIGHT
 		_boardXOverflow = _minLeft * LETTER_WIDTH
 		_boardYOverflow = _minTop * LETTER_HEIGHT
-
-		# highlight first letter
-		_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
 
 		# zoom animation if dimensions are off screen
 		if _left > 17 or _top > 20
@@ -235,8 +243,10 @@ Namespace('Crossword').Engine = do ->
 
 			val = if valx > valy then valy else valx
 
-			translateX = (-(_boardWidth + 10) + (-_boardXOverflow - 10)) / val - _boardLeft
-			translateY = (-(_boardHeight) + (-_boardYOverflow)) / val - _boardTop
+			translateX = (-(_boardWidth + 10) + (-_boardXOverflow - 10) - _boardLeft) / val
+			translateY = (-(_boardHeight) + (-_boardYOverflow) - _boardTop) / val
+			translateX = 0
+			translateY = 0
 
 			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
 			$('#movable').css('-webkit-transform', trans)
@@ -247,8 +257,14 @@ Namespace('Crossword').Engine = do ->
 				$('#movable').css('-webkit-transform', trans)
 					.css('-moz-transform', trans)
 					.css('transform', trans)
-					.removeClass 'animateall'
+
+				setTimeout ->
+					_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
+				, 1000
 			, 2500
+		else
+			# highlight first letter
+			_letterClicked { target: _dom('letter_' + _curLetter.x + '_' + _curLetter.y) }
 
 	# remove letter focus class from the current letter
 	_removePuzzleLetterHighlight = ->
@@ -282,19 +298,21 @@ Namespace('Crossword').Engine = do ->
 				if topOut
 					_boardTop = -_curLetter.y * LETTER_HEIGHT + 100
 
-				m.className += ' animateall'
+				m.className = 'animateall'
 				clearTimeout _movableEase
 				_movableEase = setTimeout ->
 					m.className = m.className.replace /animateall/g, ''
 				, 1000
 
-			_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
-			_boardTop = -_boardHeight if _boardTop < -_boardHeight
-			_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
-			_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
+			_boundBoardPosition()
 
 			m.style.top = _boardTop + 'px'
 			m.style.left = _boardLeft + 'px'
+
+			#_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
+			#_boardTop = -_boardHeight if _boardTop < -_boardHeight
+			#_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+			#_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
 
 	# update which clue is highlighted and scrolled to on the side list
 	_updateClue = ->
