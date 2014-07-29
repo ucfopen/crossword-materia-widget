@@ -462,6 +462,9 @@ Namespace('Crossword').Engine = do ->
 
 		# stop if parent clue is not highlighted
 		return if not $('#clue_'+e.target.getAttribute('data-i')).hasClass('highlight')
+		
+		# stop if button is hidden
+		return if e.target.className is "button hidden"
 
 		# get question index from button attributes
 		index = parseInt(e.target.getAttribute('data-i'))
@@ -480,7 +483,8 @@ Namespace('Crossword').Engine = do ->
 
 		_freeWordsRemaining--
 
-		_dom('freewordbtn_' + index).style.opacity = 0
+		_dom('freewordbtn_' + index).className = "button hidden"
+
 		hb = _dom('hintbtn_' + index)
 		hb.style.opacity = 0
 
