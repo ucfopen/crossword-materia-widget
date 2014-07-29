@@ -233,6 +233,11 @@ html, body {
 		opacity: 0.5;
 		cursor: default;
 	}
+	
+	&.hidden {
+		opacity: 0;
+		cursor: default;
+	}
 
 	&.submit{
 		background: $green;
