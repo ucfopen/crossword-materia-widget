@@ -497,12 +497,15 @@ Namespace('Crossword').Engine = do ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
 				if i != index
 					l = _dom('letter_' + letterLeft + '_' + letterTop)
-					l.className = l.className.replace(/highlight/g, '')
+					if l?
+						l.className = l.className.replace(/highlight/g, '')
 		# and add it to the ones we care about
 		forEveryQuestion (i,letters,x,y,dir) ->
 			if i == index
 				forEveryLetter x,y,dir,letters, (letterLeft,letterTop) ->
-					_dom('letter_' + letterLeft + '_' + letterTop).className += ' highlight'
+					l = _dom('letter_' + letterLeft + '_' + letterTop)
+					if l?
+						l.className += ' highlight'
 
 	# show the modal alert dialog
 	_showAlert = (caption, okayCaption, cancelCaption, action) ->
@@ -622,7 +625,7 @@ Namespace('Crossword').Engine = do ->
 
 	# loop iteration functions to prevent redundancy
 	forEveryLetter = (x,y,dir,letters,cb) ->
-		for l in [0..letters.length-1]
+		for l in [0...letters.length]
 			if dir == 0
 				letterLeft = x + l
 				letterTop = y
