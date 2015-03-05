@@ -377,6 +377,7 @@ Namespace('Crossword').Engine = do ->
 					else
 						_curLetter.x--
 					letter.innerHTML = ''
+				_checkIfDone()
 			else
 				# all else, input the character and advance cursor position
 				if letter?
