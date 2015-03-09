@@ -377,6 +377,7 @@ Namespace('Crossword').Engine = do ->
 					else
 						_curLetter.x--
 					letter.innerHTML = ''
+				_checkIfDone()
 			else
 				# all else, input the character and advance cursor position
 				if letter?
@@ -489,6 +490,7 @@ Namespace('Crossword').Engine = do ->
 		hb.style.opacity = 0
 
 		_updateFreeWordsRemaining()
+		_checkIfDone()
 
 	# highlight a word (series of letters)
 	_highlightPuzzleWord = (index) ->
@@ -546,7 +548,7 @@ Namespace('Crossword').Engine = do ->
 	# highlight submit button if all letters are filled in
 	_checkIfDone = ->
 		done = true
-		
+
 		forEveryQuestion (i,letters,x,y,dir) ->
 			forEveryLetter x,y,dir,letters, (letterLeft,letterTop,l) ->
 				if letters[l] != ' '
@@ -554,9 +556,11 @@ Namespace('Crossword').Engine = do ->
 						done = false
 						return
 		if done
+			$('.arrow_box').show()
 			$('#checkBtn').addClass 'done'
 		else
 			$('#checkBtn').removeClass 'done'
+			$('.arrow_box').hide()
 
 	# draw a number label to identify the question
 	_renderNumberLabel = (questionNumber, x, y) ->

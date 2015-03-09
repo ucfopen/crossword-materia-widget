@@ -1,4 +1,5 @@
 $green:#5BAC58;
+$lightgreen:#6BBC68;
 
 /* Standardize padding in all browsers */
 * {
@@ -163,7 +164,7 @@ html, body {
 	position: absolute;
 	right: 0px;
 	top: 61px;
-	bottom: 0px;
+	bottom: 28px;
 	width: 200px;
 	background: #fff;
 	padding: 0px;
@@ -264,26 +265,18 @@ input {
 	-webkit-appearance: none;
 }
 
-.remaining {
-	position: absolute;
-	right: 0px;
-	top: 22px;
-	text-align: center;
-	display: inline-block;
-	margin-right: 20px;
-}
-
-#checkBtn {
-	position: fixed;
-	left: 10px;
-	bottom: 10px;
-	font-size: 14px;
-	margin-top: 5px;
-
-	z-index: 10;
-
-	&.done {
+@keyframes glow {
+	0% {
+		box-shadow: none;
+		background: $green;
+	}
+	50% {
 		box-shadow: 0 0 10px #1D421C,0 0 35px #47C342;
+		background: $lightgreen;
+	}
+	100% {
+		box-shadow: none;
+		background: $green;
 	}
 }
 
@@ -368,5 +361,69 @@ input {
 .fade {
 	-webkit-transition: all 0.2s ease;
 	transition: all 0.2s ease;
+}
+
+.arrow_box {
+	position: absolute;
+	display: none;
+	background: #ffff82;
+	color: #333;
+	right: 185px;
+	top: 15px;
+	padding: 5px 20px;
+	font-size: 14px;
+	animation: arrowbob 1s infinite;
+}
+@keyframes arrowbob {
+	0% {
+		transform: translate(0, 0);
+	}
+	60% {
+		transform: translate(15px, 0);
+	}
+	100% {
+		transform: translate(0, 0);
+	}
+}
+.arrow_box:after {
+	left: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(136, 183, 213, 0);
+	border-left-color: #ffff82;
+	border-width: 14px;
+	margin-top: -15px;
+}
+
+#controlbar {
+	background: #333333;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	font-size: 14px;
+	margin-top: 5px;
+
+	text-align: center;
+
+	color: #fff;
+
+	width: 201px;
+	padding: 5px 0;
+
+	z-index: 10;
+}
+
+.submitholder {
+	position: absolute;
+	right: 0px;
+	top: 8px;
+	text-align: center;
+	display: inline-block;
+	margin-right: 20px;
 }
 
