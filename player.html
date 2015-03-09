@@ -42,17 +42,17 @@
 		<div class="header">
 			<div class='logo'></div>
 			<h1 id='title'></h1>
-			<div class='remaining'>
-				<span id='freeWordsRemaining'></span>
-			</div>
 			<div class='icon-print' id='printbtn' title='Print'></div>
+			<div class='submitholder'>
+				<input type='button' value='Submit Answers' id='checkBtn' class='button submit'>
+			</div>
 		</div>
 		<div id='movable' class='crossword-board'></div>
-		<div id='controlbar'>
-			<input type='button' value='Submit Answers' id='checkBtn' class='button submit'>
-		</div>
 		<div id='clues'>
 			<span style='display:none'>Clues</span>
+		</div>
+		<div id='controlbar'>
+			<span id='freeWordsRemaining'></span>
 		</div>
 	</div>
 	<div id='backgroundcover' class='fade'></div>
@@ -68,6 +68,7 @@
 		<div class='free-word button' data-i='{{i}}' data-dir='{{dir}}' id='freewordbtn_{{i}}'>Free word</div>
 		<span class='hintspot' id='hintspot_{{i}}'></span>
 	</div>
+	<div class="arrow_box">Click to finish</div>
 
 	<!-- INITIALIZE -->
 	<script>
