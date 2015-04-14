@@ -8,9 +8,7 @@ describe 'Testing framework', ->
 	, 25000
 
 crosswordClick = (id) ->
-	client.execute "$('" + id + "').click()", null, ->
-		# something
-
+	client.execute "$('" + id + "').click()"
 
 crosswordTypeString = (string) ->
 	for i in [0...string.length]
@@ -19,17 +17,13 @@ crosswordTypeString = (string) ->
 		crosswordKeyInput(code)
 
 crosswordKeyInput = (code) ->
-	client.execute("var ge = $.Event('keydown'); ge.keyCode = "+code+"; $('#boardinput').trigger(ge)", null, ->
-
-		)
+	client.execute("var ge = $.Event('keydown'); ge.keyCode = "+code+"; $('#boardinput').trigger(ge)")
 
 crosswordExpectString = (startx, starty, dir, string, callback) ->
 	i = 0
 
 	f = ->
 		client.getText "#letter_" + startx + "_" + starty, (err, text) ->
-			expect(err).toBeNull()
-
 			if dir
 				starty++
 			else
@@ -48,7 +42,6 @@ crosswordExpectString = (startx, starty, dir, string, callback) ->
 
 crosswordExpectHighlight = (id, callback) ->
 	client.getAttribute id, 'class', (err, classes) ->
-		expect(err).toBeNull()
 		expect(classes).toContain('highlight')
 		callback()
 
@@ -83,15 +76,14 @@ describe 'Crossword Player', ->
 		crosswordTypeString("THEWHITEHOUSE")
 		crosswordExpectString 9, 4, 1, "THE WHITE HOUSE", ->
 			done()
-		client.execute "$('#hintbtn_1').click()", null, ->
-			client.execute "$('#okbtn').click()", null, ->
+		client.execute "$('#hintbtn_1').click()", ->
+			client.execute "$('#okbtn').click()", ->
 				client.getText "#hintspot_1", (err, text) ->
-					expect(err).toBeNull()
 					expect(text).toContain("They painted it white")
 					done()
 
 	it 'should highlight clues when clicked', (done) ->
-		client.execute "$('#clue_2').mouseup()", null, ->
+		client.execute "$('#clue_2').mouseup()", ->
 			crosswordExpectHighlight '#clue_2', ->
 				done()
 
@@ -101,26 +93,24 @@ describe 'Crossword Player', ->
 			done()
 
 	it 'should be able to get a free word', (done) ->
-		client.execute "$('#clue_3').mouseup()", null, ->
-			client.execute "$('#freewordbtn_3').click()", null, ->
+		client.execute "$('#clue_3').mouseup()", ->
+			client.execute "$('#freewordbtn_3').click()", ->
 				crosswordExpectString 3, 1, 1, "SPHINX", ->
 					done()
 
 	it 'should be able to submit', (done) ->
-		client.execute "$('#checkBtn').click()", null, ->
-			client.execute "$('#okbtn').click()", null, ->
+		client.execute "$('#checkBtn').click()", ->
+			client.execute "$('#okbtn').click()", ->
 				done()
 
 describe 'Score page', ->
 	it 'should get a 73', (done) ->
 		client.pause(2000)
 		client.getTitle (err, title) ->
-			expect(err).toBeNull()
 			expect(title).toBe('Score Results | Materia')
 			client
-				.waitFor('.overall_score')
-				.getText '.overall_score', (err, text) ->
-					expect(err).toBeNull()
+				.waitFor('.overall-score')
+				.getText '.overall-score', (err, text) ->
 					expect(text).toBe('73%')
 					client.call(done)
 					client.end()
