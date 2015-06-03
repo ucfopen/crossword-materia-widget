@@ -39,7 +39,7 @@ qset:
             answers:
               -
                 value: 100
-                text: The Taj-Mahals
+                text: The Taj-Mahal
             options:
               y: 17
               x: 5

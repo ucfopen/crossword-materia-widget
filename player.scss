@@ -234,7 +234,7 @@ html, body {
 		opacity: 0.5;
 		cursor: default;
 	}
-	
+
 	&.hidden {
 		opacity: 0;
 		cursor: default;
@@ -280,8 +280,14 @@ input {
 	}
 }
 
+#movable-container {
+	position: absolute;
+	top:67px;
+	left:10px;
+}
+
 #movable {
-	position: relative;
+	position: absolute;
 	-webkit-transition: -webkit-transform 1s ease;
 	-moz-transition: -moz-transform 1s ease;
 	transition: transform 1s ease;
@@ -298,8 +304,9 @@ input {
 	font-size: 10px;
 	position: absolute;
 	display: block;
-	width: 36px;
+	width: 25px;
 	margin: 0px;
+	margin-top:9px;
 	z-index: 1;
 	text-align: right;
 }
