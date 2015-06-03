@@ -653,7 +653,6 @@ Namespace('Crossword').Engine = do ->
 
 			Materia.Score.submitQuestionForScoring _questions[i].id, answer
 
-		debugger
 		Materia.Engine.end()
 
 	# loop iteration functions to prevent redundancy
