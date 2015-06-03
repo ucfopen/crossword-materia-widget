@@ -1,47 +1,47 @@
 Namespace('Crossword').Engine = do ->
 	# variables to store widget data in this scope
-	_qset               = null
-	_questions          = null
-	_freeWordsRemaining = 0
-	_puzzleGrid         = {}
-	_instance           = {}
+	_qset                 = null
+	_questions            = null
+	_freeWordsRemaining   = 0
+	_puzzleGrid           = {}
+	_instance             = {}
 
 	# board drag state
-	_boardDown          = false
-	_boardY             = 0
-	_boardTop           = 0
-	_boardX             = 0
-	_boardLeft          = 0
+	_boardMouseDown       = false
+	_mouseYAnchor         = 0
+	_mouseXAnchor         = 0
+	_puzzleY              = 0
+	_puzzleX              = 0
 
-	_boardHeight        = 0
-	_boardWidth         = 0
-	_boardYOverflow     = 0
-	_boardXOverflow     = 0
-	_boardLetterHeight  = 0
-	_boardLetterWidth   = 0
+	_puzzleHeightOverflow = 0
+	_puzzleWidthOverflow  = 0
+	_puzzleLetterHeight   = 0
+	_puzzleLetterWidth    = 0
 
-	_movableEase        = 0
+	_movableEase          = 0
 
 	# the current typing direction
-	_curDir             = -1
+	_curDir               = -1
 	# the current letter that is highlighted
-	_curLetter          = false
+	_curLetter            = false
 
 	# cache DOM elements for performance
-	_domCache           = {}
+	_domCache             = {}
+	_boardDiv             = null # div containing the board
 
-	# these are the input
-	_allowedInput       = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
-	_allowedKeys        = null
+	# these are the allowed user input
+	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+	_allowedKeys          = null # generated below
 
 	# constants
-	NEXT_RECURSE_LIMIT  = 8 # number of characters in a row we'll try to jump forward before dying
-	LETTER_HEIGHT       = 23
-	LETTER_WIDTH        = 27
-	VERTICAL            = 1
-	BOARD_WIDTH         = 400
-	BOARD_HEIGHT        = 400
-
+	LETTER_HEIGHT         = 23 # how many pixles high is a space?
+	LETTER_WIDTH          = 27 # how many pixles wide is a space?
+	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
+	BOARD_WIDTH           = 494 # visible board width
+	BOARD_HEIGHT          = 494 # visible board height
+	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
+	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
+	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
@@ -55,6 +55,7 @@ Namespace('Crossword').Engine = do ->
 
 		# easy access to questions
 		_questions = _qset.items[0].items
+		_boardDiv = $('#movable')
 
 		# clean qset variables
 		forEveryQuestion (i, letters, x, y, dir) ->
@@ -62,12 +63,15 @@ Namespace('Crossword').Engine = do ->
 			_questions[i].options.y = ~~_questions[i].options.y
 			_questions[i].options.dir = ~~_questions[i].options.dir
 
-		pSize = _measureBoard(_questions)
+		puzzleSize = _measureBoard(_questions)
+		_scootWordsBy(puzzleSize.minX, puzzleSize.minY) # normalize the qset coordinates
 
-		_boardLetterWidth = pSize.maxX - pSize.minX
-		_boardLetterHeight = pSize.maxY - pSize.minY
+		_puzzleLetterWidth  = puzzleSize.width
+		_puzzleLetterHeight = puzzleSize.height
+		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - BOARD_WIDTH
+		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - BOARD_HEIGHT
 
-		_scootWordsBy(pSize.minX, pSize.minY)
+		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y }
 
 		# render the widget, hook listeners, update UI
 		_drawBoard instance.name
@@ -84,6 +88,8 @@ Namespace('Crossword').Engine = do ->
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
 
+	# measurements are returned in letter coordinates
+	# 5 is equal to 5 letters, not pixels
 	_measureBoard = (qset) ->
 		minX = minY = maxX = maxY = 0
 
@@ -95,17 +101,21 @@ Namespace('Crossword').Engine = do ->
 			minY = option.y if option.y < minY
 
 			# find last letter coordinates
-			wordMaxX = wordMaxY = 0
 			if option.dir == VERTICAL
+				wordMaxX = option.x + 1
 				wordMaxY = option.y + word.answers[0].text.length
 			else
 				wordMaxX = option.x + word.answers[0].text.length
+				wordMaxY = option.y + 1
 
 			# store maximum values
 			maxY = wordMaxY if wordMaxY > maxY
 			maxX = wordMaxX if wordMaxX > maxX
 
-		{minX: minX, minY: minY, maxX: maxX, maxY: maxY}
+		width  = maxX - minX
+		height = maxY - minY
+
+		{minX: minX, minY: minY, maxX: maxX, maxY: maxY, width:width, height:height}
 
 	# shift word coordinates to normalize to 0, 0
 	_scootWordsBy = (x, y) ->
@@ -132,37 +142,37 @@ Namespace('Crossword').Engine = do ->
 		document.addEventListener 'mousedown', (e) ->
 			return if e.clientX > 515
 
-			_boardDown = true
-			_boardY = e.clientY
-			_boardX = e.clientX
+			_boardMouseDown = true
+			_mouseYAnchor = e.clientY
+			_mouseXAnchor = e.clientX
 
 			_curDir = -1
 
 		# stop dragging
-		document.addEventListener 'mouseup', -> _boardDown = false
+		document.addEventListener 'mouseup', -> _boardMouseDown = false
 
 		document.addEventListener 'mousemove', (e) ->
-			return if not _boardDown
+			return if not _boardMouseDown
 
-			_boardTop += (e.clientY - _boardY)
-			_boardLeft += (e.clientX - _boardX)
+			_puzzleY += (e.clientY - _mouseYAnchor)
+			_puzzleX += (e.clientX - _mouseXAnchor)
 
 			# if its out of range, stop panning
 			_limitBoardPosition()
 
-			_boardY = e.clientY
-			_boardX = e.clientX
+			_mouseYAnchor = e.clientY
+			_mouseXAnchor = e.clientX
 
 			m = _dom('movable')
-			m.style.top = _boardTop + 'px'
-			m.style.left = _boardLeft + 'px'
+			m.style.top = _puzzleY + 'px'
+			m.style.left = _puzzleX + 'px'
 
 	# limits board position to prevent going off into oblivion (down and right)
 	_limitBoardPosition = ->
-		_boardTop = -_boardHeight if _boardTop < -_boardHeight
-		_boardTop = -_boardYOverflow if _boardTop > -_boardYOverflow
-		_boardLeft = -_boardWidth if _boardLeft < -_boardWidth
-		_boardLeft = -_boardXOverflow if _boardLeft > -_boardXOverflow
+		_puzzleY = -_puzzleHeightOverflow if _puzzleY < -_puzzleHeightOverflow
+		_puzzleY = 0 if _puzzleY > 0
+		_puzzleX = - _puzzleWidthOverflow if _puzzleX < -_puzzleWidthOverflow
+		_puzzleX = 0 if _puzzleX > 0
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -176,18 +186,13 @@ Namespace('Crossword').Engine = do ->
 		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
 
 		# used to track the maximum dimensions of the puzzle
-		_left    = 0
 		_top     = 0
-		_minLeft = Number.MAX_VALUE
-		_minTop  = Number.MAX_VALUE
 
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir) ->
-			questionText = _questions[i].questions[0].text
-
-
+			questionText   = _questions[i].questions[0].text
 			questionNumber = ~~i + 1
-			hintPrefix = questionNumber + (if dir then ' down' else ' across')
+			hintPrefix     = questionNumber + (if dir then ' down' else ' across')
 
 			_renderNumberLabel questionNumber, x, y
 			_renderClue questionText, hintPrefix, i, dir
@@ -196,18 +201,10 @@ Namespace('Crossword').Engine = do ->
 			$('#freewordbtn_'+i).css('display', 'none') if not _freeWordsRemaining
 			$('#hintbtn_'+i).click _hintConfirm
 			$('#freewordbtn_'+i).click _getFreeword
-			boardDiv = $('#movable')
 
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
 				# overlapping connectors should not be duplicated
 				return if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
-
-				# keep track of the largest dimension of the puzzle
-				# for zooming
-				_left    = letterLeft if letterLeft > _left
-				_top     = letterTop if letterTop > _top
-				_minLeft = letterLeft if letterLeft < _minLeft
-				_minTop  = letterTop if letterTop < _minTop
 
 				# each letter is a div with coordinates as id
 				letterDiv = document.createElement 'div'
@@ -217,8 +214,8 @@ Namespace('Crossword').Engine = do ->
 				letterDiv.setAttribute 'data-dir', dir
 				letterDiv.onclick = _letterClicked
 
-				letterDiv.style.top = 120 + letterTop * LETTER_HEIGHT + 'px'
-				letterDiv.style.left = 10 + letterLeft * LETTER_WIDTH + 'px'
+				letterDiv.style.top = letterTop * LETTER_HEIGHT + 'px'
+				letterDiv.style.left = letterLeft * LETTER_WIDTH + 'px'
 
 				# if it's not a guessable char, display the char
 				if _allowedInput.indexOf(letters[l].toUpperCase()) == -1
@@ -230,46 +227,44 @@ Namespace('Crossword').Engine = do ->
 				# init the puzzle grid for this row and letter
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
+				_boardDiv.append letterDiv
 
-				boardDiv.append letterDiv
-
-		_boardWidth = _left * LETTER_WIDTH - BOARD_WIDTH
-		_boardHeight = _top * LETTER_HEIGHT - BOARD_HEIGHT
-		_boardXOverflow = _minLeft * LETTER_WIDTH
-		_boardYOverflow = _minTop * LETTER_HEIGHT
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
-		console.log _boardLetterWidth, _boardLetterHeight
-		if _boardLetterWidth > 18 or _boardLetterHeight > 20
+		# zoom out?
+		if _puzzleLetterWidth > BOARD_LETTER_WIDTH or _puzzleLetterHeight > BOARD_LETTER_HEIGHT
 			_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }, false
 
-			valx = (515) / (Math.abs(_boardWidth) + Math.abs(_boardXOverflow) + 515)
-			valy = (515) / (Math.abs(_boardHeight) + Math.abs(_boardYOverflow) + 515)
+			puzzlePixelHeight = _puzzleLetterHeight * LETTER_HEIGHT
+			puzzlePixelWidth  = _puzzleLetterWidth * LETTER_WIDTH
 
-			val = if valx > valy then valy else valx
+			# x = pixelHeight / visibleDivHeight
+			# 5 = 2000 / 400
+			heightScaleFactor = puzzlePixelHeight / BOARD_HEIGHT
+			widthScaleFactor = puzzlePixelWidth / BOARD_WIDTH
 
-			translateX = (-_boardXOverflow - _boardLeft / val) / (valx / val)
-			translateY = (-_boardYOverflow - _boardTop / val) / (valy / val)
+			# find the biggest scale factor
+			scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor)
 
-			if valx > valy
-				translateX += BOARD_WIDTH
-			else
-				translateY += BOARD_HEIGHT
+			# translate values need to take scale into account
+			translateX = -_puzzleX / scaleFactor
+			translateY = -_puzzleY / scaleFactor
 
-			trans = 'scale(' + val + ') translate(' + translateX + 'px, ' + translateY + 'px)'
-			$('#movable')
+			trans = "scale(#{scaleFactor}) translate(#{translateX}px, #{translateY}px)"
+			_boardDiv
 				.css('-webkit-transform', trans)
 				.css('-moz-transform', trans)
 				.css('transform', trans)
+
 			setTimeout ->
 				trans = ''
-				$('#movable').css('-webkit-transform', trans)
+				_boardDiv.css('-webkit-transform', trans)
 					.css('-moz-transform', trans)
 					.css('transform', trans)
 			, 2500
-		else
-			# highlight first letter
+
+		else # no zooming, just highlight first letter
 			_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }
 
 	# remove letter focus class from the current letter
@@ -290,31 +285,35 @@ Namespace('Crossword').Engine = do ->
 			bi.style.top = highlightedLetter.style.top
 			bi.style.left = highlightedLetter.style.left
 
-			left = _curLetter.x * LETTER_WIDTH + _boardLeft
-			top = _curLetter.y * LETTER_HEIGHT + _boardTop
+			# figure out if the _curLetter is on the screen
+			letterX = _curLetter.x * LETTER_WIDTH
+			letterY = _curLetter.y * LETTER_HEIGHT
 
-			leftOut = left < 0 or left > 480
-			topOut = top < 0 or top > 420
+			isOffBoardX = letterX < _puzzleX or letterX > _puzzleX + BOARD_WIDTH
+			isOffBoardY = letterY < _puzzleY or letterY > _puzzleY + BOARD_HEIGHT
 
 			m = _dom('movable')
 
-			if leftOut or topOut
-				if leftOut
-					_boardLeft = -_curLetter.x * LETTER_WIDTH + 100
-				if topOut
-					_boardTop = -_curLetter.y * LETTER_HEIGHT + 100
+			if isOffBoardX or isOffBoardY
+				if isOffBoardX
+					_puzzleX = -_curLetter.x * LETTER_WIDTH + 100
+
+				if isOffBoardY
+					_puzzleY = -_curLetter.y * LETTER_HEIGHT + 100
 
 				if animate
 					m.className = 'animateall'
+
 				clearTimeout _movableEase
+
 				_movableEase = setTimeout ->
 					m.className = m.className.replace /animateall/g, ''
 				, 1000
 
 			_limitBoardPosition()
 
-			m.style.top = _boardTop + 'px'
-			m.style.left = _boardLeft + 'px'
+			m.style.top  = _puzzleY + 'px'
+			m.style.left = _puzzleX + 'px'
 
 	# update which clue is highlighted and scrolled to on the side list
 	_updateClue = ->
@@ -499,11 +498,10 @@ Namespace('Crossword').Engine = do ->
 
 		# letter array to fill
 		letters = _questions[index].answers[0].text.split('')
-		x = ~~_questions[index].options.x
-		y = ~~_questions[index].options.y
-		dir = ~~_questions[index].options.dir
-
-		answer = ''
+		x       = _questions[index].options.x
+		y       = _questions[index].options.y
+		dir     = _questions[index].options.dir
+		answer  = ''
 
 		# fill every letter element
 		forEveryLetter x,y,dir,letters, (letterLeft, letterTop, l) ->
@@ -594,11 +592,10 @@ Namespace('Crossword').Engine = do ->
 		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
 		numberLabel.className = 'numberlabel'
-		numberLabel.style.top = 129 + y * LETTER_HEIGHT + 'px'
+		numberLabel.style.top = y * LETTER_HEIGHT + 'px'
 		numberLabel.style.left = x * LETTER_WIDTH + 'px'
-		numberLabel.onclick = ->
-			_letterClicked target: $('#letter_' + x + '_' + y)[0]
-		$('#movable').append numberLabel
+		numberLabel.onclick = -> _letterClicked target: $("#letter_#{x}_#{y}")[0]
+		_boardDiv.append numberLabel
 
 	# draw the clue from template html
 	_renderClue = (question, hintPrefix, i, dir) ->
@@ -655,7 +652,6 @@ Namespace('Crossword').Engine = do ->
 					answer += letterDiv.innerHTML || '_'
 
 			Materia.Score.submitQuestionForScoring _questions[i].id, answer
-			console.log _questions[i].id, answer
 
 		debugger
 		Materia.Engine.end()
