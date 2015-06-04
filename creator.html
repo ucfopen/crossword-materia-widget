@@ -12,27 +12,15 @@
 		<link href='//fonts.googleapis.com/css?family=Lato:300,400,700|Roboto+Slab:400,300|Delius+Unicase' rel='stylesheet' type='text/css'>
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script>
-			window.Namespace = function(ns) {
-				var a = ns.split('.');
-				var o = window;
-				var len = a.length;
-				for (i = 0; i < len; i++) {
-					o[a[i]] = o[a[i]] || {};
-					o = o[a[i]];
-				}
-				return o;
-			}
-		</script>
 		<script src="materia.creatorcore.js"></script>
 
 		<!-- YOUR PREREQUISITES -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular.min.js"></script>
-		<script src="creator.puzzle.js"></script>
 		<script src="print.js"></script>
 
 		<!-- MAIN CREATOR SCRIPT -->
+		<script src="creator.puzzle.js"></script>
 		<script src="creator.js"></script>
 	</head>
 	<body ng-app='crosswordCreator' ng-controller='crosswordCreatorCtrl'>
@@ -81,7 +69,7 @@
 						<h2>Options</h2>
 						<span class='link' >Edit options...</span>
 					</div>
-					
+
 					<div class='control'>
 						<h2>Hint penalty</h2>
 						<b>-</b><span class='number' ng-bind='widget.hintPenalty'></span>%
@@ -153,7 +141,7 @@
 
 		<div ng-class="{ show: showOptionsDialog }" class='box options'>
 			<h2>Options</h2>
-			
+
 			<strong>Hint penalty</strong>
 			-<input type='text' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
 			<p>
