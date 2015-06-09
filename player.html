@@ -20,6 +20,7 @@
 
 		<!-- YOUR PREREQUISITES -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="classList.min.js"></script>
 
 		<!-- MAIN PLAYER SCRIPT -->
 		<script src="player.js" data-embed></script>
@@ -59,7 +60,7 @@
 		</div>
 
 		<div id='t_hints' style='display:none' class="clue">
-			<em>{{hintPrefix}}:</em><br>
+			<em data-i='{{i}}'>{{hintPrefix}}:</em><br>
 			{{question}}<br>
 			<div class='hint button' data-i='{{i}}' data-dir='{{dir}}' id='hintbtn_{{i}}'>Hint</div>
 			<div class='free-word button' data-i='{{i}}' data-dir='{{dir}}' id='freewordbtn_{{i}}'>Free word</div>

@@ -209,7 +209,7 @@ Namespace('Crossword').Engine = do ->
 				# each letter is a div with coordinates as id
 				letterDiv = document.createElement 'div'
 				letterDiv.id = "letter_#{letterLeft}_#{letterTop}"
-				letterDiv.className = 'letter'
+				letterDiv.classList.add 'letter'
 				letterDiv.setAttribute 'data-q', i
 				letterDiv.setAttribute 'data-dir', dir
 				letterDiv.onclick = _letterClicked
@@ -270,14 +270,14 @@ Namespace('Crossword').Engine = do ->
 	# remove letter focus class from the current letter
 	_removePuzzleLetterHighlight = ->
 		g = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		g.className = g.className.replace(/focus/g,'') if g?
+		g.classList.remove('focus') if g?
 
 	# apply highlight class
 	_highlightPuzzleLetter = (animate = true) ->
 		highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 
 		if highlightedLetter
-			highlightedLetter.className += ' focus'
+			highlightedLetter.classList.add 'focus'
 
 			# move the board input closer to the letter,
 			# in the event the user has zoomed on a mobile device
@@ -302,12 +302,13 @@ Namespace('Crossword').Engine = do ->
 					_puzzleY = -_curLetter.y * LETTER_HEIGHT + 100
 
 				if animate
-					m.className = 'animateall'
+					m.classList.add 'animateall'
 
 				clearTimeout _movableEase
 
 				_movableEase = setTimeout ->
-					m.className = m.className.replace /animateall/g, ''
+					m.classList.remove 'animateall'
+
 				, 1000
 
 			_limitBoardPosition()
@@ -323,15 +324,15 @@ Namespace('Crossword').Engine = do ->
 			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
 
 			# if it's already highlighted, do not try to scroll to it
-			if clue.className.indexOf('highlight') != -1
+			if clue.classList.contains 'highlight'
 				return
 
 			# remove the highlight from all others
 			for j of _questions
-				_dom('clue_'+j).className = 'clue'
+				_dom('clue_'+j).classList.remove 'highlight'
 
 			scrolly = clue.offsetTop
-			clue.className = 'clue highlight'
+			clue.classList.add 'highlight'
 
 			$('#clues').animate scrollTop: scrolly, 150
 
@@ -453,7 +454,7 @@ Namespace('Crossword').Engine = do ->
 				if _qset.options.freeWords < 1
 					$('#freewordbtn_'+i).css 'display', 'none'
 				else
-					_dom('freewordbtn_'+i).className = 'button disabled'
+					_dom('freewordbtn_'+i).classList.add 'disabled'
 
 	# highlight the clicked letter and set up direction
 	_letterClicked = (e, animate = true) ->
@@ -478,8 +479,9 @@ Namespace('Crossword').Engine = do ->
 
 	# confirm that the user really wants to risk a penalty
 	_hintConfirm = (e) ->
+		return if e.target.classList.contains 'disabled'
 		# only do it if the parent clue is highlighted
-		if $('#clue_'+e.target.getAttribute('data-i')).hasClass('highlight')
+		if _dom('clue_' + e.target.getAttribute('data-i')).classList.contains 'highlight'
 			_showAlert "Receiving a hint will result in a #{_qset.options.hintPenalty}% penalty for this question", 'Okay', 'Nevermind', ->
 				_getHint e.target.getAttribute 'data-i'
 
@@ -488,10 +490,10 @@ Namespace('Crossword').Engine = do ->
 		return if _freeWordsRemaining < 1
 
 		# stop if parent clue is not highlighted
-		return if not $('#clue_'+e.target.getAttribute('data-i')).hasClass('highlight')
+		return if not _dom('clue_' + e.target.getAttribute('data-i')).classList.contains 'highlight'
 
-		# stop if button is hidden
-		return if e.target.className is "button hidden"
+		# stop if button is disabled
+		return if e.target.classList.contains 'disabled'
 
 		# get question index from button attributes
 		index = parseInt(e.target.getAttribute('data-i'))
@@ -509,10 +511,8 @@ Namespace('Crossword').Engine = do ->
 
 		_freeWordsRemaining--
 
-		_dom('freewordbtn_' + index).className = "button hidden"
-
-		hb = _dom('hintbtn_' + index)
-		hb.style.opacity = 0
+		_dom('freewordbtn_' + index).classList.add 'disabled'
+		_dom('hintbtn_' + index).classList.add 'disabled'
 
 		_updateFreeWordsRemaining()
 		_checkIfDone()
@@ -525,20 +525,20 @@ Namespace('Crossword').Engine = do ->
 				if i != index
 					l = _dom("letter_#{letterLeft}_#{letterTop}")
 					if l?
-						l.className = l.className.replace(/highlight/g, '')
+						l.classList.remove 'highlight'
 		# and add it to the ones we care about
 		forEveryQuestion (i, letters, x, y, dir) ->
 			if i == index
 				forEveryLetter x,y,dir,letters, (letterLeft, letterTop) ->
 					l = _dom("letter_#{letterLeft}_#{letterTop}")
 					if l?
-						l.className += ' highlight'
+						l.classList.add 'highlight'
 
 	# show the modal alert dialog
 	_showAlert = (caption, okayCaption, cancelCaption, action) ->
 		ab = $('#alertbox')
 		ab.addClass 'show'
-		$('#backgroundcover').addClass 'show'
+		_dom('backgroundcover').classList.add 'show'
 
 		$('#alertcaption').html caption
 		$('#okbtn').val okayCaption
@@ -550,8 +550,8 @@ Namespace('Crossword').Engine = do ->
 
 	# hide it
 	_hideAlert = ->
-		$('#alertbox').removeClass 'show'
-		$('#backgroundcover').removeClass 'show'
+		_dom('alertbox').classList.remove 'show'
+		_dom('backgroundcover').classList.remove 'show'
 
 	# called after confirm dialog
 	_getHint = (index) ->
@@ -582,16 +582,16 @@ Namespace('Crossword').Engine = do ->
 						return
 		if done
 			$('.arrow_box').show()
-			$('#checkBtn').addClass 'done'
+			_dom('checkBtn').classList.add 'done'
 		else
-			$('#checkBtn').removeClass 'done'
+			_dom('checkBtn').classList.remove 'done'
 			$('.arrow_box').hide()
 
 	# draw a number label to identify the question
 	_renderNumberLabel = (questionNumber, x, y) ->
 		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
-		numberLabel.className = 'numberlabel'
+		numberLabel.classList.add 'numberlabel'
 		numberLabel.style.top = y * LETTER_HEIGHT + 'px'
 		numberLabel.style.left = x * LETTER_WIDTH + 'px'
 		numberLabel.onclick = -> _letterClicked target: $("#letter_#{x}_#{y}")[0]
@@ -610,7 +610,7 @@ Namespace('Crossword').Engine = do ->
 
 		clue.setAttribute 'data-i', i
 		clue.setAttribute 'data-dir', dir
-		clue.className = 'clue'
+		clue.classList.add 'clue'
 
 		clue.onmouseover = _clueMouseOver
 		clue.onmouseout  = _clueMouseOut
