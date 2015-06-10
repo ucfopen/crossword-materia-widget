@@ -3,6 +3,9 @@ $green: #70bd34;
 * {
 	user-select: none;
 }
+input, textarea {
+	user-select: text;
+}
 
 html, body, div {
 	margin: 0;
@@ -71,7 +74,7 @@ body {
 .content-table {
 	position: relative;
 	width: calc(100% - 650px);
-	
+
 
 	table {
 		width: 100%;
