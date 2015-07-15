@@ -4,6 +4,9 @@ $green: #70bd34;
 	user-select: none;
 }
 input, textarea {
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
 	user-select: text;
 }
 
