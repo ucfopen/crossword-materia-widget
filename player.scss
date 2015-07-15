@@ -232,7 +232,7 @@ html, body {
 
 	&.disabled{
 		opacity: 0.5;
-		cursor: default;
+		cursor: default !important;
 	}
 
 	&.hidden {
