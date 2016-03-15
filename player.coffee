@@ -30,8 +30,11 @@ Namespace('Crossword').Engine = do ->
 	_boardDiv             = null # div containing the board
 
 	# these are the allowed user input
-	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Á','À','Â','Ä','Ã','Å','Æ','Ç','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Õ','Ø','Œ','ß','Ú','Ù','Û','Ü']
 	_allowedKeys          = null # generated below
+
+	_holdingAlt           = false
+	_oneMore              = false
 
 	# constants
 	LETTER_HEIGHT         = 23 # how many pixles high is a space?
@@ -76,7 +79,7 @@ Namespace('Crossword').Engine = do ->
 		# render the widget, hook listeners, update UI
 		_drawBoard instance.name
 		_animateToShowBoardIfNeeded()
-		_setupClickHandlers()
+		_setupEventHandlers()
 		_updateFreeWordsRemaining()
 
 		# focus the input listener
@@ -125,17 +128,26 @@ Namespace('Crossword').Engine = do ->
 				word.options.y = word.options.y - y
 
 	# set up listeners on UI elements
-	_setupClickHandlers = ->
+	_setupEventHandlers = ->
 		# make sure the hidden input listener stays in focus
 		$('#board').click ->
 			$('#boardinput').focus()
 
-		$('#boardinput').keydown _inputLetter
+		$('#boardinput').keydown (e) ->
+			switch e.keyCode
+				when 8 # delete/backspace, to prevent browser navigation
+					return false
+				when 18, 91 #left and right alt/option
+					_holdingAlt = true
+		# $('#boardinput').keyup _inputLetter
+		$('#boardinput').keyup _keyupHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
+
+		$('#boardinput').on 'input', _inputLetter
 
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
@@ -348,8 +360,23 @@ Namespace('Crossword').Engine = do ->
 		else
 			_curLetter.x--
 
-	# triggered by a keydown on the main input
-	_inputLetter = (keyEvent, iteration = 0) ->
+	_moveToNextLetter = (_lastLetter) ->
+		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+
+		# highlight the next letter, if it exists and is not a space
+		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
+			_highlightPuzzleLetter()
+		else
+			# otherwise, if it does not exist, check if we can move in another direction
+			if not nextLetterDiv?
+				_curDir = if _curDir == VERTICAL then 0 else -1
+				_curLetter = _lastLetter
+
+				_highlightPuzzleLetter()
+		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
+			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
+
+	_keyupHandler = (keyEvent, iteration = 0) ->
 		_lastLetter = {}
 
 		_lastLetter.x = _curLetter.x
@@ -358,7 +385,6 @@ Namespace('Crossword').Engine = do ->
 		_removePuzzleLetterHighlight()
 
 		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-
 		isProtected = letterDiv.getAttribute('data-protected')?
 
 		switch keyEvent.keyCode
@@ -400,48 +426,61 @@ Namespace('Crossword').Engine = do ->
 					letterDiv.innerHTML = '' if !isProtected
 
 				_checkIfDone()
-			else
-				# all else, input the character and advance cursor position
-				if letterDiv?
-					if !_isGuessable(keyEvent)
-						_highlightPuzzleLetter()
-						return
 
-					if _curDir == -1
-						_curDir = ~~letterDiv.getAttribute('data-dir')
+		_moveToNextLetter _lastLetter
 
-					_nextLetter(_curDir)
+	_insertAccentCharacter = () ->
+		console.log 'INSERT ACCENT'
+		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		_removePuzzleLetterHighlight()
+		letterDiv.innerText = $('#boardinput').val().slice(-1).toUpperCase()
+		$('#boardinput').focus()
+		$('#boardinput').val ''
+		# _nextLetter(_curDir)
+		_highlightPuzzleLetter()
+		_checkIfDone()
 
-					if !isProtected
-						letterDiv.innerHTML = String.fromCharCode(keyEvent.keyCode)
+	# triggered by a keydown on the main input
+	_inputLetter = (inputEvent) ->
+		_lastLetter = {}
 
-					# if the puzzle is filled out, highlight the submit button
-					_checkIfDone()
+		_lastLetter.x = _curLetter.x
+		_lastLetter.y = _curLetter.y
 
+		_removePuzzleLetterHighlight()
 
-		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		isProtected = letterDiv.getAttribute('data-protected')?
 
-		# highlight the next letter, if it exists and is not a space
-		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
-			_highlightPuzzleLetter()
-		else
-			# otherwise, if it does not exist, check if we can move in another direction
-			if not nextLetterDiv?
-				_curDir = if _curDir == VERTICAL then 0 else -1
-				_curLetter = _lastLetter
-			# recursively guess the next letter?
-			if iteration < NEXT_RECURSE_LIMIT
-				_inputLetter(keyEvent, (iteration || 0)+1)
-			else
-				# highlight the last successful letter
+		newCharacter = $('#boardinput').val().slice(-1).toUpperCase()
+
+		# all else, input the character and advance cursor position
+		if letterDiv?
+			if !_isGuessable(newCharacter)
 				_highlightPuzzleLetter()
-		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
-			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
+				return
 
+			if _curDir == -1
+				_curDir = ~~letterDiv.getAttribute('data-dir')
+
+			_nextLetter(_curDir)
+
+			if !isProtected
+				# letterDiv.innerHTML = String.fromCharCode(keyEvent.keyCode)
+				letterDiv.innerHTML = newCharacter
+
+			# if the puzzle is filled out, highlight the submit button
+			_checkIfDone()
+
+		$('#boardinput').val ''
+
+		_moveToNextLetter _lastLetter
 
 	# is a letter one that can be guessed?
-	_isGuessable = (keyEvent) ->
-		return keyEvent? and _allowedKeys.indexOf(keyEvent.keyCode) != -1
+	# _isGuessable = (keyEvent) ->
+	# 	return keyEvent? and _allowedKeys.indexOf(keyEvent.keyCode) != -1
+	_isGuessable = (character) ->
+		return _allowedInput.indexOf(character) != -1
 
 	# update the UI elements pertaining to free words
 	_updateFreeWordsRemaining = ->
