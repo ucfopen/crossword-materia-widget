@@ -380,6 +380,7 @@ input {
 	padding: 5px 20px;
 	font-size: 14px;
 	animation: arrowbob 1s infinite;
+	z-index: 10;
 }
 @keyframes arrowbob {
 	0% {
