@@ -419,17 +419,6 @@ Namespace('Crossword').Engine = do ->
 
 		_moveToNextLetter _lastLetter
 
-	_insertAccentCharacter = () ->
-		console.log 'INSERT ACCENT'
-		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		_removePuzzleLetterHighlight()
-		letterDiv.innerText = $('#boardinput').val().slice(-1).toUpperCase()
-		$('#boardinput').focus()
-		$('#boardinput').val ''
-		# _nextLetter(_curDir)
-		_highlightPuzzleLetter()
-		_checkIfDone()
-
 	# triggered by a keydown on the main input
 	_inputHandler = (inputEvent) ->
 		_lastLetter = {}
