@@ -33,9 +33,6 @@ Namespace('Crossword').Engine = do ->
 	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Á','À','Â','Ä','Ã','Å','Æ','Ç','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Õ','Ø','Œ','ß','Ú','Ù','Û','Ü']
 	_allowedKeys          = null # generated below
 
-	_holdingAlt           = false
-	_oneMore              = false
-
 	# constants
 	LETTER_HEIGHT         = 23 # how many pixles high is a space?
 	LETTER_WIDTH          = 27 # how many pixles wide is a space?
@@ -133,13 +130,6 @@ Namespace('Crossword').Engine = do ->
 		$('#board').click ->
 			$('#boardinput').focus()
 
-		$('#boardinput').keydown (e) ->
-			switch e.keyCode
-				when 8 # delete/backspace, to prevent browser navigation
-					return false
-				when 18, 91 #left and right alt/option
-					_holdingAlt = true
-		# $('#boardinput').keyup _inputLetter
 		$('#boardinput').keyup _keyupHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
@@ -147,7 +137,7 @@ Namespace('Crossword').Engine = do ->
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
 
-		$('#boardinput').on 'input', _inputLetter
+		$('#boardinput').on 'input', _inputHandler
 
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
@@ -441,7 +431,7 @@ Namespace('Crossword').Engine = do ->
 		_checkIfDone()
 
 	# triggered by a keydown on the main input
-	_inputLetter = (inputEvent) ->
+	_inputHandler = (inputEvent) ->
 		_lastLetter = {}
 
 		_lastLetter.x = _curLetter.x
