@@ -139,6 +139,18 @@ Namespace('Crossword').Engine = do ->
 
 		$('#boardinput').on 'input', _inputHandler
 
+		$('#specialInputBody span').click ->
+			letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+			letterDiv.innerText = this.innerText
+			_removePuzzleLetterHighlight()
+			# put focus back on the input area and pretend we just finished typing a letter
+			$('#boardinput').focus()
+			_nextLetter(_curDir)
+			_highlightPuzzleLetter()
+			_checkIfDone()
+		$('#specialInputHead').click ->
+			$('#specialInput').toggleClass 'down up'
+
 		# start dragging the board when the mousedown occurs
 		# coordinates are relative to where we start
 		document.addEventListener 'mousedown', (e) ->
