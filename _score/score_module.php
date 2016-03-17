@@ -129,7 +129,7 @@ class Score_Modules_Crossword extends Score_Module
 
 	private function normalize_string($string)
 	{
-		return $this->unicode_split(strtolower($string));
+		return $this->unicode_split(mb_strtolower($string));
 	}
 
 	private function is_guessable_letter($char)
