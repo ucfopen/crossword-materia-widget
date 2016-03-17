@@ -130,7 +130,7 @@ Namespace('Crossword').Engine = do ->
 		$('#board').click ->
 			$('#boardinput').focus()
 
-		$('#boardinput').keyup _keyupHandler
+		$('#boardinput').keydown _keydownHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#alertbox .button.cancel').click _hideAlert
@@ -362,23 +362,7 @@ Namespace('Crossword').Engine = do ->
 		else
 			_curLetter.x--
 
-	_moveToNextLetter = (_lastLetter) ->
-		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-
-		# highlight the next letter, if it exists and is not a space
-		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
-			_highlightPuzzleLetter()
-		else
-			# otherwise, if it does not exist, check if we can move in another direction
-			if not nextLetterDiv?
-				_curDir = if _curDir == VERTICAL then 0 else -1
-				_curLetter = _lastLetter
-
-				_highlightPuzzleLetter()
-		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
-			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
-
-	_keyupHandler = (keyEvent, iteration = 0) ->
+	_keydownHandler = (keyEvent, iteration = 0) ->
 		_lastLetter = {}
 
 		_lastLetter.x = _curLetter.x
@@ -428,11 +412,33 @@ Namespace('Crossword').Engine = do ->
 					letterDiv.innerHTML = '' if !isProtected
 
 				_checkIfDone()
+			# else
+				# _highlightPuzzleLetter() # put highlight back on the current letter
+				# return # not a key we want to react to
 
-		_moveToNextLetter _lastLetter
+		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+
+		# highlight the next letter, if it exists and is not a space
+		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
+			_highlightPuzzleLetter()
+		else
+			# otherwise, if it does not exist, check if we can move in another direction
+			if not nextLetterDiv?
+				_curDir = if _curDir == VERTICAL then 0 else -1
+				_curLetter = _lastLetter
+			# recursively guess the next letter?
+			if iteration < NEXT_RECURSE_LIMIT
+				_keydownHandler(keyEvent, (iteration || 0)+1)
+			else
+				# highlight the last successful letter
+				_highlightPuzzleLetter()
+		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
+			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
 
 	# triggered by a keydown on the main input
-	_inputHandler = (inputEvent) ->
+	_inputHandler = (inputEvent, iteration = 0) ->
+		_newInput = true
+
 		_lastLetter = {}
 
 		_lastLetter.x = _curLetter.x
@@ -441,13 +447,12 @@ Namespace('Crossword').Engine = do ->
 		_removePuzzleLetterHighlight()
 
 		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		isProtected = letterDiv.getAttribute('data-protected')?
 
 		newCharacter = $('#boardinput').val().slice(-1).toUpperCase()
 
 		# all else, input the character and advance cursor position
 		if letterDiv?
-			if !_isGuessable(newCharacter)
+			if !_isGuessable(newCharacter) and !iteration
 				_highlightPuzzleLetter()
 				return
 
@@ -456,7 +461,7 @@ Namespace('Crossword').Engine = do ->
 
 			_nextLetter(_curDir)
 
-			if !isProtected
+			if !letterDiv.getAttribute('data-protected') and newCharacter
 				# letterDiv.innerHTML = String.fromCharCode(keyEvent.keyCode)
 				letterDiv.innerHTML = newCharacter
 
@@ -464,12 +469,26 @@ Namespace('Crossword').Engine = do ->
 			_checkIfDone()
 
 		$('#boardinput').val ''
+		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 
-		_moveToNextLetter _lastLetter
+		# highlight the next letter, if it exists and is not a space
+		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
+			_highlightPuzzleLetter()
+		else
+			# otherwise, if it does not exist, check if we can move in another direction
+			if not nextLetterDiv?
+				_curDir = if _curDir == VERTICAL then 0 else -1
+				_curLetter = _lastLetter
+			if iteration < NEXT_RECURSE_LIMIT
+				_inputHandler(inputEvent, (iteration||0)+1)
+			else
+				# highlight the last successful letter
+				_highlightPuzzleLetter()
+
+		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
+			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
 
 	# is a letter one that can be guessed?
-	# _isGuessable = (keyEvent) ->
-	# 	return keyEvent? and _allowedKeys.indexOf(keyEvent.keyCode) != -1
 	_isGuessable = (character) ->
 		return _allowedInput.indexOf(character) != -1
 
