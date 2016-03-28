@@ -12,12 +12,15 @@ crosswordClick = (id) ->
 
 crosswordTypeString = (string) ->
 	for i in [0...string.length]
-		code = string.charCodeAt(i)
-		crosswordKeyInput(code)
+		char = string.charAt(i)
+		crosswordLetterInput(char)
 		client.pause(50)
 
 crosswordKeyInput = (code) ->
 	client.execute("var ge = $.Event('keydown'); ge.keyCode = "+code+"; $('#boardinput').trigger(ge)")
+
+crosswordLetterInput = (char) ->
+	client.execute("$('#boardinput').val('"+char+"'); $('#boardinput').trigger('input');")
 
 crosswordExpectString = (startx, starty, dir, string, callback) ->
 	i = 0
