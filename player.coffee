@@ -351,6 +351,7 @@ Namespace('Crossword').Engine = do ->
 			_curLetter.x--
 
 	_keydownHandler = (keyEvent, iteration = 0) ->
+		return if keyEvent.altKey
 		_lastLetter = {}
 
 		_lastLetter.x = _curLetter.x
@@ -400,7 +401,8 @@ Namespace('Crossword').Engine = do ->
 					letterDiv.innerHTML = '' if !isProtected
 
 				_checkIfDone()
-			# else
+			else
+				$('#boardinput').val String.fromCharCode(keyEvent.keyCode) unless $('#boardinput').val()
 				# _highlightPuzzleLetter() # put highlight back on the current letter
 				# return # not a key we want to react to
 
@@ -425,8 +427,6 @@ Namespace('Crossword').Engine = do ->
 
 	# triggered by a keydown on the main input
 	_inputHandler = (inputEvent, iteration = 0) ->
-		_newInput = true
-
 		_lastLetter = {}
 
 		_lastLetter.x = _curLetter.x
