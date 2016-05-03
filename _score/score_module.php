@@ -122,14 +122,19 @@ class Score_Modules_Crossword extends Score_Module
 		return 0;
 	}
 
+	private function unicode_split($string)
+	{
+		return preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
+	}
+
 	private function normalize_string($string)
 	{
-		return str_split(strtolower($string));
+		return $this->unicode_split(mb_strtolower($string));
 	}
 
 	private function is_guessable_letter($char)
 	{
-		return  preg_match('/^[0-9a-z]+$/i', $char);
+		return preg_match('/^[\p{L}-]*$/u', $char);
 	}
 
 	public function get_ss_answer($log, $question)
