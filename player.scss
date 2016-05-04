@@ -59,6 +59,7 @@ html, body {
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
+	overflow: hidden;
 
 	/* Hidden input panel for iPad/etc */
 	#boardinput {
@@ -73,6 +74,70 @@ html, body {
 		font-size: 0px;
 		margin: 40px;
 	}
+}
+
+#specialInput {
+	position: absolute;
+	left: 10px;
+	bottom: -60px;
+	z-index: 100;
+
+	transition: bottom 1s, transform 1s, ease;
+	-webkit-transition: bottom 1s, -webkit-transform 1s, ease;
+	-moz-transition: bottom 1s, -moz-transform 1s, ease;
+}
+
+#specialInputHead {
+	cursor: pointer;
+	color: #ffffff;
+	width: 180px;
+	height: 25px;
+	padding: 0 5px;
+	margin: 0;
+	font-size: 16px;
+	background-color: #333333;
+}
+
+#specialInputBody {
+	height: 50px;
+	max-width: 480px;
+	margin: 0;
+	padding: 5px;
+	background-color: #333333;
+	white-space: nowrap;
+
+	overflow-x: auto;
+	overflow-y: hidden;
+
+	span {
+		cursor: pointer;
+		display: inline-block;
+		font-size: 18px;
+		background-color: #fff;
+		padding: 5px;
+	}
+
+	span:hover {
+		background-color: #AEC4FF;
+	}
+}
+
+#specialInput.up {
+	bottom: 0;
+}
+
+#specialInput.down > #specialInputHead::after, #specialInput.up > #specialInputHead::after {
+	font-size: 18px;
+	display: inline-block;
+	position: relative;
+	left: 20px;
+	color: #ffffff;
+}
+#specialInput.up > #specialInputHead::after {
+	content: '-';
+}
+#specialInput.down > #specialInputHead::after {
+	content: '+';
 }
 
 .header {
