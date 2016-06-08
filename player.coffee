@@ -289,9 +289,17 @@ Namespace('Crossword').Engine = do ->
 
 			# move the board input closer to the letter,
 			# in the event the user has zoomed on a mobile device
+			t = highlightedLetter.style.top
+			l = highlightedLetter.style.left
+
+			t = parseInt t.substring(0, t.length-2)
+			l = parseInt l.substring(0, l.length-2)
+			t = t + LETTER_HEIGHT + 5
+			l = l - LETTER_WIDTH - 5
+
 			bi = _dom('boardinput')
-			bi.style.top = highlightedLetter.style.top
-			bi.style.left = highlightedLetter.style.left
+			bi.style.top = t+'px'
+			bi.style.left = l+'px'
 
 			# figure out if the _curLetter is on the screen
 			letterX = _curLetter.x * LETTER_WIDTH
