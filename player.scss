@@ -43,6 +43,8 @@ html, body {
 	padding: 0;
 	margin: 0;
 
+	overflow: hidden;
+
 	font-family: 'Roboto Slab', serif;
 
 	-webkit-user-select: none;
@@ -72,8 +74,8 @@ html, body {
 		width: 100px;
 		height: 100px;
 		display: block;
-		font-size: 16px;
-		margin: 40px;
+		font-size: 16px !important;
+		text-indent: -9999em; /* Hides blinking cursor for iPad/etc */
 	}
 }
 
@@ -165,7 +167,7 @@ html, body {
 	h1 {
 		line-height: 65px;
 		width: 77%;
-		height: 90px;
+		height: 60px;
 		margin: 0;
 		margin-left: 83px;
 		padding: 0;
@@ -225,6 +227,10 @@ html, body {
 	background: #AEC4FF;
 }
 
+#controls {
+	overflow-y: hidden;
+}
+
 #clues {
 	display: block;
 	position: absolute;
@@ -247,6 +253,7 @@ html, body {
 		transition: all 0.1s ease;
 		-moz-transition: all 0.1s ease;
 		-webkit-transition: all 0.1s ease;
+		overflow-x: auto;
 		em {
 			opacity: 0.5;
 		}
@@ -500,4 +507,3 @@ input {
 	display: inline-block;
 	margin-right: 20px;
 }
-

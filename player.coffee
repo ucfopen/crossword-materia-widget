@@ -33,6 +33,8 @@ Namespace('Crossword').Engine = do ->
 	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Á','À','Â','Ä','Ã','Å','Æ','Ç','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Õ','Ø','Œ','ß','Ú','Ù','Û','Ü']
 	_allowedKeys          = null # generated below
 
+	_isMobile              = false
+
 	# constants
 	LETTER_HEIGHT         = 23 # how many pixles high is a space?
 	LETTER_WIDTH          = 27 # how many pixles wide is a space?
@@ -45,6 +47,13 @@ Namespace('Crossword').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
+		# if we're on a mobile device, some event listening will be different
+		_isMobile = navigator.userAgent.match /(iPhone|iPod|iPad|Android|BlackBerry)/
+
+		# mobile-friendly hack: move the hidden input into the board so mobile auto-focus works when it moves around
+		if _isMobile
+			$('#boardinput').detach().appendTo('#movable')
+
 
 		# build allowed key list from allowed chars
 		_allowedKeys = (char.charCodeAt(0) for char in _allowedInput)
@@ -145,35 +154,51 @@ Namespace('Crossword').Engine = do ->
 		$('#specialInputHead').click ->
 			$('#specialInput').toggleClass 'down up'
 
-		# start dragging the board when the mousedown occurs
-		# coordinates are relative to where we start
-		document.addEventListener 'mousedown', (e) ->
-			return if e.clientX > 515
+		if _isMobile
+			Hammer(document).on 'panstart', _mouseDownHandler
+			Hammer(document).on 'panleft panright panup pandown', _mouseMoveHandler
+			Hammer(document).on 'panend', _mouseUpHandler
+		else
+			document.addEventListener 'mousedown', _mouseDownHandler
+			document.addEventListener 'mousemove', _mouseMoveHandler
+			document.addEventListener 'mouseup', _mouseUpHandler
 
-			_boardMouseDown = true
-			_mouseYAnchor = e.clientY
-			_mouseXAnchor = e.clientX
+	# start dragging
+	_mouseDownHandler = (e) ->
+		context = if _isMobile then e.pointers[0] else e
 
-			_curDir = -1
+		return if context.clientX > 515
 
-		# stop dragging
-		document.addEventListener 'mouseup', -> _boardMouseDown = false
+		_boardMouseDown = true
+		_mouseYAnchor = context.clientY
+		_mouseXAnchor = context.clientX
 
-		document.addEventListener 'mousemove', (e) ->
-			return if not _boardMouseDown
+		_curDir = -1
 
-			_puzzleY += (e.clientY - _mouseYAnchor)
-			_puzzleX += (e.clientX - _mouseXAnchor)
+	# start dragging the board when the mousedown occurs
+	# coordinates are relative to where we start
+	_mouseMoveHandler = (e) ->
+		return if not _boardMouseDown
 
-			# if its out of range, stop panning
-			_limitBoardPosition()
+		context = if _isMobile then e.pointers[0] else e
 
-			_mouseYAnchor = e.clientY
-			_mouseXAnchor = e.clientX
+		_puzzleY += (context.clientY - _mouseYAnchor)
+		_puzzleX += (context.clientX - _mouseXAnchor)
 
-			m = _dom('movable')
-			m.style.top = _puzzleY + 'px'
-			m.style.left = _puzzleX + 'px'
+		# if its out of range, stop panning
+		_limitBoardPosition()
+
+		_mouseYAnchor = context.clientY
+		_mouseXAnchor = context.clientX
+
+		m = _dom('movable')
+		m.style.top = _puzzleY + 'px'
+		m.style.left = _puzzleX + 'px'
+
+		return false if _isMobile
+
+	# stop dragging
+	_mouseUpHandler = (e) -> _boardMouseDown = false
 
 	# limits board position to prevent going off into oblivion (down and right)
 	_limitBoardPosition = ->
@@ -289,17 +314,9 @@ Namespace('Crossword').Engine = do ->
 
 			# move the board input closer to the letter,
 			# in the event the user has zoomed on a mobile device
-			t = highlightedLetter.style.top
-			l = highlightedLetter.style.left
-
-			t = parseInt t.substring(0, t.length-2)
-			l = parseInt l.substring(0, l.length-2)
-			t = t + LETTER_HEIGHT + 5
-			l = l - LETTER_WIDTH - 5
-
 			bi = _dom('boardinput')
-			bi.style.top = t+'px'
-			bi.style.left = l+'px'
+			bi.style.top = highlightedLetter.style.top
+			bi.style.left = highlightedLetter.style.left
 
 			# figure out if the _curLetter is on the screen
 			letterX = _curLetter.x * LETTER_WIDTH
