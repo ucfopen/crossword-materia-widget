@@ -33,7 +33,8 @@ Namespace('Crossword').Engine = do ->
 	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Á','À','Â','Ä','Ã','Å','Æ','Ç','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Õ','Ø','Œ','ß','Ú','Ù','Û','Ü']
 	_allowedKeys          = null # generated below
 
-	_isMobile              = false
+	_isMobile             = false
+	_zoomedIn             = false
 
 	# constants
 	LETTER_HEIGHT         = 23 # how many pixles high is a space?
@@ -142,6 +143,7 @@ Namespace('Crossword').Engine = do ->
 		$('#boardinput').keydown _keydownHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
+		$('#zoomout').click _zoomOut
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
@@ -167,7 +169,7 @@ Namespace('Crossword').Engine = do ->
 	_mouseDownHandler = (e) ->
 		context = if _isMobile then e.pointers[0] else e
 
-		return if context.clientX > 515
+		return if context.clientX > 515 or not _zoomedIn
 
 		_boardMouseDown = true
 		_mouseYAnchor = context.clientY
@@ -265,40 +267,47 @@ Namespace('Crossword').Engine = do ->
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
-		# zoom out?
 		if _puzzleLetterWidth > BOARD_LETTER_WIDTH or _puzzleLetterHeight > BOARD_LETTER_HEIGHT
-			_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }, false
-
-			puzzlePixelHeight = _puzzleLetterHeight * LETTER_HEIGHT
-			puzzlePixelWidth  = _puzzleLetterWidth * LETTER_WIDTH
-
-			# x = pixelHeight / visibleDivHeight
-			# 5 = 2000 / 400
-			heightScaleFactor = puzzlePixelHeight / BOARD_HEIGHT
-			widthScaleFactor = puzzlePixelWidth / BOARD_WIDTH
-
-			# find the biggest scale factor
-			scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor)
-
-			# translate values need to take scale into account
-			translateX = -_puzzleX / scaleFactor
-			translateY = -_puzzleY / scaleFactor
-
-			trans = "scale(#{scaleFactor}) translate(#{translateX}px, #{translateY}px)"
-			_boardDiv
-				.css('-webkit-transform', trans)
-				.css('-moz-transform', trans)
-				.css('transform', trans)
+			_zoomOut()
 
 			setTimeout ->
-				trans = ''
-				_boardDiv.css('-webkit-transform', trans)
-					.css('-moz-transform', trans)
-					.css('transform', trans)
+				_zoomIn()
 			, 2500
 
 		else # no zooming, just highlight first letter
 			_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }
+
+	_zoomOut = ->
+		_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }, false
+
+		puzzlePixelHeight = _puzzleLetterHeight * LETTER_HEIGHT
+		puzzlePixelWidth  = _puzzleLetterWidth * LETTER_WIDTH
+
+		# x = pixelHeight / visibleDivHeight
+		# 5 = 2000 / 400
+		heightScaleFactor = puzzlePixelHeight / BOARD_HEIGHT
+		widthScaleFactor = puzzlePixelWidth / BOARD_WIDTH
+
+		# find the biggest scale factor
+		scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor)
+
+		# translate values need to take scale into account
+		translateX = -_puzzleX / scaleFactor
+		translateY = -_puzzleY / scaleFactor
+
+		trans = "scale(#{scaleFactor}) translate(#{translateX}px, #{translateY}px)"
+		_boardDiv
+			.css('-webkit-transform', trans)
+			.css('-moz-transform', trans)
+			.css('transform', trans)
+		_zoomedIn = false
+
+	_zoomIn = ->
+		trans = ''
+		_boardDiv.css('-webkit-transform', trans)
+			.css('-moz-transform', trans)
+			.css('transform', trans)
+		_zoomedIn = true
 
 	# remove letter focus class from the current letter
 	_removePuzzleLetterHighlight = ->
@@ -308,6 +317,8 @@ Namespace('Crossword').Engine = do ->
 	# apply highlight class
 	_highlightPuzzleLetter = (animate = true) ->
 		highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+
+		_zoomIn() unless _zoomedIn
 
 		if highlightedLetter
 			highlightedLetter.classList.add 'focus'

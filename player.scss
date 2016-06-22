@@ -34,7 +34,10 @@ $lightgreen:#6BBC68;
 }
 
 .icon-print:before {
-	content: "\e603";
+	content: "\e954";
+}
+.icon-zoomout:before {
+	content: "\e988";
 }
 
 html, body {
@@ -182,12 +185,11 @@ html, body {
 			vertical-align: middle;
 		}
 	}
-	.icon-print {
+	.icon-print, .icon-zoomin, .icon-zoomout {
 		font-size: 20px;
 		color: #999;
 		position: absolute;
 		right: 210px;
-		top: 70px;
 
 		font-family: 'icomoon';
 		speak: none;
@@ -204,6 +206,12 @@ html, body {
 		&:hover {
 			color: #444;
 		}
+	}
+	.icon-print {
+		top: 70px;
+	}
+	.icon-zoomout {
+		top: 100px;
 	}
 }
 
