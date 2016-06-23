@@ -50,11 +50,9 @@ Namespace('Crossword').Engine = do ->
 	start = (instance, qset, version = '1') ->
 		# if we're on a mobile device, some event listening will be different
 		_isMobile = navigator.userAgent.match /(iPhone|iPod|iPad|Android|BlackBerry)/
-
-		# mobile-friendly hack: move the hidden input into the board so mobile auto-focus works when it moves around
 		if _isMobile
-			$('#boardinput').detach().appendTo('#movable')
-
+			document.ontouchmove = (e) ->
+					e.preventDefault()
 
 		# build allowed key list from allowed chars
 		_allowedKeys = (char.charCodeAt(0) for char in _allowedInput)
@@ -88,9 +86,6 @@ Namespace('Crossword').Engine = do ->
 		_animateToShowBoardIfNeeded()
 		_setupEventHandlers()
 		_updateFreeWordsRemaining()
-
-		# focus the input listener
-		$('#boardinput').focus()
 
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
@@ -136,11 +131,10 @@ Namespace('Crossword').Engine = do ->
 
 	# set up listeners on UI elements
 	_setupEventHandlers = ->
-		# make sure the hidden input listener stays in focus
-		$('#board').click ->
-			$('#boardinput').focus()
+		# keep focus on the last letter that was highlighted whenever we move the board around
+		$('#board').click -> _highlightPuzzleLetter false
 
-		$('#boardinput').keydown _keydownHandler
+		$('#board').keydown _keydownHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#zoomout').click _zoomOut
@@ -148,11 +142,12 @@ Namespace('Crossword').Engine = do ->
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
 
-		$('#boardinput').on 'input', _inputHandler
-
 		$('#specialInputBody span').click ->
-			$('#boardinput').val(this.innerText)
-			_inputHandler()
+			spoof = $.Event('keydown')
+			spoof.which = this.innerText.charCodeAt(0)
+			spoof.keyCode = this.innerText.charCodeAt(0)
+			currentLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+			$(currentLetter).trigger spoof
 		$('#specialInputHead').click ->
 			$('#specialInput').toggleClass 'down up'
 
@@ -241,28 +236,30 @@ Namespace('Crossword').Engine = do ->
 				# overlapping connectors should not be duplicated
 				return if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
 
-				# each letter is a div with coordinates as id
-				letterDiv = document.createElement 'div'
-				letterDiv.id = "letter_#{letterLeft}_#{letterTop}"
-				letterDiv.classList.add 'letter'
-				letterDiv.setAttribute 'data-q', i
-				letterDiv.setAttribute 'data-dir', dir
-				letterDiv.onclick = _letterClicked
+				protectedSpace = _allowedInput.indexOf(letters[l].toUpperCase()) == -1
 
-				letterDiv.style.top = letterTop * LETTER_HEIGHT + 'px'
-				letterDiv.style.left = letterLeft * LETTER_WIDTH + 'px'
+				# each letter is a div with coordinates as id
+				letterElement = document.createElement if protectedSpace then 'div' else 'input'
+				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
+				letterElement.classList.add 'letter'
+				letterElement.setAttribute 'data-q', i
+				letterElement.setAttribute 'data-dir', dir
+				letterElement.onclick = _letterClicked
+
+				letterElement.style.top = letterTop * LETTER_HEIGHT + 'px'
+				letterElement.style.left = letterLeft * LETTER_WIDTH + 'px'
 
 				# if it's not a guessable char, display the char
-				if _allowedInput.indexOf(letters[l].toUpperCase()) == -1
-					letterDiv.setAttribute 'data-protected', '1'
-					letterDiv.innerHTML = letters[l]
+				if protectedSpace
+					letterElement.setAttribute 'data-protected', '1'
+					letterElement.innerHTML = letters[l]
 						# Black block for spaces
-					letterDiv.style.backgroundColor = '#000' if letters[l] == ' '
+					letterElement.style.backgroundColor = '#000' if letters[l] == ' '
 
 				# init the puzzle grid for this row and letter
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
-				_boardDiv.append letterDiv
+				_boardDiv.append letterElement
 
 
 	# zoom animation if dimensions are off screen
@@ -322,12 +319,7 @@ Namespace('Crossword').Engine = do ->
 
 		if highlightedLetter
 			highlightedLetter.classList.add 'focus'
-
-			# move the board input closer to the letter,
-			# in the event the user has zoomed on a mobile device
-			bi = _dom('boardinput')
-			bi.style.top = highlightedLetter.style.top
-			bi.style.left = highlightedLetter.style.left
+			highlightedLetter.focus()
 
 			# figure out if the _curLetter is on the screen
 			letterX = _curLetter.x * LETTER_WIDTH
@@ -401,8 +393,8 @@ Namespace('Crossword').Engine = do ->
 
 		_removePuzzleLetterHighlight()
 
-		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		isProtected = letterDiv.getAttribute('data-protected')?
+		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		isProtected = letterElement.getAttribute('data-protected')?
 
 		switch keyEvent.keyCode
 			when 37 #left
@@ -422,7 +414,7 @@ Namespace('Crossword').Engine = do ->
 				_curLetter.y++
 				_updateClue()
 			when 46 #delete
-				letterDiv.innerHTML = '' if !isProtected
+				letterElement.innerHTML = '' if !isProtected
 			when 16
 				_highlightPuzzleLetter()
 				return
@@ -430,32 +422,45 @@ Namespace('Crossword').Engine = do ->
 				# dont let the page back navigate
 				keyEvent.preventDefault()
 
-				if letterDiv?
+				if letterElement?
 					# if the current direction is unknown
 					if _curDir == -1
 						# set to the one stored on the letter element from the qset
-						_curDir = ~~letterDiv.getAttribute('data-dir')
+						_curDir = ~~letterElement.getAttribute('data-dir')
 
 					# move selection back
 					_prevLetter(_curDir)
 
-					# Clear value
-					letterDiv.innerHTML = '' if !isProtected
+					# clear value
+					letterElement.value = '' unless isProtected
 
 				_checkIfDone()
 			else
-				$('#boardinput').val String.fromCharCode(keyEvent.keyCode) unless $('#boardinput').val()
-				# _highlightPuzzleLetter() # put highlight back on the current letter
-				# return # not a key we want to react to
+				keyEvent.preventDefault()
+				letterTyped = String.fromCharCode(keyEvent.keyCode)
+				# a letter was typed, move onto the next letter or override if this is the last letter
+				if letterElement?
+					if !_isGuessable(letterTyped)
+						_highlightPuzzleLetter()
+						return
 
-		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+					if _curDir == -1
+						_curDir = ~~letterElement.getAttribute('data-dir')
+					_nextLetter(_curDir)
+
+					letterElement.value = letterTyped unless isProtected
+
+					# if the puzzle is filled out, highlight the submit button
+					_checkIfDone()
+
+		nextletterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 
 		# highlight the next letter, if it exists and is not a space
-		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
+		if nextletterElement and nextletterElement.getAttribute('data-protected') != '1'
 			_highlightPuzzleLetter()
 		else
 			# otherwise, if it does not exist, check if we can move in another direction
-			if not nextLetterDiv?
+			if not nextletterElement?
 				_curDir = if _curDir == VERTICAL then 0 else -1
 				_curLetter = _lastLetter
 			# recursively guess the next letter?
@@ -464,61 +469,9 @@ Namespace('Crossword').Engine = do ->
 			else
 				# highlight the last successful letter
 				_highlightPuzzleLetter()
-		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
-			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
-
-	# triggered by a keydown on the main input
-	_inputHandler = (inputEvent, iteration = 0) ->
-
-		_newInput = true
-		_lastLetter = {}
-
-		_lastLetter.x = _curLetter.x
-		_lastLetter.y = _curLetter.y
-
-		_removePuzzleLetterHighlight()
-
-		letterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-
-		newCharacter = $('#boardinput').val().slice(-1).toUpperCase()
-
-		# all else, input the character and advance cursor position
-		if letterDiv?
-			if !_isGuessable(newCharacter) and !iteration
-				_highlightPuzzleLetter()
-				return
-
-			if _curDir == -1
-				_curDir = ~~letterDiv.getAttribute('data-dir')
-
-			_nextLetter(_curDir)
-
-			if !letterDiv.getAttribute('data-protected') and newCharacter
-				# letterDiv.innerHTML = String.fromCharCode(keyEvent.keyCode)
-				letterDiv.innerHTML = newCharacter
-
-			# if the puzzle is filled out, highlight the submit button
-			_checkIfDone()
-
-		$('#boardinput').val ''
-		nextLetterDiv = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-
-		# highlight the next letter, if it exists and is not a space
-		if nextLetterDiv and nextLetterDiv.getAttribute('data-protected') != '1'
-			_highlightPuzzleLetter()
-		else
-			# otherwise, if it does not exist, check if we can move in another direction
-			if not nextLetterDiv?
-				_curDir = if _curDir == VERTICAL then 0 else -1
-				_curLetter = _lastLetter
-			if iteration < NEXT_RECURSE_LIMIT
-				_inputHandler(inputEvent, (iteration||0)+1)
-			else
-				# highlight the last successful letter
-				_highlightPuzzleLetter()
-
-		if nextLetterDiv and (_curDir == ~~nextLetterDiv.getAttribute('data-dir') or _curDir is -1)
-			_highlightPuzzleWord nextLetterDiv.getAttribute('data-q')
+		if nextletterElement and (_curDir == ~~nextletterElement.getAttribute('data-dir') or _curDir is -1)
+			_highlightPuzzleWord nextletterElement.getAttribute('data-q')
+		nextletterElement?.focus()
 
 	# is a letter one that can be guessed?
 	_isGuessable = (character) ->
@@ -542,8 +495,8 @@ Namespace('Crossword').Engine = do ->
 		e = window.event if not e?
 		target = e.target or e.srcElement
 
-		# just a bubble
-		return if not target
+		# event bubble, or clicked on a non-editable space
+		return if not target or target.getAttribute('data-protected')?
 
 		# parse out the coordinates from the element id
 		s = target.id.split '_'
@@ -718,19 +671,18 @@ Namespace('Crossword').Engine = do ->
 
 	# submit every question to the scoring engine
 	_submitAnswers = ->
-
 		forEveryQuestion (i, letters, x, y, dir) ->
 			answer = ''
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
-				letterDiv = _dom("letter_#{letterLeft}_#{letterTop}")
-				isProtected = letterDiv.getAttribute('data-protected')?
+				letterElement = _dom("letter_#{letterLeft}_#{letterTop}")
+				isProtected = letterElement.getAttribute('data-protected')?
 
 				if isProtected
 					# get the letter from the qset
 					answer += letters[l]
 				else
 					# get the letter from the input
-					answer += letterDiv.innerHTML || '_'
+					answer += letterElement.innerHTML || '_'
 
 			Materia.Score.submitQuestionForScoring _questions[i].id, answer
 
