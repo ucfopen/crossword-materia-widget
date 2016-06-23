@@ -64,33 +64,22 @@ html, body {
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
-	overflow: hidden;
 
-	/* Hidden input panel for iPad/etc */
-	#boardinput {
-		opacity:0;
-		filter:alpha(opacity=0);
-		position: absolute;
-		color: transparent;
-		top:  0px;
-		left:  0px;
-		width: 100px;
-		height: 100px;
-		display: block;
-		font-size: 16px !important;
-		text-indent: -9999em; /* Hides blinking cursor for iPad/etc */
-	}
+	max-height: 592;
+	max-width: 715;
+
+	overflow: hidden;
 }
 
 #specialInput {
 	position: absolute;
 	left: 10px;
-	bottom: -60px;
+	bottom: 0px;
 	z-index: 100;
 
-	transition: bottom 1s, transform 1s, ease;
-	-webkit-transition: bottom 1s, -webkit-transform 1s, ease;
-	-moz-transition: bottom 1s, -moz-transform 1s, ease;
+	transition: height 1s, transform 1s, ease;
+	-webkit-transition: height 1s, -webkit-transform 1s, ease;
+	-moz-transition: height 1s, -moz-transform 1s, ease;
 }
 
 #specialInputHead {
@@ -105,7 +94,8 @@ html, body {
 }
 
 #specialInputBody {
-	height: 50px;
+	box-sizing: border-box;
+	height: 60px;
 	max-width: 480px;
 	margin: 0;
 	padding: 5px;
@@ -129,7 +119,14 @@ html, body {
 }
 
 #specialInput.up {
-	bottom: 0;
+	overflow-x: auto;
+	overflow-y: hidden;
+	height: 85px;
+}
+
+#specialInput.down {
+	overflow: hidden;
+	height: 25px;
 }
 
 #specialInput.down > #specialInputHead::after, #specialInput.up > #specialInputHead::after {
@@ -218,13 +215,20 @@ html, body {
 .letter {
 	position: absolute;
 	border: solid 1px #999;
+	border-radius: 0;
 	width: 26px;
 	height: 22px;
 	padding-left: 0px;
 	font-size: 19px;
 	font-family: 'Delius Unicase';
 	text-align: center;
+	text-transform: uppercase;
 	background: #fff;
+
+	margin: 0;
+
+	color: transparent;
+	text-shadow: 0 0 0 black;
 }
 
 .letter.highlight {
@@ -384,6 +388,7 @@ input {
 	color: #333;
 	font-size: 10px;
 	position: absolute;
+	pointer-events: none;
 	display: block;
 	width: 25px;
 	margin: 0px;
@@ -398,6 +403,10 @@ input {
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
+
+	max-height: 592;
+	max-width: 715;
+
 	background: #000;
 	z-index: -5;
 	opacity: 0;
