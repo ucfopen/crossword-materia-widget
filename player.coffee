@@ -152,12 +152,12 @@ Namespace('Crossword').Engine = do ->
 			$('#specialInput').toggleClass 'down up'
 
 		if _isMobile
-			Hammer(document).on 'panstart', _mouseDownHandler
-			Hammer(document).on 'panleft panright panup pandown', _mouseMoveHandler
+			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
+			Hammer(document.getElementById('board')).on 'panleft panright panup pandown', _mouseMoveHandler
 			Hammer(document).on 'panend', _mouseUpHandler
 		else
-			document.addEventListener 'mousedown', _mouseDownHandler
-			document.addEventListener 'mousemove', _mouseMoveHandler
+			document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
+			document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
 			document.addEventListener 'mouseup', _mouseUpHandler
 
 	# start dragging
