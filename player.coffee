@@ -682,7 +682,7 @@ Namespace('Crossword').Engine = do ->
 					answer += letters[l]
 				else
 					# get the letter from the input
-					answer += letterElement.innerHTML || '_'
+					answer += letterElement.value || '_'
 
 			Materia.Score.submitQuestionForScoring _questions[i].id, answer
 
