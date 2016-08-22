@@ -8,6 +8,7 @@ Namespace('Crossword').Engine = do ->
 
 	# board drag state
 	_boardMouseDown       = false
+	_boardMoving          = false
 	_mouseYAnchor         = 0
 	_mouseXAnchor         = 0
 	_puzzleY              = 0
@@ -40,8 +41,8 @@ Namespace('Crossword').Engine = do ->
 	LETTER_HEIGHT         = 23 # how many pixles high is a space?
 	LETTER_WIDTH          = 27 # how many pixles wide is a space?
 	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
-	BOARD_WIDTH           = 494 # visible board width
-	BOARD_HEIGHT          = 494 # visible board height
+	BOARD_WIDTH           = 495 # visible board width
+	BOARD_HEIGHT          = 512 # visible board height
 	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
@@ -176,6 +177,7 @@ Namespace('Crossword').Engine = do ->
 	# coordinates are relative to where we start
 	_mouseMoveHandler = (e) ->
 		return if not _boardMouseDown
+		_boardMoving = true
 
 		context = if _isMobile then e.pointers[0] else e
 
@@ -325,12 +327,12 @@ Namespace('Crossword').Engine = do ->
 			letterX = _curLetter.x * LETTER_WIDTH
 			letterY = _curLetter.y * LETTER_HEIGHT
 
-			isOffBoardX = letterX < _puzzleX or letterX > _puzzleX + BOARD_WIDTH
-			isOffBoardY = letterY < _puzzleY or letterY > _puzzleY + BOARD_HEIGHT
+			isOffBoardX = letterX > _puzzleX or letterX < _puzzleX + BOARD_WIDTH
+			isOffBoardY = letterY > _puzzleY or letterY < _puzzleY + BOARD_HEIGHT
 
 			m = _dom('movable')
 
-			if isOffBoardX or isOffBoardY
+			if not _boardMoving and (isOffBoardX or isOffBoardY)
 				if isOffBoardX
 					_puzzleX = -_curLetter.x * LETTER_WIDTH + 100
 
@@ -348,6 +350,7 @@ Namespace('Crossword').Engine = do ->
 				, 1000
 
 			_limitBoardPosition()
+			_boardMoving = false
 
 			m.style.top  = _puzzleY + 'px'
 			m.style.left = _puzzleX + 'px'
