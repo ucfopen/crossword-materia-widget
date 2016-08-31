@@ -306,7 +306,7 @@ body {
 					z-index: 1000;
 				}
 				&:after {
-					content: "\e600";
+					content: "\e984";
 					font-family: 'icomoon';
 					color: #fff;
 					font-size: 90px;
@@ -386,7 +386,7 @@ h1 {
 
 .icon-print {
 	&:before {
-		content: "\e603";
+		content: "\e954";
 		position: relative;
 		float: right;
 		margin: 20px 74px;
@@ -398,7 +398,7 @@ h1 {
 }
 
 .icon-spinner:before {
-	content: "\e600";
+	content: "\e984";
 }
 .icon-close {
 	opacity: 0.3;
@@ -415,11 +415,11 @@ h1 {
 		opacity: 1;
 	}
 	&:before {
-		content: "\e602";
+		content: "\ea0f";
 	}
 }
 .icon-plus:before {
-	content: "\e601";
+	content: "\ea0a";
 }
 
 #backgroundcover {
