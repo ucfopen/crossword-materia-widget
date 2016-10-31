@@ -38,7 +38,7 @@ class Score_Modules_Crossword extends Score_Module
 
 	protected function handle_log_question_answered($log)
 	{
-		$log->text = strtolower($log->text);
+		$log->text = mb_strtolower($log->text);
 		$this->total_questions++;
 		$this->scores[$log->item_id] = $this->check_answer($log); // score the question and add it to the total
 	}
