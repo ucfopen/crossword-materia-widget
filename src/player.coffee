@@ -213,6 +213,8 @@ Namespace('Crossword').Engine = do ->
 		$('.remaining').css('display','none') if _freeWordsRemaining < 1
 
 		# ellipse the title if too long
+		if title is undefined or null
+			title = "Widget Title Goes Here"
 		title = title.substring(0, 42) + '...' if title.length > 45
 		$('#title').html title
 		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
