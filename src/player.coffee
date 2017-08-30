@@ -546,7 +546,6 @@ Namespace('Crossword').Engine = do ->
 
 		# fill every letter element
 		forEveryLetter x,y,dir,letters, (letterLeft, letterTop, l) ->
-			console.log _dom("letter_#{letterLeft}_#{letterTop}")
 			_dom("letter_#{letterLeft}_#{letterTop}").value = letters[l].toUpperCase()
 
 		_freeWordsRemaining--
