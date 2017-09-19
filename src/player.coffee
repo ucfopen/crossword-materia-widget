@@ -641,7 +641,11 @@ Namespace('Crossword').Engine = do ->
 	_renderNumberLabel = (questionNumber, x, y) ->
 		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
-		numberLabel.classList.add 'numberlabel'
+		# if vertical, put the numberlabel on the left
+		if ~~_questions[questionNumber-1].options.dir
+			numberLabel.classList.add 'numberlabel_left'
+		else
+			numberLabel.classList.add 'numberlabel'
 		numberLabel.style.top = y * LETTER_HEIGHT + 'px'
 		numberLabel.style.left = x * LETTER_WIDTH + 'px'
 		numberLabel.onclick = -> _letterClicked target: $("#letter_#{x}_#{y}")[0]
