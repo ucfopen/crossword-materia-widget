@@ -627,7 +627,7 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i, letters, x, y, dir) ->
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
 				if letters[l] != ' '
-					if _dom("letter_#{letterLeft}_#{letterTop}").innerHTML == ''
+					if _dom("letter_#{letterLeft}_#{letterTop}").value == ''
 						done = false
 						return
 		if done
