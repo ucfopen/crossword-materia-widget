@@ -134,7 +134,7 @@ class Score_Modules_Crossword extends Score_Module
 
 	private function is_guessable_letter($char)
 	{
-		return preg_match('/^[\p{L}-\d]*$/u', $char);
+		return preg_match('/^[\p{L}\d]*$/u', $char);
 	}
 
 	public function get_ss_answer($log, $question)
