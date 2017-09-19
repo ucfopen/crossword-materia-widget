@@ -507,12 +507,12 @@ Namespace('Crossword').Engine = do ->
 					_dom('freewordbtn_'+i).classList.add 'disabled'
 
 	# highlight the clicked letter and set up direction
-	_letterClicked = (e, animate = true) ->
+	_letterClicked = (e, animate = true, force = false) ->
 		e = window.event if not e?
 		target = e.target or e.srcElement
 
 		# event bubble, or clicked on a non-editable space
-		return if not target or target.getAttribute('data-protected')?
+		return if not target or (target.getAttribute('data-protected')? and not force)
 
 		# parse out the coordinates from the element id
 		s = target.id.split '_'
@@ -673,9 +673,10 @@ Namespace('Crossword').Engine = do ->
 
 		# click on the first letter of the word
 		i = e.target.getAttribute('data-i')
-		dir = e.target.getAttribute('data-dir')
+		x = _questions[i].options.x
+		y = _questions[i].options.y
 
-		_letterClicked { target: $('.letter[data-q="'+i+'"][data-dir="'+dir+'"]').first().get()[0] }
+		_letterClicked { target: $("#letter_#{x}_#{y}")[0] }, true, true
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
