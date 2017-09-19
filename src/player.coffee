@@ -423,6 +423,17 @@ Namespace('Crossword').Engine = do ->
 			when 16
 				_highlightPuzzleLetter()
 				return
+			when 13 #enter
+				highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+				questionIndex = ~~highlightedLetter.getAttribute("data-q")
+				nextQuestionIndex = (questionIndex + 1) % _questions.length
+				nextQuestion = _questions[nextQuestionIndex]
+
+				_curDir = nextQuestion.options.dir
+				_curLetter.x = nextQuestion.options.x
+				_curLetter.y = nextQuestion.options.y
+				_updateClue()
+				keyEvent.keyCode = 39 + _curDir
 			when 8 #backspace
 				# dont let the page back navigate
 				keyEvent.preventDefault()
