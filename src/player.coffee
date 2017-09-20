@@ -419,7 +419,8 @@ Namespace('Crossword').Engine = do ->
 				_curLetter.y++
 				_updateClue()
 			when 46 #delete
-				letterElement.innerHTML = '' if !isProtected
+				letterElement.value = '' unless isProtected
+				_checkIfDone()
 			when 16
 				_highlightPuzzleLetter()
 				return
