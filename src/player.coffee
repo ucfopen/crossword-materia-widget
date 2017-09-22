@@ -230,11 +230,12 @@ Namespace('Crossword').Engine = do ->
 		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
 
 		# used to track the maximum dimensions of the puzzle
-		_top     = 0
+		_top = 0
 
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir) ->
 			questionText   = _questions[i].questions[0].text
+
 			location = "" + x + y
 			questionNumber = ~~i + 1 - _labelIndexShift
 			if not _wordMapping.hasOwnProperty(location)
@@ -245,7 +246,7 @@ Namespace('Crossword').Engine = do ->
 				intersection.reverse() if _questions[i].options.dir
 				_wordIntersections[location] = intersection
 				_labelIndexShift += 1
-			hintPrefix = questionNumber + (if dir then ' down' else ' across')
+			hintPrefix = _wordMapping[location] + (if dir then ' down' else ' across')
 			_renderClue questionText, hintPrefix, i, dir
 
 			_prevDir = dir if ~~i == 0
@@ -392,11 +393,13 @@ Namespace('Crossword').Engine = do ->
 
 		if highlightedLetter
 			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
+
 			# if at an intersection, try to keep the same word selected
 			location = "" + _curLetter.x + _curLetter.y
 			if _wordIntersections.hasOwnProperty(location)
 				index = _wordIntersections[location][~~(_prevDir == 1)] - 1
 				clue = _dom('clue_'+index)
+
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
 				return
