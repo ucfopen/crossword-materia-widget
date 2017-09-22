@@ -472,7 +472,8 @@ Namespace('Crossword').Engine = do ->
 				nextQuestionIndex = (questionIndex + 1) % _questions.length
 				nextQuestion = _questions[nextQuestionIndex]
 
-				_curDir = _prevDir = nextQuestion.options.dir
+				_curDir = nextQuestion.options.dir
+				_prevDir = _curDir
 				_curLetter.x = nextQuestion.options.x
 				_curLetter.y = nextQuestion.options.y
 				_updateClue()
@@ -529,6 +530,7 @@ Namespace('Crossword').Engine = do ->
 					# simulates enter being pressed after a letter typed in last slot
 					keyEvent.keyCode = 13
 				_keydownHandler(keyEvent, (iteration || 0)+1)
+				return
 			else
 				# highlight the last successful letter
 				_highlightPuzzleLetter()
@@ -540,9 +542,13 @@ Namespace('Crossword').Engine = do ->
 			if _wordIntersections.hasOwnProperty(location)
 				i = _wordIntersections[location][~~(_prevDir == 1)] - 1
 				_highlightPuzzleWord(i)
+				_curDir = _questions[i].options.dir
 			else
 				if _curDir == ~~nextletterElement.getAttribute('data-dir') or _curDir is -1
 					_highlightPuzzleWord nextletterElement.getAttribute('data-q')
+
+			_prevDir = _curDir unless _curDir == -1
+
 		nextletterElement?.focus()
 
 	# is a letter one that can be guessed?
@@ -587,6 +593,7 @@ Namespace('Crossword').Engine = do ->
 							_highlightPuzzleWord(i)
 		else
 			_curDir = ~~_dom("letter_#{_curLetter.x}_#{_curLetter.y}").getAttribute('data-dir')
+			_prevDir = _curDir
 			_highlightPuzzleWord (target).getAttribute('data-q')
 
 		_highlightPuzzleLetter(animate)
