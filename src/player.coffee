@@ -748,7 +748,16 @@ Namespace('Crossword').Engine = do ->
 		y = _questions[i].options.y
 		_prevDir = _questions[i].options.dir
 
-		_letterClicked { target: $("#letter_#{x}_#{y}")[0] }
+		firstLetter = $("#letter_#{x}_#{y}")[0]
+		# if the first letter of the word is protected, try to loop through the rest
+		while firstLetter? and firstLetter.getAttribute('data-protected')?
+			if _prevDir == VERTICAL
+				y++
+			else
+				x++
+			firstLetter = $("#letter_#{x}_#{y}")[0]
+
+		_letterClicked { target: firstLetter }
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
