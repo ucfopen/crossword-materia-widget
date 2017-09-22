@@ -295,6 +295,8 @@ Namespace('Crossword').Engine = do ->
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 				_boardDiv.append letterElement
 
+		# Select the first clue
+		_clueMouseUp {target: $('#clue_0')[0]}
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
