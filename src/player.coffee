@@ -571,15 +571,10 @@ Namespace('Crossword').Engine = do ->
 	# highlight a word (series of letters)
 	_highlightPuzzleWord = (index) ->
 		# remove highlight from every letter
-		forEveryQuestion (i, letters, x, y, dir) ->
-			forEveryLetter x,y,dir,letters, (letterLeft, letterTop) ->
-				if i != index
-					l = _dom("letter_#{letterLeft}_#{letterTop}")
-					if l?
-						l.classList.remove 'highlight'
+		$(".letter.highlight").removeClass("highlight")
 		# and add it to the ones we care about
 		forEveryQuestion (i, letters, x, y, dir) ->
-			if i == index
+			if ~~i == ~~index
 				forEveryLetter x,y,dir,letters, (letterLeft, letterTop) ->
 					l = _dom("letter_#{letterLeft}_#{letterTop}")
 					if l?
@@ -689,7 +684,7 @@ Namespace('Crossword').Engine = do ->
 		_highlightPuzzleWord (e.target or e.srcElement).getAttribute('data-i')
 
 	_clueMouseOut = (e) ->
-		_highlightPuzzleWord false
+		_highlightPuzzleWord -1
 
 	# submit every question to the scoring engine
 	_submitAnswers = ->
