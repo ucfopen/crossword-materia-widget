@@ -9,8 +9,8 @@ Namespace('Crossword').Print = do ->
 		$('body').append frame
 		wnd = frame.contentWindow
 		frame.style.display = 'none'
-		
-		wnd.document.write '<h1>' + _instance.name + '</h1>'
+
+		wnd.document.write "<h1 style='page-break-after: always'>" + _instance.name + '</h1>'
 		wnd.document.write "<h1 style='page-break-before:always'>" + _instance.name + '</h1>'
 
 		downClues = document.createElement 'div'
@@ -30,7 +30,7 @@ Namespace('Crossword').Print = do ->
 
 			question = _questions[i].questions[0].text
 			questionNumber = parseInt(i) + 1
-			
+
 			clue = '<p><strong>' + questionNumber + '</strong>: ' + question + '</p>'
 
 			_puzzleGrid = {}
@@ -78,9 +78,9 @@ Namespace('Crossword').Print = do ->
 				downClues.innerHTML += clue
 			else
 				acrossClues.innerHTML += clue
-				
+
 
 		wnd.print()
-	
+
 	printBoard: _printBoard
 
