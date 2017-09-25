@@ -469,10 +469,6 @@ Namespace('Crossword').Engine = do ->
 				# go to the next clue, based on the clue that is currently selected
 				highlightedClue = $(".clue.highlight")
 				questionIndex = ~~highlightedClue.attr("data-i")
-				if not questionIndex?
-					# in case a clue isn't selected, use the question-index of the current letter
-					highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-					questionIndex = ~~highlightedLetter.getAttribute("data-q")
 
 				nextQuestionIndex = (questionIndex + 1) % _questions.length
 				nextQuestion = _questions[nextQuestionIndex]
