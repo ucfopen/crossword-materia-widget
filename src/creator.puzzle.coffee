@@ -231,30 +231,30 @@ Namespace('Crossword').Puzzle = do ->
 		maxX = 0
 		maxY = 0
 
-		for i in [0...qset.length]
+		for i in [0...qset.length] by 1
 			qset[i].options.x = ~~qset[i].options.x
 			qset[i].options.y = ~~qset[i].options.y
 
 			minX = qset[i].options.x if qset[i].options.x < minX
 			minY = qset[i].options.y if qset[i].options.y < minY
 
-		for i in [0...qset.length]
+		for i in [0...qset.length] by 1
 			qset[i].options.x -= minX
 			qset[i].options.y -= minY
 
-		for i in [0...qset.length]
+		for i in [0...qset.length] by 1
 			maxX = qset[i].options.x if qset[i].options.x > maxX
 			maxY = qset[i].options.y if qset[i].options.y > maxY
 
 		xShift = Math.ceil((11 / 2 - maxX / 2))
 		yShift = Math.ceil((11 / 2 - maxY / 2))
 
-		for i in [0...qset.length]
+		for i in [0...qset.length] by 1
 			qset[i].options.x += xShift
 			qset[i].options.y += yShift
 			len = qset[i].questions[0].text.length
 			if qset[i].options.x < 0 or qset[i].options.y < 0 or len + qset[i].options.x > 12 or len + qset[i].options.y > 12
-				for j in [0..i]
+				for j in [0..i] by 1
 					qset[j].options.x -= xShift
 					qset[j].options.y -= yShift
 				break
