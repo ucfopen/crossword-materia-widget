@@ -14,6 +14,8 @@ Namespace('Crossword').Puzzle = do ->
 
 	# Private methods
 
+	# Letters is an array of letters (all caps)
+	# (x,y) is the location of the first letter
 	_placeOnGrid = (letters, x, y, dir) ->
 		xi = 0
 		yi = 0
@@ -124,7 +126,6 @@ Namespace('Crossword').Puzzle = do ->
 		loopCount = 0
 
 		items = _randArray(_items).slice(0)
-		i = 0
 
 		while !firstword? and items.length > 0
 			item = items.pop()
@@ -142,9 +143,6 @@ Namespace('Crossword').Puzzle = do ->
 			return
 
 		_placeOnGrid(firstword.toUpperCase().split(''), 0, 0, false)
-		c = 1
-
-		i = 1
 
 		while (items.length > 0 and loopLimit > loopCount++)
 			item = items.pop()
