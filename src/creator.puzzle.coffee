@@ -164,24 +164,23 @@ Namespace('Crossword').Puzzle = do ->
 
 		results = normalizeQSET results
 
-		# keep trying to find new ones, unless it fails 50 times, in which case
+		# keep trying to find new ones, unless it fails 10 times, in which case
 		# we assume there is no possible spot for every letter, and cut our losses
-		if items.length == 0 || attemptCount++ > 50
+		if items.length == 0 || attemptCount++ > 10
 			iterationCount++
 			possibleItems.push results
+			attemptCount = 0
+			# quickly return if this is a valid solution
+			if not force and items.length == 0
+				return results
 		else
-			if attemptCount > 25
-				# we couldnt place them, so reset our random
-				resetRandom()
-			puzzleGrid = {}
-			_generatePuzzle(_items, force)
+			resetRandom()
+			return _generatePuzzle(_items, force)
 
-		if iterationCount < 9
-			puzzleGrid = {}
-			_generatePuzzle(_items, force)
+		if iterationCount < 50
+			resetRandom()
+			return _generatePuzzle(_items, force)
 
-		if not force
-			return possibleItems[lastBest]
 
 		minArea = 9999
 		maxWords = 0
@@ -220,6 +219,7 @@ Namespace('Crossword').Puzzle = do ->
 	generatePuzzle = (_items, force = false) ->
 		possibleItems = []
 		attemptCount = 0
+		iterationCount = 0
 		_generatePuzzle _items, force
 
 	resetRandom = ->
