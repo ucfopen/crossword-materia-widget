@@ -101,13 +101,12 @@ Namespace('Crossword').Puzzle = do ->
 		return null if not t?
 
 		w = []
-
 		for item in t
 			w.push(item)
 
 		w2 = []
 		while w.length > 0
-			i = Math.floor(_fakeRandom()*w.length)
+			i = Math.floor(_fakeRandom() * 10000) % w.length
 			w2.push(w[i])
 			w.splice(i,1)
 
