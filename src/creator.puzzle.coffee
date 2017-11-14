@@ -162,7 +162,7 @@ Namespace('Crossword').Puzzle = do ->
 			else
 				items.splice(0,0,item)
 
-		normalizeQSET results
+		results = normalizeQSET results
 
 		# keep trying to find new ones, unless it fails 50 times, in which case
 		# we assume there is no possible spot for every letter, and cut our losses
@@ -258,6 +258,9 @@ Namespace('Crossword').Puzzle = do ->
 					qset[j].options.x -= xShift
 					qset[j].options.y -= yShift
 				break
+
+		# return a deep copy of the object
+		JSON.parse(JSON.stringify(qset))
 
 	# Return public methods
 	generatePuzzle: generatePuzzle
