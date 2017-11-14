@@ -42,55 +42,53 @@ Namespace('Crossword').Puzzle = do ->
 	_testFitWord = (word) ->
 		match = []
 		if word.length > 1
-			letters = _randArray(word)
-
-			for i in [0...letters.length] by 1
-				if letters[i] != " "
-					matchArray = _randArray(letterIndex[letters[i].charCodeAt(0)])
-					if matchArray?
-						for n in [0...matchArray.length] by 1
-							# test across
-							if _testFitWordAt(word, matchArray[n].x-i, matchArray[n].y, true)
-								match = matchArray.splice(n,1)
-								return { word: word, x: match[0].x-i, y: match[0].y, dir: true }
-							# test down
-							if _testFitWordAt(word, matchArray[n].x, matchArray[n].y-i, false)
-								match = matchArray.splice(n,1)
-								return { word: word, x: match[0].x, y: match[0].y-i, dir: false }
+			# for each letter in the word
+			for i in [0...word.length] by 1
+				continue if word[i] == " "
+				# locations where this word can intersect at this letter
+				matchArray = _randArray(letterIndex[word[i].charCodeAt(0)])
+				if matchArray?
+					for n in [0...matchArray.length] by 1
+						# test across
+						if _testFitWordAt(word, matchArray[n].x-i, matchArray[n].y, true)
+							match = matchArray.splice(n,1)
+							return { word: word, x: match[0].x-i, y: match[0].y, dir: true }
+						# test down
+						if _testFitWordAt(word, matchArray[n].x, matchArray[n].y-i, false)
+							match = matchArray.splice(n,1)
+							return { word: word, x: match[0].x, y: match[0].y-i, dir: false }
 		false
 
+	# test to see if word fits if it starts at (tx, ty)
 	_testFitWordAt = (word, tx, ty, across) ->
+		# check the spaces right before and after the word
+		puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
 		if across
-			puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
 			puzzleGrid[tx+word.length] = {} if !puzzleGrid[tx + word.length]?
 			return false if puzzleGrid[tx - 1][ty]? or puzzleGrid[tx+word.length][ty]?
 		else
-			puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
+			puzzleGrid[tx+1] = {} if !puzzleGrid[tx+1]?
 			return false if puzzleGrid[tx][ty-1]? or puzzleGrid[tx][ty+word.length]?
 
 		# check spaces for existing words
-		for curword in word
+		for letter in word
 			puzzleGrid[tx] = {} if !puzzleGrid[tx]?
 
 			if !puzzleGrid[tx][ty]?
+				# if there's not already a letter in that location
+				# don't allow there to be a letter adjacent to this word in the other direction
 				if across
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx]?
 					return false if puzzleGrid[tx][ty-1] or puzzleGrid[tx][ty+1]
 				else
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
-					puzzleGrid[tx+1] = {} if !puzzleGrid[tx+1]?
 					return false if puzzleGrid[tx-1][ty]? or puzzleGrid[tx+1][ty]?
 			else
-				puzzleGrid[tx] = {} if !puzzleGrid[tx]?
-
-				return false if puzzleGrid[tx][ty] != curword
-
+				# if there is already a letter in that location
+				# make sure it is the right letter
+				return false if puzzleGrid[tx][ty] != letter
+				# and make sure the letter there is an intersection, not an inline collision
 				if across
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx]?
 					return false if !puzzleGrid[tx][ty-1]? and !puzzleGrid[tx][ty+1]?
 				else
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
-					puzzleGrid[tx+1] = {} if !puzzleGrid[tx+1]?
 					return false if !puzzleGrid[tx-1][ty]? and !puzzleGrid[tx+1][ty]?
 
 			if (across)
