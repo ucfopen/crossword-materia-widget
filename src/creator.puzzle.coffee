@@ -10,7 +10,6 @@ Namespace('Crossword').Puzzle = do ->
 	possibleItems = []
 	iterationCount = 0
 	randomIndex = Math.random()
-	lastBest = 0
 
 	# Private methods
 
@@ -161,12 +160,10 @@ Namespace('Crossword').Puzzle = do ->
 					item.options.dir = 0
 				else
 					item.options.dir = 1
-				c++
 				results.push item
 
 			else
 				items.splice(0,0,item)
-			i++
 
 		normalizeQSET results
 
@@ -189,39 +186,37 @@ Namespace('Crossword').Puzzle = do ->
 		if not force
 			return possibleItems[lastBest]
 
-		minDist = 9999
+		minArea = 9999
+		maxWords = 0
 		best = null
 
-		for i in [0...possibleItems.length]
-			maxX = 0
-			maxY = 0
-			dist = 0
-			for n in [0...possibleItems[i].length]
-				letters = possibleItems[i][n].answers[0].text.split ''
-				width = 0
-				height = 0
-				for j in [0...letters.length]
-					if possibleItems[i][n].options.dir == 0
-						width++
-					else
-						height++
-
-				width += possibleItems[i][n].options.x
-				height += possibleItems[i][n].options.y
-
-				if possibleItems[i][n].options.dir == 0
-					if width > dist
-						dist = width
+		# for each board
+		for board in possibleItems
+			maxX = 1
+			maxY = 1
+			area = 0
+			# loop through all the words, and find the maxX and maxY
+			for n in [0...board.length] by 1
+				if board[n].options.dir == 0
+					width = board[n].options.x + board[n].answers[0].text.length
+					maxX = width if width > maxX
 				else
-					if height > dist
-						dist = height
+					height = board[n].options.y + board[n].answers[0].text.length
+					maxY = height if height > maxY
 
-			if dist < minDist
-				best = possibleItems[i]
-				lastBest = i
-				minDist = dist
+			# maximize the number of words on the board
+			if board.length > maxWords
+				maxWords = board.length
+				minArea = 9999
+			if board.length == maxWords
+				# update the best if it has a smaller area, or it has the same
+				# area where the board is taller than it is wide
+				area = maxX * maxY
+				if area < minArea or (area == minArea and maxX < maxY)
+					best = board
+					minArea = area
 
-		return best
+		best
 
 	# Public methods
 
