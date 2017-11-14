@@ -94,7 +94,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		$scope.showOptionsDialog = true
 
 	$scope.generateNewPuzzle = (force = false, reset = false) ->
-		return if $scope.hasFreshPuzzle and not force
+		return false if $scope.hasFreshPuzzle and not force
 		$('.loading').show()
 		$scope.isBuilding = true
 
