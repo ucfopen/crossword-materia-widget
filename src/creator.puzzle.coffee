@@ -31,6 +31,8 @@ Namespace('Crossword').Puzzle = do ->
 			else
 				yi++
 
+		return
+
 	_indexLetter = (letter, x, y) ->
 		charCode = letter.charCodeAt(0)
 
