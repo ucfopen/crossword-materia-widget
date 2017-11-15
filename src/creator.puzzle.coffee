@@ -166,12 +166,11 @@ Namespace('Crossword').Puzzle = do ->
 
 		results = normalizeQSET results
 
-		# keep trying to find new ones, unless it fails 10 times, in which case
+		# keep trying to find new ones, unless it fails 50 times, in which case
 		# we assume there is no possible spot for every letter, and cut our losses
-		if items.length == 0 || attemptCount++ > 10
+		if items.length == 0 || attemptCount++ > 50
 			iterationCount++
 			possibleItems.push results
-			attemptCount = 0
 			# quickly return if this is a valid solution
 			if not force and items.length == 0
 				return results
