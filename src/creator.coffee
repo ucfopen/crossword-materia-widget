@@ -53,7 +53,9 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 			$scope.widget.puzzleItems = []
 			$scope.widget.freeWords = qset.options.freeWords
 			$scope.widget.hintPenalty = qset.options.hintPenalty
-			$scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint, _items[i].id) for i in [0..._items.length]
+			for item in _items
+				$scope.addPuzzleItem( item.questions[0].text, item.answers[0].text , item.options.hint, item.id)
+			return
 
 		_drawCurrentPuzzle _items
 		$scope.hasFreshPuzzle = true
@@ -67,7 +69,9 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 
 	$scope.onQuestionImportComplete = (items) ->
 		$scope.$apply ->
-			$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint, item.id for item in items
+			for item in items
+				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint, item.id
+			return
 
 	$scope.onMediaImportComplete = (media) -> null
 
@@ -165,9 +169,9 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		if not $scope.hasFreshPuzzle
 			_items = []
 
-			for i in [0..._puzzleItems.length]
-				_items.push _process _puzzleItems[i]
-				words.push _puzzleItems[i].answer
+			for puzzleItem in _puzzleItems
+				_items.push _process puzzleItem
+				words.push puzzleItem.answer
 
 			# generate the puzzle using the guessing algorithm in puzzle.coffee
 			_items = Crossword.Puzzle.generatePuzzle _items, force
@@ -180,11 +184,11 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 
 			$scope.hasFreshPuzzle = _okToSave
 
-		for i in [0..._puzzleItems.length]
+		for puzzleItem in _puzzleItems
 			for item in _qset.items[0].items
-				if item.answers[0].text == _puzzleItems[i].answer
-					item.questions[0].text = _puzzleItems[i].question
-					item.options.hint = _puzzleItems[i].hint
+				if item.answers[0].text == puzzleItem.answer
+					item.questions[0].text = puzzleItem.question
+					item.options.hint = puzzleItem.hint
 					break
 
 		$scope.unused = false
@@ -212,7 +216,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 			x = ~~item.options.x
 			y = ~~item.options.y
 
-			for i in [0...letters.length]
+			for i in [0...letters.length] by 1
 				if item.options.dir == 0
 					letterLeft = x + i
 					letterTop = y
