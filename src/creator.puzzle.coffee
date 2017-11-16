@@ -69,7 +69,6 @@ Namespace('Crossword').Puzzle = do ->
 			puzzleGrid[tx+word.length] = {} if !puzzleGrid[tx + word.length]?
 			return false if puzzleGrid[tx - 1][ty]? or puzzleGrid[tx+word.length][ty]?
 		else
-			puzzleGrid[tx+1] = {} if !puzzleGrid[tx+1]?
 			return false if puzzleGrid[tx][ty-1]? or puzzleGrid[tx][ty+word.length]?
 
 		# check spaces for existing words
@@ -217,7 +216,7 @@ Namespace('Crossword').Puzzle = do ->
 
 	# Public methods
 
-	generatePuzzle = (_items, force = false) ->
+	generatePuzzle = (_items, force) ->
 		possibleItems = []
 		attemptCount = 0
 		iterationCount = 0

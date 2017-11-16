@@ -30,6 +30,13 @@ describe('Crossword', function(){
 			spyOn(Crossword.Puzzle, 'generatePuzzle').and.callThrough();
 		});
 
+		it('shouldnt print a nonexistent puzzle', inject(function($timeout) {
+			print = $scope.printPuzzle();
+			$timeout.flush();
+			$timeout.verifyNoPendingTasks();
+			expect(Crossword.Print.printBoard).not.toHaveBeenCalled();
+		}));
+
 		it('should make a new widget', function() {
 			$scope.initNewWidget({name: 'crosser'});
 			expect($scope.showIntroDialog).toBe(true);
@@ -203,5 +210,22 @@ describe('Crossword', function(){
 			}).toThrow(new Error('Required fields not filled out'));
 		});
 
+		it('it should not allow non-digits to be entered for the hint or freewords', function() {
+			// First change them to valid values
+			expect($scope.widget.hintPenalty).toBe(50);
+			expect($scope.widget.freeWords).toBe(1);
+			$scope.widget.hintPenalty = 25;
+			$scope.widget.freeWords = 5;
+			$scope.$digest();
+			expect($scope.widget.hintPenalty).toBe(25);
+			expect($scope.widget.freeWords).toBe(5);
+
+			// If changed to invalid values, they should go back
+			$scope.widget.hintPenalty = 'abc';
+			$scope.widget.freeWords = 'def';
+			$scope.$digest();
+			expect($scope.widget.hintPenalty).toBe(25);
+			expect($scope.widget.freeWords).toBe(5);
+		});
 	});
 });
