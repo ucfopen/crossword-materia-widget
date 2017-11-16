@@ -131,7 +131,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 
 	$scope.printPuzzle = ->
 		$scope.generateNewPuzzle()
-		if _qset?.items?.length?
+		if _qset?.items?.length
 			$timeout ->
 				Crossword.Print.printBoard({ name: $scope.widget.title }, _qset.items[0].items)
 			,500
