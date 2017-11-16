@@ -4,6 +4,7 @@ Namespace('Crossword').Puzzle = do ->
 
 	loopCount = 0
 	loopLimit = 20
+	maxPossible = 50
 	attemptCount = 0
 	letterIndex = []
 	puzzleGrid = {}
@@ -173,11 +174,8 @@ Namespace('Crossword').Puzzle = do ->
 			# quickly return if this is a valid solution
 			if not force and items.length == 0
 				return results
-		else
-			resetRandom()
-			return _generatePuzzle(_items, force)
 
-		if iterationCount < 50
+		if iterationCount < maxPossible
 			resetRandom()
 			return _generatePuzzle(_items, force)
 
@@ -220,6 +218,7 @@ Namespace('Crossword').Puzzle = do ->
 		possibleItems = []
 		attemptCount = 0
 		iterationCount = 0
+		maxPossible = _items.length * _items.length
 		_generatePuzzle _items, force
 
 	resetRandom = ->
