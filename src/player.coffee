@@ -413,6 +413,7 @@ Namespace('Crossword').Engine = do ->
 			scrolly = clue.offsetTop
 			clue.classList.add 'highlight'
 
+			$('#clues').stop true
 			$('#clues').animate scrollTop: scrolly, 150
 
 	_nextLetter = (direction) ->
