@@ -498,8 +498,9 @@ Namespace('Crossword').Engine = do ->
 
 				_checkIfDone()
 			else
-				letterTyped = keyEvent.key.toUpperCase();
-				if !letterTyped
+				if keyEvent && keyEvent.key
+					letterTyped = keyEvent.key.toUpperCase();
+				else
 					letterTyped = String.fromCharCode(keyEvent.keyCode)
 				# a letter was typed, move onto the next letter or override if this is the last letter
 				if letterElement?
