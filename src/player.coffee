@@ -6,6 +6,13 @@ Namespace('Crossword').Engine = do ->
 	_puzzleGrid           = {}
 	_instance             = {}
 
+	# two words can start at the same point and share a numberlabel
+	# key is string of location, value is the number label to use/share at that location
+	_wordMapping          = {}
+	_labelIndexShift      = 0
+	# stores all intersections, key is location, value is list where index is direction
+	_wordIntersections    = {}
+
 	# board drag state
 	_boardMouseDown       = false
 	_boardMoving          = false
@@ -23,6 +30,8 @@ Namespace('Crossword').Engine = do ->
 
 	# the current typing direction
 	_curDir               = -1
+	# saved previous typing direction
+	_prevDir              = 0
 	# the current letter that is highlighted
 	_curLetter            = false
 
@@ -171,6 +180,7 @@ Namespace('Crossword').Engine = do ->
 		_mouseYAnchor = context.clientY
 		_mouseXAnchor = context.clientX
 
+		_prevDir = _curDir unless _curDir is -1
 		_curDir = -1
 
 	# start dragging the board when the mousedown occurs
@@ -220,16 +230,26 @@ Namespace('Crossword').Engine = do ->
 		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
 
 		# used to track the maximum dimensions of the puzzle
-		_top     = 0
+		_top = 0
 
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir) ->
 			questionText   = _questions[i].questions[0].text
-			questionNumber = ~~i + 1
-			hintPrefix     = questionNumber + (if dir then ' down' else ' across')
 
-			_renderNumberLabel questionNumber, x, y
+			location = "" + x + y
+			questionNumber = ~~i + 1 - _labelIndexShift
+			if not _wordMapping.hasOwnProperty(location)
+				_wordMapping[location] = questionNumber
+				_renderNumberLabel _wordMapping[location], x, y
+			else
+				intersection = [questionNumber, _wordMapping[location]]
+				intersection.reverse() if _questions[i].options.dir
+				_wordIntersections[location] = intersection
+				_labelIndexShift += 1
+			hintPrefix = _wordMapping[location] + (if dir then ' down' else ' across')
 			_renderClue questionText, hintPrefix, i, dir
+
+			_prevDir = dir if ~~i == 0
 
 			$('#hintbtn_'+i).css('display', 'none') if not _questions[i].options.hint
 			$('#freewordbtn_'+i).css('display', 'none') if not _freeWordsRemaining
@@ -238,7 +258,17 @@ Namespace('Crossword').Engine = do ->
 
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
 				# overlapping connectors should not be duplicated
-				return if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
+				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
+					# keep track of overlaps and store in _wordIntersections
+					intersectedElement = _dom("letter_#{letterLeft}_#{letterTop}")
+					intersectedQuestion = ~~intersectedElement.getAttribute("data-q") + 1
+
+					location = "" + letterLeft + letterTop
+					intersection = [~~i + 1, intersectedQuestion]
+					intersection.reverse() if _questions[i].options.dir
+					_wordIntersections[location] = intersection
+
+					return
 
 				protectedSpace = _allowedInput.indexOf(letters[l].toUpperCase()) == -1
 
@@ -246,6 +276,7 @@ Namespace('Crossword').Engine = do ->
 				letterElement = document.createElement if protectedSpace then 'div' else 'input'
 				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
 				letterElement.classList.add 'letter'
+				letterElement.setAttribute 'readonly', true
 				letterElement.setAttribute 'data-q', i
 				letterElement.setAttribute 'data-dir', dir
 				letterElement.onclick = _letterClicked
@@ -265,6 +296,8 @@ Namespace('Crossword').Engine = do ->
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 				_boardDiv.append letterElement
 
+		# Select the first clue
+		_clueMouseUp {target: $('#clue_0')[0]}
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
@@ -364,6 +397,12 @@ Namespace('Crossword').Engine = do ->
 		if highlightedLetter
 			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
 
+			# if at an intersection, try to keep the same word selected
+			location = "" + _curLetter.x + _curLetter.y
+			if _wordIntersections.hasOwnProperty(location)
+				index = _wordIntersections[location][~~(_prevDir == 1)] - 1
+				clue = _dom('clue_'+index)
+
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
 				return
@@ -375,6 +414,7 @@ Namespace('Crossword').Engine = do ->
 			scrolly = clue.offsetTop
 			clue.classList.add 'highlight'
 
+			$('#clues').stop true
 			$('#clues').animate scrollTop: scrolly, 150
 
 	_nextLetter = (direction) ->
@@ -392,37 +432,54 @@ Namespace('Crossword').Engine = do ->
 	_keydownHandler = (keyEvent, iteration = 0) ->
 		return if keyEvent.altKey
 		_lastLetter = {}
-
 		_lastLetter.x = _curLetter.x
 		_lastLetter.y = _curLetter.y
 
 		_removePuzzleLetterHighlight()
-
 		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 		isProtected = letterElement.getAttribute('data-protected')?
 
 		switch keyEvent.keyCode
 			when 37 #left
+				_prevDir = ~~letterElement.getAttribute('data-dir')
 				_curLetter.x--
 				_curDir = -1
 				_updateClue()
 			when 38 #up
+				_prevDir = ~~letterElement.getAttribute('data-dir')
 				_curLetter.y--
 				_curDir = -1
 				_updateClue()
 			when 39 #right
+				_prevDir = ~~letterElement.getAttribute('data-dir')
 				_curLetter.x++
 				_curDir = -1
 				_updateClue()
 			when 40 #down
-				_curDir = -1
+				_prevDir = ~~letterElement.getAttribute('data-dir')
 				_curLetter.y++
+				_curDir = -1
 				_updateClue()
 			when 46 #delete
-				letterElement.innerHTML = '' if !isProtected
+				letterElement.value = '' unless isProtected
+				_checkIfDone()
 			when 16
 				_highlightPuzzleLetter()
 				return
+			when 13, 9 #enter or tab
+				# go to the next clue, based on the clue that is currently selected
+				highlightedClue = $(".clue.highlight")
+				questionIndex = ~~highlightedClue.attr("data-i")
+
+				nextQuestionIndex = (questionIndex + 1) % _questions.length
+				nextQuestion = _questions[nextQuestionIndex]
+
+				_curDir = nextQuestion.options.dir
+				_prevDir = _curDir
+				_curLetter.x = nextQuestion.options.x
+				_curLetter.y = nextQuestion.options.y
+				_updateClue()
+				keyEvent.keyCode = 39 + _curDir
 			when 8 #backspace
 				# dont let the page back navigate
 				keyEvent.preventDefault()
@@ -441,8 +498,10 @@ Namespace('Crossword').Engine = do ->
 
 				_checkIfDone()
 			else
-				keyEvent.preventDefault()
-				letterTyped = String.fromCharCode(keyEvent.keyCode)
+				if keyEvent && keyEvent.key
+					letterTyped = keyEvent.key.toUpperCase();
+				else
+					letterTyped = String.fromCharCode(keyEvent.keyCode)
 				# a letter was typed, move onto the next letter or override if this is the last letter
 				if letterElement?
 					if !_isGuessable(letterTyped)
@@ -464,18 +523,36 @@ Namespace('Crossword').Engine = do ->
 		if nextletterElement and nextletterElement.getAttribute('data-protected') != '1'
 			_highlightPuzzleLetter()
 		else
-			# otherwise, if it does not exist, check if we can move in another direction
+			# otherwise, if it does not exist, go to the next word
 			if not nextletterElement?
-				_curDir = if _curDir == VERTICAL then 0 else -1
+				keyEvent.keyCode = 13 if keyEvent.keyCode >= 48
 				_curLetter = _lastLetter
 			# recursively guess the next letter?
 			if iteration < NEXT_RECURSE_LIMIT
+				# if recursion doesn't work, try to move on to the next clue
+				if iteration == (NEXT_RECURSE_LIMIT - 2) and keyEvent.keyCode >= 48
+					# simulates enter being pressed after a letter typed in last slot
+					keyEvent.keyCode = 13
 				_keydownHandler(keyEvent, (iteration || 0)+1)
+				return
 			else
 				# highlight the last successful letter
 				_highlightPuzzleLetter()
-		if nextletterElement and (_curDir == ~~nextletterElement.getAttribute('data-dir') or _curDir is -1)
-			_highlightPuzzleWord nextletterElement.getAttribute('data-q')
+
+		# highlight the word
+		if nextletterElement
+			# make sure the correct word is highlighted at an intersection
+			location = "" + _curLetter.x + _curLetter.y
+			if _wordIntersections.hasOwnProperty(location)
+				i = _wordIntersections[location][~~(_prevDir == 1)] - 1
+				_highlightPuzzleWord(i)
+				_curDir = _questions[i].options.dir
+			else
+				if _curDir == ~~nextletterElement.getAttribute('data-dir') or _curDir is -1
+					_highlightPuzzleWord nextletterElement.getAttribute('data-q')
+
+			_prevDir = _curDir unless _curDir == -1
+
 		nextletterElement?.focus()
 
 	# is a letter one that can be guessed?
@@ -508,11 +585,22 @@ Namespace('Crossword').Engine = do ->
 
 		_removePuzzleLetterHighlight()
 		_curLetter = { x: ~~s[1], y:~~s[2] }
+		location = "" + ~~s[1] + ~~s[2]
 
-		_curDir = ~~_dom("letter_#{_curLetter.x}_#{_curLetter.y}").getAttribute('data-dir')
+		# keep the prior direction if at an intersection
+		if _wordIntersections.hasOwnProperty(location) and _prevDir != -1
+			_curDir = _prevDir
+			forEveryQuestion (i, letters, x, y, dir) ->
+				if _curDir == dir
+					forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
+						if _curLetter.x == letterLeft and _curLetter.y == letterTop
+							_highlightPuzzleWord(i)
+		else
+			_curDir = ~~_dom("letter_#{_curLetter.x}_#{_curLetter.y}").getAttribute('data-dir')
+			_prevDir = _curDir
+			_highlightPuzzleWord (target).getAttribute('data-q')
 
 		_highlightPuzzleLetter(animate)
-		_highlightPuzzleWord (e.target or e.srcElement).getAttribute('data-q')
 
 		_updateClue()
 
@@ -559,15 +647,10 @@ Namespace('Crossword').Engine = do ->
 	# highlight a word (series of letters)
 	_highlightPuzzleWord = (index) ->
 		# remove highlight from every letter
-		forEveryQuestion (i, letters, x, y, dir) ->
-			forEveryLetter x,y,dir,letters, (letterLeft, letterTop) ->
-				if i != index
-					l = _dom("letter_#{letterLeft}_#{letterTop}")
-					if l?
-						l.classList.remove 'highlight'
+		$(".letter.highlight").removeClass("highlight")
 		# and add it to the ones we care about
 		forEveryQuestion (i, letters, x, y, dir) ->
-			if i == index
+			if ~~i == ~~index
 				forEveryLetter x,y,dir,letters, (letterLeft, letterTop) ->
 					l = _dom("letter_#{letterLeft}_#{letterTop}")
 					if l?
@@ -616,7 +699,7 @@ Namespace('Crossword').Engine = do ->
 		forEveryQuestion (i, letters, x, y, dir) ->
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
 				if letters[l] != ' '
-					if _dom("letter_#{letterLeft}_#{letterTop}").innerHTML == ''
+					if _dom("letter_#{letterLeft}_#{letterTop}").value == ''
 						done = false
 						return
 		if done
@@ -662,9 +745,20 @@ Namespace('Crossword').Engine = do ->
 
 		# click on the first letter of the word
 		i = e.target.getAttribute('data-i')
-		dir = e.target.getAttribute('data-dir')
+		x = _questions[i].options.x
+		y = _questions[i].options.y
+		_prevDir = _questions[i].options.dir
 
-		_letterClicked { target: $('.letter[data-q="'+i+'"][data-dir="'+dir+'"]').first().get()[0] }
+		firstLetter = $("#letter_#{x}_#{y}")[0]
+		# if the first letter of the word is protected, try to loop through the rest
+		while firstLetter? and firstLetter.getAttribute('data-protected')?
+			if _prevDir == VERTICAL
+				y++
+			else
+				x++
+			firstLetter = $("#letter_#{x}_#{y}")[0]
+
+		_letterClicked { target: firstLetter }
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
@@ -672,7 +766,7 @@ Namespace('Crossword').Engine = do ->
 		_highlightPuzzleWord (e.target or e.srcElement).getAttribute('data-i')
 
 	_clueMouseOut = (e) ->
-		_highlightPuzzleWord false
+		_highlightPuzzleWord -1
 
 	# submit every question to the scoring engine
 	_submitAnswers = ->
