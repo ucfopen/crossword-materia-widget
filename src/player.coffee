@@ -276,6 +276,7 @@ Namespace('Crossword').Engine = do ->
 				letterElement = document.createElement if protectedSpace then 'div' else 'input'
 				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
 				letterElement.classList.add 'letter'
+				letterElement.setAttribute 'readonly', true
 				letterElement.setAttribute 'data-q', i
 				letterElement.setAttribute 'data-dir', dir
 				letterElement.onclick = _letterClicked
@@ -413,6 +414,7 @@ Namespace('Crossword').Engine = do ->
 			scrolly = clue.offsetTop
 			clue.classList.add 'highlight'
 
+			$('#clues').stop true
 			$('#clues').animate scrollTop: scrolly, 150
 
 	_nextLetter = (direction) ->
@@ -430,7 +432,6 @@ Namespace('Crossword').Engine = do ->
 	_keydownHandler = (keyEvent, iteration = 0) ->
 		return if keyEvent.altKey
 		_lastLetter = {}
-
 		_lastLetter.x = _curLetter.x
 		_lastLetter.y = _curLetter.y
 
@@ -497,8 +498,10 @@ Namespace('Crossword').Engine = do ->
 
 				_checkIfDone()
 			else
-				keyEvent.preventDefault()
-				letterTyped = String.fromCharCode(keyEvent.keyCode)
+				if keyEvent && keyEvent.key
+					letterTyped = keyEvent.key.toUpperCase();
+				else
+					letterTyped = String.fromCharCode(keyEvent.keyCode)
 				# a letter was typed, move onto the next letter or override if this is the last letter
 				if letterElement?
 					if !_isGuessable(letterTyped)
@@ -522,12 +525,12 @@ Namespace('Crossword').Engine = do ->
 		else
 			# otherwise, if it does not exist, go to the next word
 			if not nextletterElement?
-				keyEvent.keyCode = 13 if keyEvent.keyCode >= 65
+				keyEvent.keyCode = 13 if keyEvent.keyCode >= 48
 				_curLetter = _lastLetter
 			# recursively guess the next letter?
 			if iteration < NEXT_RECURSE_LIMIT
 				# if recursion doesn't work, try to move on to the next clue
-				if iteration == (NEXT_RECURSE_LIMIT - 2) and keyEvent.keyCode >= 65
+				if iteration == (NEXT_RECURSE_LIMIT - 2) and keyEvent.keyCode >= 48
 					# simulates enter being pressed after a letter typed in last slot
 					keyEvent.keyCode = 13
 				_keydownHandler(keyEvent, (iteration || 0)+1)
