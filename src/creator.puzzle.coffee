@@ -128,7 +128,7 @@ Namespace('Crossword').Puzzle = do ->
 		while !firstword? and items.length > 0
 			item = items.pop()
 			firstword = (item.answers[0].text)
-			if !firstword? or firstword.length < 1
+			if !firstword? or firstword.length < 2
 				firstword = null
 			else
 				item.options.dir = 1
@@ -138,7 +138,7 @@ Namespace('Crossword').Puzzle = do ->
 				break
 
 		if !firstword
-			return
+			return true
 
 		_placeOnGrid(firstword.toUpperCase().split(''), 0, 0, false)
 
