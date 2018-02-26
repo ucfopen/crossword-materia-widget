@@ -182,7 +182,7 @@ Namespace('Crossword').Puzzle = do ->
 
 		minArea = 9999
 		maxWords = 0
-		best = null
+		bestList = [] # stringify'ed version of the best boards
 
 		# for each board
 		for board in possibleItems
@@ -207,10 +207,18 @@ Namespace('Crossword').Puzzle = do ->
 				# area where the board is taller than it is wide
 				area = maxX * maxY
 				if area < minArea or (area == minArea and maxX < maxY)
-					best = board
+					bestList.push(JSON.stringify(board))
 					minArea = area
 
-		best
+		# the `bestList` progressively gets better, so pick the first (from the
+		# back) that isn't the same as the current board (_items)
+		bestList.reverse()
+		best = bestList[0]
+		_itemsString = JSON.stringify(_items)
+		for b in bestList
+			if _itemsString != b
+				best = b
+		JSON.parse(best)
 
 	# Public methods
 
