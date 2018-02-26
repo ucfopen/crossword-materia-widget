@@ -280,7 +280,7 @@ body {
 			}
 			&.unused {
 				&:before {
-					content: 'The words in red could not be included in the puzzle. Make sure they share common letters with the other words in the puzzle.';
+					content: 'The words in red could not be included in the puzzle. Make sure they share common letters with the other words in the puzzle and have at least two characters.';
 				}
 			}
 
