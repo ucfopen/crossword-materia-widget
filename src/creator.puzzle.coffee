@@ -4,16 +4,18 @@ Namespace('Crossword').Puzzle = do ->
 
 	loopCount = 0
 	loopLimit = 20
+	maxPossible = 50
 	attemptCount = 0
 	letterIndex = []
 	puzzleGrid = {}
 	possibleItems = []
 	iterationCount = 0
 	randomIndex = Math.random()
-	lastBest = 0
 
 	# Private methods
 
+	# Letters is an array of letters (all caps)
+	# (x,y) is the location of the first letter
 	_placeOnGrid = (letters, x, y, dir) ->
 		xi = 0
 		yi = 0
@@ -30,6 +32,8 @@ Namespace('Crossword').Puzzle = do ->
 			else
 				yi++
 
+		return
+
 	_indexLetter = (letter, x, y) ->
 		charCode = letter.charCodeAt(0)
 
@@ -41,55 +45,52 @@ Namespace('Crossword').Puzzle = do ->
 	_testFitWord = (word) ->
 		match = []
 		if word.length > 1
-			letters = _randArray(word)
-
-			for i in [0...letters.length] by 1
-				if letters[i] != " "
-					matchArray = _randArray(letterIndex[letters[i].charCodeAt(0)])
-					if matchArray?
-						for n in [0...matchArray.length] by 1
-							# test across
-							if _testFitWordAt(word, matchArray[n].x-i, matchArray[n].y, true)
-								match = matchArray.splice(n,1)
-								return { word: word, x: match[0].x-i, y: match[0].y, dir: true }
-							# test down
-							if _testFitWordAt(word, matchArray[n].x, matchArray[n].y-i, false)
-								match = matchArray.splice(n,1)
-								return { word: word, x: match[0].x, y: match[0].y-i, dir: false }
+			# for each letter in the word
+			for i in [0...word.length] by 1
+				continue if word[i] == " "
+				# locations where this word can intersect at this letter
+				matchArray = _randArray(letterIndex[word[i].charCodeAt(0)])
+				if matchArray?
+					for n in [0...matchArray.length] by 1
+						# test across
+						if _testFitWordAt(word, matchArray[n].x-i, matchArray[n].y, true)
+							match = matchArray.splice(n,1)
+							return { word: word, x: match[0].x-i, y: match[0].y, dir: true }
+						# test down
+						if _testFitWordAt(word, matchArray[n].x, matchArray[n].y-i, false)
+							match = matchArray.splice(n,1)
+							return { word: word, x: match[0].x, y: match[0].y-i, dir: false }
 		false
 
+	# test to see if word fits if it starts at (tx, ty)
 	_testFitWordAt = (word, tx, ty, across) ->
+		# check the spaces right before and after the word
+		puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
 		if across
-			puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
 			puzzleGrid[tx+word.length] = {} if !puzzleGrid[tx + word.length]?
 			return false if puzzleGrid[tx - 1][ty]? or puzzleGrid[tx+word.length][ty]?
 		else
-			puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
 			return false if puzzleGrid[tx][ty-1]? or puzzleGrid[tx][ty+word.length]?
 
 		# check spaces for existing words
-		for curword in word
+		for letter in word
 			puzzleGrid[tx] = {} if !puzzleGrid[tx]?
 
 			if !puzzleGrid[tx][ty]?
+				# if there's not already a letter in that location
+				# don't allow there to be a letter adjacent to this word in the other direction
 				if across
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx]?
 					return false if puzzleGrid[tx][ty-1] or puzzleGrid[tx][ty+1]
 				else
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
-					puzzleGrid[tx+1] = {} if !puzzleGrid[tx+1]?
 					return false if puzzleGrid[tx-1][ty]? or puzzleGrid[tx+1][ty]?
 			else
-				puzzleGrid[tx] = {} if !puzzleGrid[tx]?
-
-				return false if puzzleGrid[tx][ty] != curword
-
+				# if there is already a letter in that location
+				# make sure it is the right letter
+				return false if puzzleGrid[tx][ty] != letter
+				# and make sure the letter there is an intersection, not an inline collision
 				if across
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx]?
 					return false if !puzzleGrid[tx][ty-1]? and !puzzleGrid[tx][ty+1]?
 				else
-					puzzleGrid[tx-1] = {} if !puzzleGrid[tx-1]?
-					puzzleGrid[tx+1] = {} if !puzzleGrid[tx+1]?
 					return false if !puzzleGrid[tx-1][ty]? and !puzzleGrid[tx+1][ty]?
 
 			if (across)
@@ -102,13 +103,12 @@ Namespace('Crossword').Puzzle = do ->
 		return null if not t?
 
 		w = []
-
 		for item in t
 			w.push(item)
 
 		w2 = []
 		while w.length > 0
-			i = Math.floor(_fakeRandom()*w.length)
+			i = Math.floor(_fakeRandom() * 10000) % w.length
 			w2.push(w[i])
 			w.splice(i,1)
 
@@ -124,12 +124,11 @@ Namespace('Crossword').Puzzle = do ->
 		loopCount = 0
 
 		items = _randArray(_items).slice(0)
-		i = 0
 
 		while !firstword? and items.length > 0
 			item = items.pop()
 			firstword = (item.answers[0].text)
-			if !firstword? or firstword.length < 1
+			if !firstword? or firstword.length < 2
 				firstword = null
 			else
 				item.options.dir = 1
@@ -139,12 +138,9 @@ Namespace('Crossword').Puzzle = do ->
 				break
 
 		if !firstword
-			return
+			return true
 
 		_placeOnGrid(firstword.toUpperCase().split(''), 0, 0, false)
-		c = 1
-
-		i = 1
 
 		while (items.length > 0 and loopLimit > loopCount++)
 			item = items.pop()
@@ -163,73 +159,74 @@ Namespace('Crossword').Puzzle = do ->
 					item.options.dir = 0
 				else
 					item.options.dir = 1
-				c++
 				results.push item
 
 			else
 				items.splice(0,0,item)
-			i++
 
-		normalizeQSET results
+		results = normalizeQSET results
 
 		# keep trying to find new ones, unless it fails 50 times, in which case
 		# we assume there is no possible spot for every letter, and cut our losses
 		if items.length == 0 || attemptCount++ > 50
 			iterationCount++
 			possibleItems.push results
-		else
-			if attemptCount > 25
-				# we couldnt place them, so reset our random
-				resetRandom()
-			puzzleGrid = {}
-			_generatePuzzle(_items, force)
+			# quickly return if this is a valid solution
+			if not force and items.length == 0
+				return results
 
-		if iterationCount < 9
-			puzzleGrid = {}
-			_generatePuzzle(_items, force)
+		if iterationCount < maxPossible
+			resetRandom()
+			return _generatePuzzle(_items, force)
 
-		if not force
-			return possibleItems[lastBest]
 
-		minDist = 9999
-		best = null
+		minArea = 9999
+		maxWords = 0
+		bestList = [] # stringify'ed version of the best boards
 
-		for i in [0...possibleItems.length]
-			maxX = 0
-			maxY = 0
-			dist = 0
-			for n in [0...possibleItems[i].length]
-				letters = possibleItems[i][n].answers[0].text.split ''
-				width = 0
-				height = 0
-				for j in [0...letters.length]
-					if possibleItems[i][n].options.dir == 0
-						width++
-					else
-						height++
-
-				width += possibleItems[i][n].options.x
-				height += possibleItems[i][n].options.y
-
-				if possibleItems[i][n].options.dir == 0
-					if width > dist
-						dist = width
+		# for each board
+		for board in possibleItems
+			maxX = 1
+			maxY = 1
+			area = 0
+			# loop through all the words, and find the maxX and maxY
+			for n in [0...board.length] by 1
+				if board[n].options.dir == 0
+					width = board[n].options.x + board[n].answers[0].text.length
+					maxX = width if width > maxX
 				else
-					if height > dist
-						dist = height
+					height = board[n].options.y + board[n].answers[0].text.length
+					maxY = height if height > maxY
 
-			if dist < minDist
-				best = possibleItems[i]
-				lastBest = i
-				minDist = dist
+			# maximize the number of words on the board
+			if board.length > maxWords
+				maxWords = board.length
+				minArea = 9999
+			if board.length == maxWords
+				# update the best if it has a smaller area, or it has the same
+				# area where the board is taller than it is wide
+				area = maxX * maxY
+				if area < minArea or (area == minArea and maxX < maxY)
+					bestList.push(JSON.stringify(board))
+					minArea = area
 
-		return best
+		# the `bestList` progressively gets better, so pick the first (from the
+		# back) that isn't the same as the current board (_items)
+		bestList.reverse()
+		best = bestList[0]
+		_itemsString = JSON.stringify(_items)
+		for b in bestList
+			if _itemsString != b
+				best = b
+		JSON.parse(best)
 
 	# Public methods
 
-	generatePuzzle = (_items, force = false) ->
+	generatePuzzle = (_items, force) ->
 		possibleItems = []
 		attemptCount = 0
+		iterationCount = 0
+		maxPossible = _items.length * _items.length
 		_generatePuzzle _items, force
 
 	resetRandom = ->
@@ -238,36 +235,20 @@ Namespace('Crossword').Puzzle = do ->
 	normalizeQSET = (qset) ->
 		minX = 0
 		minY = 0
-		maxX = 0
-		maxY = 0
 
-		for i in [0...qset.length]
+		for i in [0...qset.length] by 1
 			qset[i].options.x = ~~qset[i].options.x
 			qset[i].options.y = ~~qset[i].options.y
 
 			minX = qset[i].options.x if qset[i].options.x < minX
 			minY = qset[i].options.y if qset[i].options.y < minY
 
-		for i in [0...qset.length]
+		for i in [0...qset.length] by 1
 			qset[i].options.x -= minX
 			qset[i].options.y -= minY
 
-		for i in [0...qset.length]
-			maxX = qset[i].options.x if qset[i].options.x > maxX
-			maxY = qset[i].options.y if qset[i].options.y > maxY
-
-		xShift = Math.ceil((11 / 2 - maxX / 2))
-		yShift = Math.ceil((11 / 2 - maxY / 2))
-
-		for i in [0...qset.length]
-			qset[i].options.x += xShift
-			qset[i].options.y += yShift
-			len = qset[i].questions[0].text.length
-			if qset[i].options.x < 0 or qset[i].options.y < 0 or len + qset[i].options.x > 12 or len + qset[i].options.y > 12
-				for j in [0..i]
-					qset[j].options.x -= xShift
-					qset[j].options.y -= yShift
-				break
+		# return a deep copy of the object
+		JSON.parse(JSON.stringify(qset))
 
 	# Return public methods
 	generatePuzzle: generatePuzzle
