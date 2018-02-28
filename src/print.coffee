@@ -35,7 +35,7 @@ Namespace('Crossword').Print = do ->
 
 			_puzzleGrid = {}
 
-			for l in [0..letters.length-1]
+			for l in [0..letters.length-1] by 1
 				if dir == 0
 					letterLeft = x + l
 					letterTop = y
@@ -50,10 +50,6 @@ Namespace('Crossword').Print = do ->
 				numberLabel.style.left = 80 + x * LETTER_WIDTH + 'px'
 				numberLabel.style.fontSize = 10 + 'px'
 				numberLabel.style.zIndex = '1000'
-
-				# overlapping connectors should not be duplicated
-				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
-					return
 
 				letter = wnd.document.createElement 'input'
 				letter.type = 'text'
