@@ -21,11 +21,11 @@ CrosswordCreator.directive 'selectMe', ($timeout, $parse) ->
 			scope.$apply(model.assign(scope, false))
 
 
-CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
+CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($scope, $timeout) ->
 
 	### Initialize class variables ###
 
-	_title = _qset = _hasFreshPuzzle = null
+	_title = _qset = $scope.hasFreshPuzzle = null
 
 	$scope.widget =
 		title: 'New Crossword Widget'
@@ -38,39 +38,115 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
 	$scope.showOptionsDialog = false
 	$scope.showTitleDialog = false
 
-	### Materia Interface Methods ###
+	### Scope Methods ###
 
-	materiaInterface =
-		initNewWidget: (widget, baseUrl) ->
+	$scope.initNewWidget = (widget, baseUrl) ->
+		$scope.$apply ->
+			$scope.showIntroDialog = true
+
+	$scope.initExistingWidget = (title,widget,qset,version,baseUrl) ->
+		_qset = qset
+		_items = qset.items[0].items
+
+		$scope.$apply ->
+			$scope.widget.title	= title
+			$scope.widget.puzzleItems = []
+			$scope.widget.freeWords = qset.options.freeWords
+			$scope.widget.hintPenalty = qset.options.hintPenalty
+			for item in _items
+				$scope.addPuzzleItem( item.questions[0].text, item.answers[0].text , item.options.hint, item.id)
+			return
+
+		_drawCurrentPuzzle _items
+		$scope.hasFreshPuzzle = true
+
+	$scope.onSaveClicked = ->
+		if not _buildSaveData()
+			return Materia.CreatorCore.cancelSave 'Required fields not filled out'
+		Materia.CreatorCore.save _title, _qset
+
+	$scope.onSaveComplete = (title, widget, qset, version) -> true
+
+	$scope.onQuestionImportComplete = (items) ->
+		$scope.$apply ->
+			for item in items
+				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint, item.id
+			return
+
+	$scope.onMediaImportComplete = (media) -> null
+
+	$scope.addPuzzleItem = (q='', a='', h='', id='') ->
+		$scope.widget.puzzleItems.push
+			question: q
+			answer: a
+			hint: h
+			id: id
+			found: true
+
+	$scope.removePuzzleItem = (index) ->
+		$scope.widget.puzzleItems.splice(index,1)
+		$scope.noLongerFresh()
+		$scope.generateNewPuzzle()
+
+	$scope.introComplete = ->
+		$scope.showIntroDialog = false
+
+	$scope.closeDialog = ->
+		$scope.showIntroDialog = $scope.showTitleDialog = $scope.showOptionsDialog = false
+
+	$scope.showOptions = ->
+		$scope.showOptionsDialog = true
+
+	$scope.generateNewPuzzle = (force = false, reset = false) ->
+		return false if $scope.hasFreshPuzzle and not force
+		$('.loading').show()
+		$scope.isBuilding = true
+
+		$timeout ->
+			if reset
+				Crossword.Puzzle.resetRandom()
+
+			$scope.hasFreshPuzzle = false
+			_buildSaveData(reset)
+			$('.loading').hide()
+			$scope.stopTimer()
+
 			$scope.$apply ->
-				$scope.showIntroDialog = true
+				$scope.isBuilding = false
+		,300
 
-		initExistingWidget: (title,widget,qset,version,baseUrl) ->
-			_qset = qset
-			_items = qset.items[0].items
+	$scope.noLongerFresh = ->
+		$scope.hasFreshPuzzle = false
+		$scope.resetTimer()
 
-			$scope.$apply ->
-				$scope.widget.title	= title
-				$scope.widget.puzzleItems = []
-				$scope.widget.freeWords = qset.options.freeWords
-				$scope.widget.hintPenalty = qset.options.hintPenalty
-				$scope.addPuzzleItem( _items[i].questions[0].text, _items[i].answers[0].text , _items[i].options.hint, _items[i].id) for i in [0..._items.length]
+	$scope.$watch('widget.hintPenalty', (newValue, oldValue) ->
+		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
+			$scope.widget.hintPenalty = oldValue
+	)
 
-			_drawCurrentPuzzle _items
-			_hasFreshPuzzle = true
+	$scope.$watch('widget.freeWords', (newValue, oldValue) ->
+		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
+			$scope.widget.freeWords = oldValue
+	)
 
-		onSaveClicked: (mode = 'save') ->
-			if not _buildSaveData()
-				return Materia.CreatorCore.cancelSave 'Required fields not filled out'
-			Materia.CreatorCore.save _title, _qset
+	$scope.printPuzzle = ->
+		$scope.generateNewPuzzle()
+		if _qset?.items?.length
+			$timeout ->
+				Crossword.Print.printBoard({ name: $scope.widget.title }, _qset.items[0].items)
+			,500
 
-		onSaveComplete: (title, widget, qset, version) -> true
+	# Timer for regenerating
+	$scope.startTimer = ->
+		$scope.stopTimer()
+		$scope.timer = setInterval($scope.generateNewPuzzle, 1000)
 
-		onQuestionImportComplete: (items) ->
-			$scope.$apply ->
-				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint, item.id for item in items
+	$scope.stopTimer = -> clearInterval($scope.timer)
 
-		onMediaImportComplete : (media) -> null
+	$scope.resetTimer = ->
+		$scope.stopTimer()
+		$scope.startTimer()
+
 
 	### Private methods ###
 
@@ -90,12 +166,12 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
 		_puzzleItems = $scope.widget.puzzleItems
 
 		# if the puzzle has changed, regenerate
-		if not _hasFreshPuzzle
+		if not $scope.hasFreshPuzzle
 			_items = []
 
-			for i in [0..._puzzleItems.length]
-				_items.push _process _puzzleItems[i]
-				words.push _puzzleItems[i].answer
+			for puzzleItem in _puzzleItems
+				_items.push _process puzzleItem
+				words.push puzzleItem.answer
 
 			# generate the puzzle using the guessing algorithm in puzzle.coffee
 			_items = Crossword.Puzzle.generatePuzzle _items, force
@@ -106,13 +182,13 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
 
 			_qset.items = [{ items: _items }]
 
-			_hasFreshPuzzle = _okToSave
+			$scope.hasFreshPuzzle = _okToSave
 
-		for i in [0..._puzzleItems.length]
+		for puzzleItem in _puzzleItems
 			for item in _qset.items[0].items
-				if item.answers[0].text == _puzzleItems[i].answer
-					item.questions[0].text = _puzzleItems[i].question
-					item.options.hint = _puzzleItems[i].hint
+				if item.answers[0].text == puzzleItem.answer
+					item.questions[0].text = puzzleItem.question
+					item.options.hint = puzzleItem.hint
 					break
 
 		$scope.unused = false
@@ -140,7 +216,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
 			x = ~~item.options.x
 			y = ~~item.options.y
 
-			for i in [0...letters.length]
+			for i in [0...letters.length] by 1
 				if item.options.dir == 0
 					letterLeft = x + i
 					letterTop = y
@@ -187,79 +263,5 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ($scope) ->
 			x: 0
 			y: 0
 
-	### Scope Methods ###
-
-	$scope.addPuzzleItem = (q='', a='', h='', id='') ->
-		$scope.widget.puzzleItems.push
-			question: q
-			answer: a
-			hint: h
-			id: id
-			found: true
-
-	$scope.removePuzzleItem = (index) ->
-		$scope.widget.puzzleItems.splice(index,1)
-		$scope.noLongerFresh()
-		$scope.generateNewPuzzle()
-
-	$scope.introComplete = ->
-		$scope.showIntroDialog = false
-
-	$scope.closeDialog = ->
-		$scope.showIntroDialog = $scope.showTitleDialog = $scope.showOptionsDialog = false
-
-	$scope.showOptions = ->
-		$scope.showOptionsDialog = true
-
-	$scope.generateNewPuzzle = (force = false, reset = false) ->
-		return if _hasFreshPuzzle and not force
-		$('.loading').show()
-		$scope.isBuilding = true
-
-		setTimeout ->
-			if reset
-				Crossword.Puzzle.resetRandom()
-
-			_hasFreshPuzzle = false
-			_buildSaveData(reset)
-			$('.loading').hide()
-			$scope.stopTimer()
-
-			$scope.$apply ->
-				$scope.isBuilding = false
-		,300
-
-	$scope.noLongerFresh = ->
-		_hasFreshPuzzle = false
-		$scope.resetTimer()
-
-	$scope.$watch('widget.hintPenalty', (newValue, oldValue) ->
-		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
-			$scope.widget.hintPenalty = oldValue
-	)
-
-	$scope.$watch('widget.freeWords', (newValue, oldValue) ->
-		if newValue? and newValue.match and not newValue.match(/^[0-9]?[0-9]?$/)
-			$scope.widget.freeWords = oldValue
-	)
-
-	$scope.printPuzzle = ->
-		$scope.generateNewPuzzle()
-		if _qset?.items?.length?
-			setTimeout ->
-				Crossword.Print.printBoard({ name: $scope.widget.title }, _qset.items[0].items)
-			,500
-
-	# Timer for regenerating
-	$scope.startTimer = ->
-		$scope.stopTimer()
-		$scope.timer = setInterval($scope.generateNewPuzzle, 1000)
-
-	$scope.stopTimer = -> clearInterval($scope.timer)
-
-	$scope.resetTimer = ->
-		$scope.stopTimer()
-		$scope.startTimer()
-
-
-	Materia.CreatorCore.start materiaInterface
+	Materia.CreatorCore.start $scope
+]
