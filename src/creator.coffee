@@ -38,6 +38,13 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.showOptionsDialog = false
 	$scope.showTitleDialog = false
 
+	# scope and local variables for the special input keyboard
+	$scope.specialInputState = false
+	$scope.specialInputChar = null
+	$scope.specialCharacters = ['À', 'Â', 'Ä', 'Ã', 'Å', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ñ', 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ', 'ß', 'Ú', 'Ù', 'Û', 'Ü']
+	
+	specialInputTarget = null
+
 	### Scope Methods ###
 
 	$scope.initNewWidget = (widget, baseUrl) ->
@@ -146,7 +153,27 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.resetTimer = ->
 		$scope.stopTimer()
 		$scope.startTimer()
+	
+	$scope.setSpecialInputTarget = (event) ->
+		specialInputTarget = angular.element event.currentTarget
+		return false
 
+	$scope.specialCharacterInput = (character, event) ->
+
+		if specialInputTarget is null then return
+
+		$scope.specialInputChar = character
+		
+		inputString = specialInputTarget[0].value
+		cursorPos = specialInputTarget[0].selectionStart
+		textBefore = inputString.substring 0, cursorPos
+		textAfter = inputString.substring cursorPos, inputString.length
+
+		specialInputTarget[0].value = textBefore + $scope.specialInputChar + textAfter
+		$timeout ->
+			specialInputTarget[0].focus()
+
+		specialInputTarget[0].selectionStart = cursorPos + 1
 
 	### Private methods ###
 

@@ -669,6 +669,76 @@ hr {
 	}
 }
 
+#specialInput {
+	position: fixed;
+	left: 10px;
+	bottom: 0px;
+	z-index: 100;
+
+	transition: height 1s, transform 1s, ease;
+	-webkit-transition: height 1s, -webkit-transform 1s, ease;
+	-moz-transition: height 1s, -moz-transform 1s, ease;
+}
+
+#specialInputHead {
+	cursor: pointer;
+	color: #ffffff;
+	width: 180px;
+	height: 25px;
+	padding: 0 5px;
+	margin: 0;
+	font-size: 16px;
+	background-color: #333333;
+}
+
+#specialInputBody {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 5px;
+	background-color: #333333;
+	white-space: nowrap;
+
+	overflow-x: auto;
+	overflow-y: hidden;
+
+	span {
+		cursor: pointer;
+		display: inline-block;
+		font-size: 18px;
+		background-color: #fff;
+		padding: 5px;
+	}
+
+	span:hover {
+		background-color: #AEC4FF;
+	}
+}
+
+#specialInput.up {
+	overflow-x: auto;
+	overflow-y: hidden;
+	height: 73px;
+}
+
+#specialInput.down {
+	overflow: hidden;
+	height: 28px;
+}
+
+#specialInput.down > #specialInputHead::after, #specialInput.up > #specialInputHead::after {
+	font-size: 18px;
+	display: inline-block;
+	position: relative;
+	left: 20px;
+	color: #ffffff;
+}
+#specialInput.up > #specialInputHead::after {
+	content: '-';
+}
+#specialInput.down > #specialInputHead::after {
+	content: '+';
+}
+
 .loading {
 	position: absolute;
 	padding-top: 200px;
