@@ -41,7 +41,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	# scope and local variables for the special input keyboard
 	$scope.specialInputState = false
 	$scope.specialInputChar = null
-	$scope.specialCharacters = ['À', 'Â', 'Ä', 'Ã', 'Å', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ñ', 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ', 'ß', 'Ú', 'Ù', 'Û', 'Ü']
+	$scope.specialCharacters = ['À', 'Â', 'Ä', 'Ã', 'Å', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ñ', 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ', 'Ú', 'Ù', 'Û', 'Ü']
 	
 	specialInputTarget = null
 
