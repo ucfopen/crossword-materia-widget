@@ -39,6 +39,7 @@ var sourceString = "";
 var materiaJsReplacements = [
 	{match: /src="materia.enginecore.js"/g, replacement: function() {return 'src="../../../js/materia.enginecore.js"';} },
 	{match: /src="materia.score.js"/g, replacement: 'src="../../../js/materia.score.js"'},
+	{match: /src="materia.scorecore.js"/g, replacement: 'src="../../../js/materia.scorecore.js"'},
 	{match: /src="materia.creatorcore.js"/g, replacement: 'src="../../../js/materia.creatorcore.js"'},
 	{match: /src="materia.creatorcore.js"/g, replacement: 'src="../../../js/materia.creatorcore.js"'},
 	{match: /src="materia.storage.manager.js"/g, replacement: 'src="../../../js/materia.storage.manager.js"'},
