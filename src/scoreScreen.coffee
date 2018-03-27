@@ -3,7 +3,6 @@ Namespace('Crossword').ScoreScreen = do ->
 	_qset                 = null
 	_questions            = null
 	_puzzleGrid           = {}
-	_instance             = {}
 
 	# two words can start at the same point and share a numberlabel
 	# key is string of location, value is the number label to use/share at that location
@@ -56,11 +55,8 @@ Namespace('Crossword').ScoreScreen = do ->
 	# Called by Materia.ScoreCore when your widget ScoreCore should start the user experience.
 	start = (instance, qset, version = '1') ->
 		# store widget data
-		_instance = instance
 		_qset = qset
-
-		# start can be called again if hash changed, just update the responses
-		return reset() if _questions?
+		return if not isValidQset()
 
 		# easy access to questions
 		_questions = _qset.items[0].items
@@ -87,13 +83,33 @@ Namespace('Crossword').ScoreScreen = do ->
 		_animateToShowBoardIfNeeded()
 		_setupEventHandlers()
 
-		# once everything is drawn, set the height of the player
-		Materia.ScoreCore.setHeight()
-
-	reset = ->
+	# Called by Materia.ScoreCore when user switches score attempt
+	update = (qset) ->
+		_qset = qset
+		return if not isValidQset()
+		answersShown = $('#hide-correct')[0].checked
+		$('.letter').removeClass('correct incorrect')
 		forEveryQuestion (i, letters, x, y, dir, response) ->
 			forEveryLetter x, y, dir, letters, response, (left, top, l) ->
-				$("#letter_#{left}_#{top}")[0].innerHTML = response[l]
+				letterElement = $("#letter_#{left}_#{top}")[0]
+				classColor = if letters[l] == response[l] then 'correct' else 'incorrect'
+				protectedSpace = _allowedInput.indexOf(letters[l].toUpperCase()) == -1
+				letterElement.classList.add classColor if not protectedSpace
+				letterElement.innerHTML = response[l] if not answersShown
+
+	# Called by Materia.ScoreCore to check if the score data matches the qset data
+	isValidQset = ->
+		currentQset = _qset.items[0].items
+		scoreTable  = _qset.scoreTable
+		if currentQset?.length != scoreTable?.length
+			Materia.ScoreCore.sendValidation(false)
+			return false
+		for answerInfo, i in currentQset
+			if answerInfo.answers[0].text != scoreTable[i].data[2]
+				Materia.ScoreCore.sendValidation(false)
+				return false
+		Materia.ScoreCore.sendValidation(true)
+		return true
 
 
 	# getElementById and cache it, for the sake of performance
@@ -141,18 +157,7 @@ Namespace('Crossword').ScoreScreen = do ->
 		$('#board').click -> _highlightPuzzleLetter false
 
 		$('#zoomout').click _zoomOut
-		$('#alertbox .button.cancel').click _hideAlert
-
 		$('#hide-correct').change _toggleAnswers
-
-		$('#specialInputBody span').click ->
-			spoof = $.Event('keydown')
-			spoof.which = this.innerText.charCodeAt(0)
-			spoof.keyCode = this.innerText.charCodeAt(0)
-			currentLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-			$(currentLetter).trigger spoof
-		$('#specialInputHead').click ->
-			$('#specialInput').toggleClass 'down up'
 
 		if _isMobile
 			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
@@ -172,9 +177,6 @@ Namespace('Crossword').ScoreScreen = do ->
 		_boardMouseDown = true
 		_mouseYAnchor = context.clientY
 		_mouseXAnchor = context.clientX
-
-		_prevDir = _curDir unless _curDir is -1
-		_curDir = -1
 
 	# start dragging the board when the mousedown occurs
 	# coordinates are relative to where we start
@@ -237,8 +239,6 @@ Namespace('Crossword').ScoreScreen = do ->
 				_labelIndexShift += 1
 			hintPrefix = _wordMapping[location] + (if dir then ' down' else ' across')
 			_renderClue questionText, letters.join(''), hintPrefix, i, dir
-
-			_prevDir = dir if ~~i == 0
 
 			forEveryLetter x, y, dir, letters, response, (letterLeft, letterTop, l) ->
 				# overlapping connectors should not be duplicated
@@ -372,17 +372,11 @@ Namespace('Crossword').ScoreScreen = do ->
 			m.style.left = _puzzleX + 'px'
 
 	# update which clue is highlighted and scrolled to on the side list
-	_updateClue = ->
+	_updateClue = (animate = true) ->
 		highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 
 		if highlightedLetter
 			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
-
-			# if at an intersection, try to keep the same word selected
-			location = "" + _curLetter.x + _curLetter.y
-			if _wordIntersections.hasOwnProperty(location)
-				index = _wordIntersections[location][~~(_prevDir == 1)] - 1
-				clue = _dom('clue_'+index)
 
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
@@ -396,7 +390,8 @@ Namespace('Crossword').ScoreScreen = do ->
 			clue.classList.add 'highlight'
 
 			$('#clues').stop true
-			$('#clues').animate scrollTop: scrolly, 150
+			if animate
+				$('#clues').animate scrollTop: scrolly, 150
 
 	# highlight the clicked letter and set up direction
 	_letterClicked = (e, animate = true) ->
@@ -413,27 +408,16 @@ Namespace('Crossword').ScoreScreen = do ->
 		_curLetter = { x: ~~s[1], y:~~s[2] }
 		location = "" + ~~s[1] + ~~s[2]
 
-		# keep the prior direction if at an intersection
-		if _wordIntersections.hasOwnProperty(location) and _prevDir != -1
-			_curDir = _prevDir
-			forEveryQuestion (i, letters, x, y, dir, response) ->
-				if _curDir == dir
-					forEveryLetter x, y, dir, letters, response, (letterLeft, letterTop) ->
-						if _curLetter.x == letterLeft and _curLetter.y == letterTop
-							_highlightPuzzleWord(i)
-		else
-			_curDir = ~~_dom("letter_#{_curLetter.x}_#{_curLetter.y}").getAttribute('data-dir')
-			_prevDir = _curDir
-			_highlightPuzzleWord (target).getAttribute('data-q')
+		_highlightPuzzleWord (target).getAttribute('data-q')
 
-		_highlightPuzzleLetter(animate)
+		_highlightPuzzleLetter true
 
-		_updateClue()
+		_updateClue animate
 
 	# highlight a word (series of letters)
 	_highlightPuzzleWord = (index) ->
-		# remove highlight from every letter
-		$(".letter.highlight").removeClass("highlight")
+		# remove highlights
+		$(".highlight").removeClass("highlight")
 		# and add it to the ones we care about
 		forEveryQuestion (i, letters, x, y, dir, response) ->
 			if ~~i == ~~index
@@ -499,18 +483,21 @@ Namespace('Crossword').ScoreScreen = do ->
 		i = e.target.getAttribute('data-i')
 		x = _questions[i].options.x
 		y = _questions[i].options.y
-		_prevDir = _questions[i].options.dir
+		dir = _questions[i].options.dir
+		len = _questions[i].answers[0].text.length
+		last = len + ( if dir then y else x ) - 1
+
+		# if the first letter of the word is at an intersection, use the second letter
+		location = "" + x + y
+		while _wordIntersections.hasOwnProperty(location)
+			if dir
+				if y < last then y++ else break
+			else
+				if x < last then x++ else break
+			location = "" + x + y
 
 		firstLetter = $("#letter_#{x}_#{y}")[0]
-		# if the first letter of the word is protected, try to loop through the rest
-		while firstLetter? and firstLetter.getAttribute('data-protected')?
-			if _prevDir == VERTICAL
-				y++
-			else
-				x++
-			firstLetter = $("#letter_#{x}_#{y}")[0]
-
-		_letterClicked { target: firstLetter }
+		_letterClicked { target: firstLetter }, false
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
@@ -545,3 +532,4 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	manualResize: true
 	start: start
+	update:update

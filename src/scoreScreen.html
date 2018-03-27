@@ -13,13 +13,12 @@
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
 		<script src="materia.scorecore.js"></script>
-		<script src="materia.score.js"></script>
 
 		<!-- OPTIONAL MATERIA JAVASCRIPT -->
 		<script src="print.js" data-embed></script>
 
 		<!-- YOUR PREREQUISITES -->
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="hammer.min.js"></script>
 		<script src="classList.min.js"></script>
 
@@ -44,21 +43,8 @@
 			</div>
 		</div>
 
-		<div id="board2" class="screen board">
-			<div id="movable-container2">
-				<div id='movable2' class='crossword-board'></div>
-			</div>
-		</div>
-
 		<div id='clues'>
 			<span style='display:none'>Clues</span>
-		</div>
-
-		<div id='backgroundcover' class='fade'></div>
-		<div id='alertbox' class='fade'>
-			<div id='alertcaption'></div>
-			<input id='cancelbtn' class='cancel button' type='button'>
-			<input id='okbtn' class='submit button' type='button'>
 		</div>
 
 		<div id='t_hints' style='display:none' class="clue">
@@ -66,7 +52,6 @@
 			<span class="clueHeader">Clue: </span>{{question}}<br>
 			<span class="clueHeader">Answer: </span>{{answer}}<br>
 		</div>
-		<div class="arrow_box">Click to finish</div>
 
 		<!-- INITIALIZE -->
 		<script>
