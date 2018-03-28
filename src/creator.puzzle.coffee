@@ -138,7 +138,7 @@ Namespace('Crossword').Puzzle = do ->
 				break
 
 		if !firstword
-			return true
+			return false
 
 		_placeOnGrid(firstword.toUpperCase().split(''), 0, 0, false)
 
