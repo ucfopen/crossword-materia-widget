@@ -160,7 +160,6 @@ describe('Crossword', function(){
 		}));
 
 		it('should be able to add more words to the puzzle', function() {
-			// Add a puzzle item that won't intersect anywhere
 			$scope.addPuzzleItem('cat', 'cat', 'cat', '');
 			$scope.addPuzzleItem('dog', 'dog', 'dog', '');
 			$scope.hasFreshPuzzle = false;
