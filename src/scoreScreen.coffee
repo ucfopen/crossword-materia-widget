@@ -2,6 +2,7 @@ Namespace('Crossword').ScoreScreen = do ->
 	# variables to store widget data in this scope
 	_qset                 = null
 	_questions            = null
+	_scoreTable           = null
 	_puzzleGrid           = {}
 
 	# two words can start at the same point and share a numberlabel
@@ -53,9 +54,10 @@ Namespace('Crossword').ScoreScreen = do ->
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 
 	# Called by Materia.ScoreCore when your widget ScoreCore should start the user experience.
-	start = (instance, qset, version = '1') ->
+	start = (instance, qset, scoreTable, version = '1') ->
 		# store widget data
 		_qset = qset
+		_scoreTable = scoreTable
 		return if not isValidQset()
 
 		# easy access to questions
@@ -84,8 +86,8 @@ Namespace('Crossword').ScoreScreen = do ->
 		_setupEventHandlers()
 
 	# Called by Materia.ScoreCore when user switches score attempt
-	update = (qset) ->
-		_qset = qset
+	update = (scoreTable) ->
+		_scoreTable = scoreTable
 		return if not isValidQset()
 		answersShown = $('#hide-correct')[0].checked
 		$('.letter').removeClass('correct incorrect')
@@ -99,13 +101,12 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	# Called by Materia.ScoreCore to check if the score data matches the qset data
 	isValidQset = ->
-		currentQset = _qset.items[0].items
-		scoreTable  = _qset.scoreTable
-		if currentQset?.length != scoreTable?.length
+		qsetItems = _qset.items[0].items
+		if qsetItems?.length != _scoreTable?.length
 			Materia.ScoreCore.sendValidation(false)
 			return false
-		for answerInfo, i in currentQset
-			if answerInfo.answers[0].text != scoreTable[i].data[2]
+		for answerInfo, i in qsetItems
+			if answerInfo.answers[0].text != _scoreTable[i].data[2]
 				Materia.ScoreCore.sendValidation(false)
 				return false
 		Materia.ScoreCore.sendValidation(true)
@@ -524,8 +525,8 @@ Namespace('Crossword').ScoreScreen = do ->
 			x        = _questions[i].options.x
 			y        = _questions[i].options.y
 			dir      = _questions[i].options.dir
-			response = _qset.scoreTable[i].data[1].toUpperCase()
-			hinted   = _qset.scoreTable[i].feedback == "Hint Received"
+			response = _scoreTable[i].data[1].toUpperCase()
+			hinted   = _scoreTable[i].feedback == "Hint Received"
 			callBack(i, letters, x, y, dir, response, hinted)
 
 	# return public stuff for Materia
