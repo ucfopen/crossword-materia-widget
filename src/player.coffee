@@ -50,8 +50,8 @@ Namespace('Crossword').Engine = do ->
 	LETTER_HEIGHT         = 23 # how many pixles high is a space?
 	LETTER_WIDTH          = 27 # how many pixles wide is a space?
 	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
-	BOARD_WIDTH           = 495 # visible board width
-	BOARD_HEIGHT          = 512 # visible board height
+	BOARD_WIDTH           = 472 # visible board width
+	BOARD_HEIGHT          = 485 # visible board height
 	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
@@ -133,6 +133,7 @@ Namespace('Crossword').Engine = do ->
 		{minX: minX, minY: minY, maxX: maxX, maxY: maxY, width:width, height:height}
 
 	# shift word coordinates to normalize to 0, 0
+	# TODO this currently never does anything since `qset` isn't a thing
 	_scootWordsBy = (x, y) ->
 		if x != 0 or y != 0
 			for word in qset
