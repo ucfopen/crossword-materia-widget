@@ -173,7 +173,7 @@ Namespace('Crossword').Puzzle = do ->
 			possibleItems.push results
 			# quickly return if this is a valid solution
 			if not force and items.length == 0
-				return results
+				return centerPuzzle(results)
 
 		if iterationCount < maxPossible
 			resetRandom()
@@ -218,7 +218,8 @@ Namespace('Crossword').Puzzle = do ->
 		for b in bestList
 			if _itemsString != b
 				best = b
-		JSON.parse(best)
+
+		centerPuzzle(JSON.parse(best))
 
 	# Public methods
 
@@ -233,8 +234,7 @@ Namespace('Crossword').Puzzle = do ->
 		randomIndex = Math.random()
 
 	normalizeQSET = (qset) ->
-		minX = 0
-		minY = 0
+		minX = minY = 0
 
 		for i in [0...qset.length] by 1
 			qset[i].options.x = ~~qset[i].options.x
@@ -249,6 +249,29 @@ Namespace('Crossword').Puzzle = do ->
 
 		# return a deep copy of the object
 		JSON.parse(JSON.stringify(qset))
+
+	centerPuzzle = (qset) ->
+		maxX = maxY = 0
+
+		# find the letters furthest away from the origin
+		for i in [0...qset.length] by 1
+			dir = qset[i].options.dir
+			endX = qset[i].options.x + ( qset[i].answers[0].text.length * ~~(!dir) )
+			endY = qset[i].options.y + ( qset[i].answers[0].text.length * ~~(dir) )
+			maxX = endX if endX > maxX
+			maxY = endY if endY > maxY
+
+		xShift = Math.floor((19 - maxX) / 2)
+		yShift = Math.floor((21 - maxY) / 2)
+
+		xShift = 0 if xShift < 0
+		yShift = 0 if yShift < 0
+
+		for i in [0...qset.length] by 1
+			qset[i].options.x += xShift
+			qset[i].options.y += yShift
+
+		qset
 
 	# Return public methods
 	generatePuzzle: generatePuzzle
