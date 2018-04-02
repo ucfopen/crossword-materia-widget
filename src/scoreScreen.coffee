@@ -48,8 +48,8 @@ Namespace('Crossword').ScoreScreen = do ->
 	LETTER_HEIGHT         = 23  # how many pixles high is a space?
 	LETTER_WIDTH          = 27  # how many pixles wide is a space?
 	VERTICAL              = 1   # used to compare dir == 1 or dir == VERTICAL
-	BOARD_WIDTH           = 495 # visible board width
-	BOARD_HEIGHT          = 512 # visible board height
+	BOARD_WIDTH           = 560 # visible board width, minus space for
+	BOARD_HEIGHT          = 550 # visible board height, minus space for zoom button
 	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 
@@ -71,7 +71,7 @@ Namespace('Crossword').ScoreScreen = do ->
 			_questions[i].options.dir = ~~_questions[i].options.dir
 
 		puzzleSize = _measureBoard(_questions)
-		_scootWordsBy(puzzleSize.minX, puzzleSize.minY) # normalize the qset coordinates
+		_scootWordsBy(puzzleSize.minX, puzzleSize.minY, _questions) # normalize the qset coordinates
 
 		_puzzleLetterWidth  = puzzleSize.width
 		_puzzleLetterHeight = puzzleSize.height
@@ -81,7 +81,7 @@ Namespace('Crossword').ScoreScreen = do ->
 		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y }
 
 		# render the widget, hook listeners, update UI
-		_drawBoard instance.name
+		_drawBoard()
 		_animateToShowBoardIfNeeded()
 		_setupEventHandlers()
 
@@ -146,6 +146,7 @@ Namespace('Crossword').ScoreScreen = do ->
 		{minX: minX, minY: minY, maxX: maxX, maxY: maxY, width:width, height:height}
 
 	# shift word coordinates to normalize to 0, 0
+	# TODO this currently never does anything since `qset` isn't a thing
 	_scootWordsBy = (x, y) ->
 		if x != 0 or y != 0
 			for word in qset
@@ -213,14 +214,7 @@ Namespace('Crossword').ScoreScreen = do ->
 		_puzzleX = 0 if _puzzleX > 0
 
 	# Draw the main board.
-	_drawBoard = (title) ->
-		# ellipse the title if too long
-		if title is undefined or null
-			title = "Widget Title Goes Here"
-		title = title.substring(0, 42) + '...' if title.length > 45
-		$('#title').html title
-		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
-
+	_drawBoard = ->
 		# used to track the maximum dimensions of the puzzle
 		_top = 0
 

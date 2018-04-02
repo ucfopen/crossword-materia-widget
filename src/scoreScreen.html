@@ -27,16 +27,7 @@
 	</head>
 
 	<body>
-		<div class="header">
-			<div class='logo'></div>
-			<h1 id='title'></h1>
-			<div class='icon-zoomout' id='zoomout' title='Zoom Out'></div>
-			<div class="right">
-				Show Correct Answers
-				<input type="checkbox" id="hide-correct"/>
-				<label for="hide-correct" class="checktoggle"></label>
-			</div>
-		</div>
+		<div class='icon-zoomout' id='zoomout' title='Zoom Out'></div>
 		<div id="board" class="screen board">
 			<div id="movable-container">
 				<div id='movable' class='crossword-board'></div>
@@ -52,6 +43,12 @@
 			<span class="clueHeader">Clue: </span>{{question}}<br>
 			<span class="clueHeader">Answer: </span>{{answer}}<br>
 		</div>
+
+		<div id="bottomOptions">
+				Show Correct Answers
+				<input type="checkbox" id="hide-correct"/>
+				<label for="hide-correct" class="checktoggle"></label>
+			</div>
 
 		<!-- INITIALIZE -->
 		<script>
