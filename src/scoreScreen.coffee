@@ -58,7 +58,6 @@ Namespace('Crossword').ScoreScreen = do ->
 		# store widget data
 		_qset = qset
 		_scoreTable = scoreTable
-		return if not isValidQset()
 
 		# easy access to questions
 		_questions = _qset.items[0].items
@@ -86,9 +85,13 @@ Namespace('Crossword').ScoreScreen = do ->
 		_setupEventHandlers()
 
 	# Called by Materia.ScoreCore when user switches score attempt
-	update = (scoreTable) ->
+	update = (qset, scoreTable) ->
 		_scoreTable = scoreTable
-		return if not isValidQset()
+
+		if not isConsistentQset(qset)
+			return redrawBoard(qset)
+
+		_qset = qset
 		answersShown = $('#hide-correct')[0].checked
 		$('.letter').removeClass('correct incorrect')
 		forEveryQuestion (i, letters, x, y, dir, response) ->
@@ -99,19 +102,8 @@ Namespace('Crossword').ScoreScreen = do ->
 				letterElement.classList.add classColor if not protectedSpace
 				letterElement.innerHTML = response[l] if not answersShown
 
-	# Called by Materia.ScoreCore to check if the score data matches the qset data
-	isValidQset = ->
-		qsetItems = _qset.items[0].items
-		if qsetItems?.length != _scoreTable?.length
-			Materia.ScoreCore.sendValidation(false)
-			return false
-		for answerInfo, i in qsetItems
-			if answerInfo.answers[0].text != _scoreTable[i].data[2]
-				Materia.ScoreCore.sendValidation(false)
-				return false
-		Materia.ScoreCore.sendValidation(true)
-		return true
-
+	isConsistentQset = (newQset) ->
+		return newQset.id == _qset.id
 
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -279,6 +271,35 @@ Namespace('Crossword').ScoreScreen = do ->
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 				_boardDiv.append letterElement
+
+	redrawBoard = (qset) ->
+		_qset = qset
+		_questions = _qset.items[0].items
+		forEveryQuestion (i, letters, x, y, dir, response) ->
+			_questions[i].options.x = ~~_questions[i].options.x
+			_questions[i].options.y = ~~_questions[i].options.y
+			_questions[i].options.dir = ~~_questions[i].options.dir
+
+		puzzleSize = _measureBoard(_questions)
+		_scootWordsBy(puzzleSize.minX, puzzleSize.minY, _questions) # normalize the qset coordinates
+
+		_puzzleLetterWidth  = puzzleSize.width
+		_puzzleLetterHeight = puzzleSize.height
+		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - BOARD_WIDTH
+		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - BOARD_HEIGHT
+
+		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y }
+
+		# reset everything
+		$('#clues').empty();
+		$('#movable').empty()
+		_puzzleGrid = {}
+		_wordMapping = {}
+		_labelIndexShift = 0
+		_wordIntersections = {}
+
+		_drawBoard()
+		_animateToShowBoardIfNeeded()
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
