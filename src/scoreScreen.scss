@@ -86,9 +86,6 @@ html, body {
 	right: 0px;
 	bottom: 0px;
 
-	max-height: 592;
-	max-width: 715;
-
 	overflow: hidden;
 }
 
@@ -100,7 +97,7 @@ html, body {
 	font-size: 14px;
 	background: black;
 	color: white;
-	padding: 3px;
+	padding: 5px 10px;
 
 	transition: height 1s, transform 1s, ease;
 	-webkit-transition: height 1s, -webkit-transform 1s, ease;
