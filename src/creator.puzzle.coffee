@@ -11,6 +11,8 @@ Namespace('Crossword').Puzzle = do ->
 	possibleItems = []
 	iterationCount = 0
 	randomIndex = Math.random()
+	BOARD_SPAN_X = 17
+	BOARD_SPAN_Y = 21
 
 	# Private methods
 
@@ -227,7 +229,7 @@ Namespace('Crossword').Puzzle = do ->
 		possibleItems = []
 		attemptCount = 0
 		iterationCount = 0
-		maxPossible = _items.length * _items.length
+		maxPossible = (_items.length * _items.length) + 10
 		_generatePuzzle _items, force
 
 	resetRandom = ->
@@ -261,8 +263,9 @@ Namespace('Crossword').Puzzle = do ->
 			maxX = endX if endX > maxX
 			maxY = endY if endY > maxY
 
-		xShift = Math.floor((19 - maxX) / 2)
-		yShift = Math.floor((21 - maxY) / 2)
+		xShift = Math.floor((BOARD_SPAN_X - maxX) / 2)
+		yShift = Math.floor((BOARD_SPAN_Y - maxY) / 2)
+		console.log(xShift, yShift)
 
 		xShift = 0 if xShift < 0
 		yShift = 0 if yShift < 0
