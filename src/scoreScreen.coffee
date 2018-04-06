@@ -83,6 +83,7 @@ Namespace('Crossword').ScoreScreen = do ->
 		_drawBoard()
 		_animateToShowBoardIfNeeded()
 		_setupEventHandlers()
+		Materia.ScoreCore.setHeight()
 
 	# Called by Materia.ScoreCore when user switches score attempt
 	update = (qset, scoreTable) ->
