@@ -54,7 +54,7 @@ Namespace('Crossword').ScoreScreen = do ->
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 
 	# Called by Materia.ScoreCore when your widget ScoreCore should start the user experience.
-	start = (instance, qset, scoreTable, version = '1') ->
+	start = (instance, qset, scoreTable, isPreview, version = '1') ->
 		# store widget data
 		_qset = qset
 		_scoreTable = scoreTable
