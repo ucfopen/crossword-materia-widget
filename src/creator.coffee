@@ -1,6 +1,6 @@
 CrosswordCreator = angular.module('crosswordCreator', [])
 
-CrosswordCreator.directive 'focusMe', ($timeout, $parse) ->
+CrosswordCreator.directive 'focusMe', ['$timeout', '$parse', ($timeout, $parse) ->
 	link: (scope, element, attrs) ->
 		model = $parse(attrs.focusMe)
 		scope.$watch model, (value) ->
@@ -9,8 +9,8 @@ CrosswordCreator.directive 'focusMe', ($timeout, $parse) ->
 					element[0].focus()
 		element.bind 'blur', ->
 			scope.$apply(model.assign(scope, false))
-
-CrosswordCreator.directive 'selectMe', ($timeout, $parse) ->
+]
+CrosswordCreator.directive 'selectMe', ['$timeout', '$parse', ($timeout, $parse) ->
 	link: (scope, element, attrs) ->
 		model = $parse(attrs.selectMe)
 		scope.$watch model, (value) ->
@@ -19,7 +19,7 @@ CrosswordCreator.directive 'selectMe', ($timeout, $parse) ->
 					$(element[0]).focus().select()
 		element.bind 'blur', ->
 			scope.$apply(model.assign(scope, false))
-
+]
 
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($scope, $timeout) ->
 
