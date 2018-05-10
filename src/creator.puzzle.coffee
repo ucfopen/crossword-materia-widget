@@ -265,7 +265,6 @@ Namespace('Crossword').Puzzle = do ->
 
 		xShift = Math.floor((BOARD_SPAN_X - maxX) / 2)
 		yShift = Math.floor((BOARD_SPAN_Y - maxY) / 2)
-		console.log(xShift, yShift)
 
 		xShift = 0 if xShift < 0
 		yShift = 0 if yShift < 0
