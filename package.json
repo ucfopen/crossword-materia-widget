@@ -12,13 +12,15 @@
     "yargs": "^4.5.0"
   },
   "devDependencies": {
-    "materia-widget-development-kit": "git+ssh://git@clu.cdl.ucf.edu:materia/materia-widget-development-kit.git#v1.0.9",
+    "materia-widget-development-kit": "git+ssh://git@clu.cdl.ucf.edu:materia/materia-widget-development-kit.git#v1.1.1",
     "angular": "~1.5.0",
     "angular-animate": "~1.5.0",
     "angular-loader": "~1.5.0",
     "angular-mocks": "~1.5.0",
     "angular-route": "~1.5.0",
     "angular-sanitize": "~1.5.0",
+    "babel-loader": "^7.1.4",
+    "webpack-strip-block":"^0.2.0",
     "http-server": "^0.9.0",
     "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
