@@ -207,8 +207,6 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 
 		_puzzleItems = $scope.widget.puzzleItems
 
-		console.log _puzzleItems
-
 		# if the puzzle has changed, regenerate
 		if not $scope.hasFreshPuzzle
 			_items = []
