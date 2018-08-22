@@ -18,6 +18,7 @@ files:
 score:
   is_scorable: Yes
   score_module: Crossword
+  score_screen: scoreScreen.html
 meta_data:
   features:
     - Customizable
