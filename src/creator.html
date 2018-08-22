@@ -50,17 +50,17 @@
 									ng-model='item.answer'
 									ng-change='noLongerFresh()'
 									ng-blur='generateNewPuzzle()'
-									ng-click='setSpecialInputTarget($event)'>{{item.answer}}</textarea>
+									ng-click='setSpecialInputTarget($event, $index, "answer")'>{{item.answer}}</textarea>
 							</td>
 							<td class="question editable">
 								<textarea
 									ng-model='item.question'
-									ng-click='setSpecialInputTarget($event)'>{{item.question}}</textarea>
+									ng-click='setSpecialInputTarget($event, $index, "question")'>{{item.question}}</textarea>
 							</td>
 							<td class='hint editable'>
 								<textarea
 									ng-model='item.hint'
-									ng-click='setSpecialInputTarget($event)'>{{item.hint}}</textarea>
+									ng-click='setSpecialInputTarget($event, $index, "hint")'>{{item.hint}}</textarea>
 							</td>
 							<td class='last'>
 								<span class='icon-close' ng-click='removePuzzleItem($index)'></span>

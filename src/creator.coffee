@@ -43,7 +43,11 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.specialInputChar = null
 	$scope.specialCharacters = ['À', 'Â', 'Ä', 'Ã', 'Å', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ñ', 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ', 'Ú', 'Ù', 'Û', 'Ü']
 	
-	specialInputTarget = null
+	specialInputTarget =
+		index: -1
+		field: null
+
+	specialInputTargetElement = null
 
 	### Scope Methods ###
 
@@ -154,8 +158,12 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		$scope.stopTimer()
 		$scope.startTimer()
 	
-	$scope.setSpecialInputTarget = (event) ->
-		specialInputTarget = angular.element event.currentTarget
+	$scope.setSpecialInputTarget = (event, index, field) ->
+				
+		specialInputTarget.index = index
+		specialInputTarget.field = field
+		specialInputTargetElement = angular.element event.currentTarget
+
 		return false
 
 	$scope.specialCharacterInput = (character, event) ->
@@ -164,16 +172,23 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 
 		$scope.specialInputChar = character
 		
-		inputString = specialInputTarget[0].value
-		cursorPos = specialInputTarget[0].selectionStart
+		inputString = specialInputTargetElement[0].value
+		cursorPos = specialInputTargetElement[0].selectionStart
 		textBefore = inputString.substring 0, cursorPos
 		textAfter = inputString.substring cursorPos, inputString.length
 
-		specialInputTarget[0].value = textBefore + $scope.specialInputChar + textAfter
-		$timeout ->
-			specialInputTarget[0].focus()
+		index = specialInputTarget.index
 
-		specialInputTarget[0].selectionStart = cursorPos + 1
+		switch specialInputTarget.field
+			when 'answer' then $scope.widget.puzzleItems[index].answer = textBefore + $scope.specialInputChar + textAfter
+			when 'question' then $scope.widget.puzzleItems[index].question = textBefore + $scope.specialInputChar + textAfter
+			when 'hint' then $scope.widget.puzzleItems[index].hint = textBefore + $scope.specialInputChar + textAfter
+
+		$timeout ->
+			specialInputTargetElement[0].focus()
+			specialInputTargetElement[0].selectionStart = specialInputTargetElement[0].selectionEnd = cursorPos + 1
+
+			if specialInputTarget.field is 'answer' then $scope.noLongerFresh()		
 
 	### Private methods ###
 
@@ -191,6 +206,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		_okToSave = if _title? && _title != '' then true else false
 
 		_puzzleItems = $scope.widget.puzzleItems
+
+		console.log _puzzleItems
 
 		# if the puzzle has changed, regenerate
 		if not $scope.hasFreshPuzzle
