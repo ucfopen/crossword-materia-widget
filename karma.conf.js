@@ -1,8 +1,5 @@
 module.exports = function(config) {
 	config.set({
-
-		autoWatch: false,
-
 		basePath: './',
 
 		browsers: ['PhantomJS'],
@@ -37,8 +34,6 @@ module.exports = function(config) {
 			'build/*.js': ['coverage', 'eslint'],
 			'build/demo.json': ['json_fixtures']
 		},
-
-		singleRun: true,
 
 		//plugin-specific configurations
 		eslint: {
@@ -76,6 +71,10 @@ module.exports = function(config) {
 			reporters: [
 				{ type: 'cobertura', subdir: '.', file: 'coverage.xml' }
 			]
+		},
+
+		mochaReporter: {
+			output: 'autowatch'
 		}
 
 	});

@@ -1,6 +1,6 @@
 CrosswordCreator = angular.module('crosswordCreator', [])
 
-CrosswordCreator.directive 'focusMe', ($timeout, $parse) ->
+CrosswordCreator.directive 'focusMe', ['$timeout', '$parse', ($timeout, $parse) ->
 	link: (scope, element, attrs) ->
 		model = $parse(attrs.focusMe)
 		scope.$watch model, (value) ->
@@ -9,8 +9,8 @@ CrosswordCreator.directive 'focusMe', ($timeout, $parse) ->
 					element[0].focus()
 		element.bind 'blur', ->
 			scope.$apply(model.assign(scope, false))
-
-CrosswordCreator.directive 'selectMe', ($timeout, $parse) ->
+]
+CrosswordCreator.directive 'selectMe', ['$timeout', '$parse', ($timeout, $parse) ->
 	link: (scope, element, attrs) ->
 		model = $parse(attrs.selectMe)
 		scope.$watch model, (value) ->
@@ -19,7 +19,7 @@ CrosswordCreator.directive 'selectMe', ($timeout, $parse) ->
 					$(element[0]).focus().select()
 		element.bind 'blur', ->
 			scope.$apply(model.assign(scope, false))
-
+]
 
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($scope, $timeout) ->
 
@@ -37,6 +37,17 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.showIntroDialog = false
 	$scope.showOptionsDialog = false
 	$scope.showTitleDialog = false
+
+	# scope and local variables for the special input keyboard
+	$scope.specialInputState = false
+	$scope.specialInputChar = null
+	$scope.specialCharacters = ['À', 'Â', 'Ä', 'Ã', 'Å', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ñ', 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ', 'Ú', 'Ù', 'Û', 'Ü']
+	
+	specialInputTarget =
+		index: -1
+		field: null
+
+	specialInputTargetElement = null
 
 	### Scope Methods ###
 
@@ -146,7 +157,38 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.resetTimer = ->
 		$scope.stopTimer()
 		$scope.startTimer()
+	
+	$scope.setSpecialInputTarget = (event, index, field) ->
+				
+		specialInputTarget.index = index
+		specialInputTarget.field = field
+		specialInputTargetElement = angular.element event.currentTarget
 
+		return false
+
+	$scope.specialCharacterInput = (character, event) ->
+
+		if specialInputTarget is null then return
+
+		$scope.specialInputChar = character
+		
+		inputString = specialInputTargetElement[0].value
+		cursorPos = specialInputTargetElement[0].selectionStart
+		textBefore = inputString.substring 0, cursorPos
+		textAfter = inputString.substring cursorPos, inputString.length
+
+		index = specialInputTarget.index
+
+		switch specialInputTarget.field
+			when 'answer' then $scope.widget.puzzleItems[index].answer = textBefore + $scope.specialInputChar + textAfter
+			when 'question' then $scope.widget.puzzleItems[index].question = textBefore + $scope.specialInputChar + textAfter
+			when 'hint' then $scope.widget.puzzleItems[index].hint = textBefore + $scope.specialInputChar + textAfter
+
+		$timeout ->
+			specialInputTargetElement[0].focus()
+			specialInputTargetElement[0].selectionStart = specialInputTargetElement[0].selectionEnd = cursorPos + 1
+
+			if specialInputTarget.field is 'answer' then $scope.noLongerFresh()		
 
 	### Private methods ###
 

@@ -44,13 +44,23 @@
 					<tbody>
 						<tr class='question' ng-repeat='item in widget.puzzleItems' ng-class='{ unused: !item.found }'>
 							<td class="answer editable">
-								<textarea class='unicase' ng-focus='startTimer()' ng-model='item.answer' ng-change='noLongerFresh()' ng-blur='generateNewPuzzle()'>{{item.answer}}</textarea>
+								<textarea
+									class='unicase'
+									ng-focus='startTimer()'
+									ng-model='item.answer'
+									ng-change='noLongerFresh()'
+									ng-blur='generateNewPuzzle()'
+									ng-click='setSpecialInputTarget($event, $index, "answer")'>{{item.answer}}</textarea>
 							</td>
 							<td class="question editable">
-								<textarea ng-model='item.question'>{{item.question}}</textarea>
+								<textarea
+									ng-model='item.question'
+									ng-click='setSpecialInputTarget($event, $index, "question")'>{{item.question}}</textarea>
 							</td>
 							<td class='hint editable'>
-								<textarea ng-model='item.hint'>{{item.hint}}</textarea>
+								<textarea
+									ng-model='item.hint'
+									ng-click='setSpecialInputTarget($event, $index, "hint")'>{{item.hint}}</textarea>
 							</td>
 							<td class='last'>
 								<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
@@ -114,6 +124,13 @@
 				<div ng-show='widget.puzzleItems.length' ng-click='printPuzzle()' class='icon-print' title='Print'></div>
 			</div>
 		</section>
+		<div id='specialInput' ng-class='{"up": specialInputState, "down": !specialInputState }'>
+			<div id='specialInputHead' ng-click="specialInputState = !specialInputState">Special Characters</div>
+			<div id='specialInputBody'>
+				<span ng-repeat='character in specialCharacters' ng-mousedown='specialCharacterInput(character, $event)'>{{character}}</span>
+			</div>
+		</div>
+
 
 		<div ng-class='{ show: showIntroDialog || showTitleDialog || showOptionsDialog }' ng-click="closeDialog()" id='backgroundcover'></div>
 
