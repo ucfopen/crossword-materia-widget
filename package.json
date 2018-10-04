@@ -3,35 +3,13 @@
   "materia": {
     "cleanName": "crossword"
   },
-  "version": "0.1.0",
-  "private": true,
-  "main": "app.js",
+  "version": "1.0.0",
   "dependencies": {
-    "fs": "0.0.2",
-    "run-sequence": "^1.1.5",
-    "yargs": "^4.5.0"
-  },
-  "devDependencies": {
-    "materia-widget-development-kit": "git+ssh://git@clu.cdl.ucf.edu:materia/materia-widget-development-kit.git#v1.1.1",
     "angular": "~1.5.0",
-    "angular-animate": "~1.5.0",
     "angular-loader": "~1.5.0",
     "angular-mocks": "~1.5.0",
     "angular-route": "~1.5.0",
-    "angular-sanitize": "~1.5.0",
-    "babel-loader": "^7.1.4",
-    "webpack-strip-block":"^0.2.0",
-    "http-server": "^0.9.0",
-    "jasmine-core": "^2.4.1",
-    "karma": "^0.13.22",
-    "karma-coverage": "^0.5.5",
-    "karma-eslint": "^2.1.0",
-    "karma-jasmine": "^0.3.8",
-    "karma-json-fixtures-preprocessor": "0.0.6",
-    "karma-junit-reporter": "^0.4.1",
-    "karma-mocha-reporter": "^2.1.0",
-    "karma-phantomjs-launcher": "^1.0.2",
-    "protractor": "^3.2.2"
+    "materia-widget-development-kit": "v1.2.2"
   },
   "scripts": {
     "start": "webpack-dev-server",
@@ -39,9 +17,18 @@
     "build": "webpack -p",
     "pretest": "npm run build-dev",
     "test": "karma start ./karma.conf.js --no-auto-watch --single-run",
-    "clientAssets:link": "cd ../materia-client-assets && yarn link && cd - && yarn link materia-client-assets",
-    "devKit:link": "cd ../materia-widget-development-kit && yarn link && cd - && yarn link materia-widget-development-kit"
+    "devkit:git": "cd .. && git clone https://github.com/ucfopen/Materia-Widget-Dev-Kit.git materia-widget-development-kit",
+    "devkit:link": "cd ../materia-widget-development-kit && yarn link && cd - && yarn link materia-widget-development-kit"
   },
-  "author": "New Media"
+  "author": "University of Central Florida, Center for Distributed Learning",
+  "devDependencies": {
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-coverage": "^0.5.5",
+    "karma-eslint": "^2.1.0",
+    "karma-jasmine": "^0.3.8",
+    "karma-json-fixtures-preprocessor": "0.0.6",
+    "karma-mocha-reporter": "^2.1.0",
+    "karma-phantomjs-launcher": "^1.0.2"
+  }
 }
-
