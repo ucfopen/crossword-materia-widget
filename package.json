@@ -1,5 +1,5 @@
 {
-  "name": "Crossword",
+  "name": "@ucfopen/crossword",
   "materia": {
     "cleanName": "crossword"
   },
@@ -16,9 +16,7 @@
     "build-dev": "webpack",
     "build": "webpack -p",
     "pretest": "npm run build-dev",
-    "test": "karma start ./karma.conf.js --no-auto-watch --single-run",
-    "devkit:git": "cd .. && git clone https://github.com/ucfopen/Materia-Widget-Dev-Kit.git materia-widget-development-kit",
-    "devkit:link": "cd ../materia-widget-development-kit && yarn link && cd - && yarn link materia-widget-development-kit"
+    "test": "karma start ./karma.conf.js --no-auto-watch --single-run"
   },
   "author": "University of Central Florida, Center for Distributed Learning",
   "devDependencies": {
@@ -30,5 +28,6 @@
     "karma-json-fixtures-preprocessor": "0.0.6",
     "karma-mocha-reporter": "^2.1.0",
     "karma-phantomjs-launcher": "^1.0.2"
-  }
+  },
+  "license": "AGPL-3.0"
 }
