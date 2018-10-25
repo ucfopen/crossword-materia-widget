@@ -14,7 +14,7 @@ In a production evironment, Crossword is installed to your Materia instance and 
 
 ### Local Development
 
-Crossword uses the Materia Widget Development Kit for location development. Check out [the docs for the MDK](https://ucfopen.github.io/Materia-Docs/develop/materia-widget-development-kit.html) to learn more about starting up the local express environment.
+Crossword uses the Materia Widget Development Kit for local development. Check out [the docs for the MDK](https://ucfopen.github.io/Materia-Docs/develop/materia-widget-development-kit.html) to learn more about starting up the local express environment.
 
 ### Installation to Materia
 
