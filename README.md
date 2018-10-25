@@ -5,6 +5,8 @@
 
 A quiz tool that uses words and clues to randomly generate a crossword puzzle. Crossword is designed for use with [Materia](https://github.com/ucfopen/Materia), an open-source platform for interactive course content developed by the University of Central Florida.
 
+![Crossword Player](src/_screen-shots/1-thumb.png) ![Crossword Player - Populated](src/_screen-shots/2-thumb.png) ![Crossword Creator](src/_screen-shots/3-thumb.png)
+
 ### Basic Use
 
 In a production evironment, Crossword is installed to your Materia instance and is accessed via the Widget Catalog. For development, Crossword is bundled with the [Materia Widget Development Kit](https://github.com/ucfopen/Materia-Widget-Dev-Kit), which allows for rapid development in a local context using express.js.
