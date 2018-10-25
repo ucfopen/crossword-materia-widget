@@ -9,7 +9,7 @@
     "angular-loader": "~1.5.0",
     "angular-mocks": "~1.5.0",
     "angular-route": "~1.5.0",
-    "materia-widget-development-kit": "v1.2.2"
+    "materia-widget-development-kit":"2.0.0"
   },
   "scripts": {
     "start": "webpack-dev-server",
