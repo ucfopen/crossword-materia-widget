@@ -1,6 +1,6 @@
 
 <h1>
-    <img src="src/_icons/icon-60.png" width="18px"/>
+    <img src="src/_icons/icon-60.png" width="36px"/>
     Crossword: A Materia Widget
 </h1>
 
