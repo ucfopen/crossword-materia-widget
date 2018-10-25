@@ -3,13 +3,13 @@
   "materia": {
     "cleanName": "crossword"
   },
-  "version": "1.0.0",
+  "version": "1.2.1",
   "dependencies": {
     "angular": "~1.5.0",
     "angular-loader": "~1.5.0",
     "angular-mocks": "~1.5.0",
     "angular-route": "~1.5.0",
-    "materia-widget-development-kit":"2.0.0"
+    "materia-widget-development-kit": "2.0.0"
   },
   "scripts": {
     "start": "webpack-dev-server",
