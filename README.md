@@ -1,7 +1,7 @@
 
 # Crossword: A Materia Widget
 
-![Crossword Logo](_icons/icon-92@2x.png)
+![Crossword Logo](src/_icons/icon-92@2x.png)
 
 A quiz tool that uses words and clues to randomly generate a crossword puzzle. Crossword is designed for use with [Materia](https://github.com/ucfopen/Materia), an open-source platform for interactive course content developed by the University of Central Florida.
 
