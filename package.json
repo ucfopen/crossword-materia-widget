@@ -5,29 +5,23 @@
   },
   "version": "1.2.1",
   "dependencies": {
-    "angular": "~1.5.0",
-    "angular-loader": "~1.5.0",
-    "angular-mocks": "~1.5.0",
-    "angular-route": "~1.5.0",
     "materia-widget-development-kit": "2.0.0"
   },
   "scripts": {
     "start": "webpack-dev-server",
-    "build-dev": "webpack",
     "build": "webpack -p",
-    "pretest": "npm run build-dev",
-    "test": "karma start ./karma.conf.js --no-auto-watch --single-run"
+    "build-dev": "webpack",
+    "test": "TZ='America/New_York' jest --verbose",
+    "test-ci": "TZ='America/New_York' CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura"
   },
-  "author": "University of Central Florida, Center for Distributed Learning",
   "devDependencies": {
-    "jasmine-core": "^2.4.1",
-    "karma": "^0.13.22",
-    "karma-coverage": "^0.5.5",
-    "karma-eslint": "^2.1.0",
-    "karma-jasmine": "^0.3.8",
-    "karma-json-fixtures-preprocessor": "0.0.6",
-    "karma-mocha-reporter": "^2.1.0",
-    "karma-phantomjs-launcher": "^1.0.2"
+    "angular": "1.6.9",
+    "angular-mocks": "1.6.9",
+    "jest": "^23.6.0",
+    "jest-coffee-preprocessor": "^1.0.0"
   },
-  "license": "AGPL-3.0"
+  "license": "AGPL-3.0",
+  "description": "Enigma is a Jeopardy-like study and quiz widget for use in Materia.",
+  "author": "University of Central Florida, Center for Distributed Learning"
+
 }

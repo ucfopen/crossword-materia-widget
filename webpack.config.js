@@ -3,10 +3,14 @@ const path = require('path')
 let srcPath = path.join(process.cwd(), 'src')
 let outputPath = path.join(process.cwd(), 'build')
 
-// load the reusable legacy webpack config from materia-widget-dev
-let webpackConfig = require('materia-widget-development-kit/webpack-widget').getLegacyWidgetBuildConfig({
+let webpackWidget = require('materia-widget-development-kit/webpack-widget')
+
+let defaultCopy = webpackWidget.getDefaultCopyList()
+
+let webpackConfig = webpackWidget.getLegacyWidgetBuildConfig({
 	//pass in extra files for webpack to copy
-	preCopy: [
+	copyList: [
+		...defaultCopy,
 		{
 			from: `${srcPath}/classList.min.js`,
 			to: outputPath,
@@ -19,11 +23,7 @@ let webpackConfig = require('materia-widget-development-kit/webpack-widget').get
 })
 
 webpackConfig.entry['scoreScreen.js'] = [path.join(__dirname, 'src', 'scoreScreen.coffee')]
-webpackConfig.entry['scoreScreen.css'] = [
-	path.join(__dirname, 'src', 'scoreScreen.html'),
-	path.join(__dirname, 'src', 'scoreScreen.scss')
-]
-
+webpackConfig.entry['scoreScreen.css'] = [path.join(__dirname, 'src', 'scoreScreen.html'), path.join(__dirname, 'src', 'scoreScreen.scss')]
 webpackConfig.entry['print.js'] = [path.join(__dirname, 'src', 'print.coffee')]
 webpackConfig.entry['creator.puzzle.js'] = [path.join(__dirname, 'src', 'creator.puzzle.coffee')]
 
