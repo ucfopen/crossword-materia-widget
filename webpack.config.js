@@ -15,6 +15,11 @@ let webpackConfig = require('materia-widget-development-kit/webpack-widget').get
 			from: `${srcPath}/hammer.min.js`,
 			to: outputPath,
 		},
+		{
+			from: `${srcPath}/_helper-docs`,
+			to: `${outputPath}/_helper-docs`,
+			toType: 'dir'
+		},
 	]
 })
 
@@ -26,5 +31,6 @@ webpackConfig.entry['scoreScreen.css'] = [
 
 webpackConfig.entry['print.js'] = [path.join(__dirname, 'src', 'print.coffee')]
 webpackConfig.entry['creator.puzzle.js'] = [path.join(__dirname, 'src', 'creator.puzzle.coffee')]
+// webpackConfig.entry['helper.html'] = [path.join(__dirname, 'src', 'helper.html')]
 
 module.exports = webpackConfig
