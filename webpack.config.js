@@ -31,6 +31,5 @@ webpackConfig.entry['scoreScreen.css'] = [
 
 webpackConfig.entry['print.js'] = [path.join(__dirname, 'src', 'print.coffee')]
 webpackConfig.entry['creator.puzzle.js'] = [path.join(__dirname, 'src', 'creator.puzzle.coffee')]
-// webpackConfig.entry['helper.html'] = [path.join(__dirname, 'src', 'helper.html')]
 
 module.exports = webpackConfig
