@@ -32,7 +32,15 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.{js,coffee}"
-    ]
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 5,
+        "branches": 1,
+        "functions": 3,
+        "lines": 15
+      }
+    }
   },
   "license": "AGPL-3.0",
   "description": "Crossword is a quiz tool that uses words and clues to randomly generate a crossword puzzle.",
