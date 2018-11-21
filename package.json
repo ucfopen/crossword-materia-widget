@@ -5,6 +5,7 @@
   },
   "version": "1.2.1",
   "dependencies": {
+    "hammerjs": "2.0.6",
     "materia-widget-development-kit": "2.0.0"
   },
   "scripts": {
