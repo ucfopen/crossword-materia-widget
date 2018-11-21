@@ -18,10 +18,32 @@
     "angular": "1.6.9",
     "angular-mocks": "1.6.9",
     "jest": "^23.6.0",
-    "jest-coffee-preprocessor": "^1.0.0"
+    "jest-coffee-preprocessor": "^1.0.0",
+    "jquery-1x":"^1.12.1"
+  },
+  "jest": {
+    "verbose": true,
+    "transform": {
+      "^.+\\.coffee$": "<rootDir>/node_modules/jest-coffee-preprocessor/index.js"
+    },
+    "moduleFileExtensions": [
+      "coffee",
+      "js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,coffee}"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 5,
+        "branches": 1,
+        "functions": 3,
+        "lines": 15
+      }
+    }
   },
   "license": "AGPL-3.0",
-  "description": "Enigma is a Jeopardy-like study and quiz widget for use in Materia.",
+  "description": "Crossword is a quiz tool that uses words and clues to randomly generate a crossword puzzle.",
   "author": "University of Central Florida, Center for Distributed Learning"
 
 }
