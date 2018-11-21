@@ -4488,6 +4488,18 @@ jest@^23.6.0:
     import-local "^1.0.0"
     jest-cli "^23.6.0"
 
+jquery-1x@^1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/jquery-1x/-/jquery-1x-1.12.1.tgz#cc7b0c2ba0dd6dbd7eaeb17a657bca71ccbd0b95"
+  integrity sha1-zHsMK6Ddbb1+rrF6ZXvKccy9C5U=
+  dependencies:
+    jquery "1.*"
+
+jquery@1.*:
+  version "1.12.4"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-1.12.4.tgz#01e1dfba290fe73deba77ceeacb0f9ba2fec9e0c"
+  integrity sha1-AeHfuikP5z3rp3zurLD5ui/sngw=
+
 js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
