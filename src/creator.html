@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<!-- INJECTS IE CLASSES ONTO HTML TAG -->
-<!--[if IE 8 ]>    <html class="IE8"> <![endif]-->
-<!--[if IE 9 ]>    <html class="IE9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
+<html>
 	<head>
 		<title>Crossword Creator</title>
 		<meta charset="utf-8" />
@@ -17,10 +14,8 @@
 		<!-- YOUR PREREQUISITES -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.min.js"></script>
-		<script src="print.js"></script>
 
 		<!-- MAIN CREATOR SCRIPT -->
-		<script src="creator.puzzle.js"></script>
 		<script src="creator.js"></script>
 	</head>
 	<body ng-app='crosswordCreator' ng-controller='crosswordCreatorCtrl'>
