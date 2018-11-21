@@ -46,21 +46,26 @@
 							<td class="answer editable">
 								<textarea
 									class='unicase'
-									ng-focus='startTimer()'
+									ng-focus='startTimer(); setSpecialInputTarget($event, $index, "answer")'
 									ng-model='item.answer'
 									ng-change='noLongerFresh()'
-									ng-blur='generateNewPuzzle()'
-									ng-click='setSpecialInputTarget($event, $index, "answer")'>{{item.answer}}</textarea>
+									ng-blur='generateNewPuzzle()'>
+									{{item.answer}}
+								</textarea>
 							</td>
 							<td class="question editable">
 								<textarea
 									ng-model='item.question'
-									ng-click='setSpecialInputTarget($event, $index, "question")'>{{item.question}}</textarea>
+									ng-focus='setSpecialInputTarget($event, $index, "question")'>
+									{{item.question}}
+								</textarea>
 							</td>
 							<td class='hint editable'>
 								<textarea
 									ng-model='item.hint'
-									ng-click='setSpecialInputTarget($event, $index, "hint")'>{{item.hint}}</textarea>
+									ng-focus='setSpecialInputTarget($event, $index, "hint")'>
+									{{item.hint}}
+								</textarea>
 							</td>
 							<td class='last'>
 								<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
