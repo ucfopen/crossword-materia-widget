@@ -22,9 +22,7 @@ CrosswordCreator.directive 'selectMe', ['$timeout', '$parse', ($timeout, $parse)
 ]
 
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($scope, $timeout) ->
-
 	### Initialize class variables ###
-
 	_title = _qset = $scope.hasFreshPuzzle = null
 
 	$scope.widget =
@@ -50,7 +48,6 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	specialInputTargetElement = null
 
 	### Scope Methods ###
-
 	$scope.initNewWidget = (widget, baseUrl) ->
 		$scope.$apply ->
 			$scope.showIntroDialog = true
