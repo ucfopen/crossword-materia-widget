@@ -3,7 +3,7 @@
   "materia": {
     "cleanName": "crossword"
   },
-  "version": "1.2.1",
+  "version": "1.2.2",
   "dependencies": {
     "hammerjs": "2.0.6",
     "materia-widget-development-kit": "2.0.0"
@@ -20,7 +20,7 @@
     "angular-mocks": "1.6.9",
     "jest": "^23.6.0",
     "jest-coffee-preprocessor": "^1.0.0",
-    "jquery-1x":"^1.12.1"
+    "jquery-1x": "^1.12.1"
   },
   "jest": {
     "verbose": true,
@@ -46,5 +46,4 @@
   "license": "AGPL-3.0",
   "description": "Crossword is a quiz tool that uses words and clues to randomly generate a crossword puzzle.",
   "author": "University of Central Florida, Center for Distributed Learning"
-
 }
