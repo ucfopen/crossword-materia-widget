@@ -79,8 +79,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		$scope.$apply ->
 			for item in items
 				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options?.hint || '', item.id
-			$scope.generateNewPuzzle()
-			return
+			$scope.generateNewPuzzle true			
 
 	$scope.onMediaImportComplete = (media) -> null
 
