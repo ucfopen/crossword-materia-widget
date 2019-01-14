@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - '6'
+cache:
+  yarn: true
+  directories:
+    - node_modules
+before_install:
+  - npm config set spin false
+  - npm install -g npm@^5
+script:
+  - yarn test-ci
+  - yarn build
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: "MPEN3wklTsvVbaFrtw63MoUtEhBcN7Mkax4cWiHYckZKY7oeU3Urs7RoehwWXLIt4TbChVSIgQysHHyWwGUT2BwQ+XrRMc1qovhS2b+/YzwVGRm6d0XA4emcyzkIZQLvmqu8rfPzBVQgez76sXFFJTQHyBQbWgjlWcxlNxiNdzS0D6cZ0F6Xc0kpVxANmr1dsrDokUKyOYcgS04REG2toYlBMXjBID9F3J6cCRqW2whwbQseMrjhrIdMdqBtBlxOQ9VzQG8FvTh1sCsjVKKKkTatizZAyPRoOLy1sA9fTye1a4aFmTQDlrAZK6cTOHVzi+mDjvLRqFqruuqX04qky1hfJavT+v2nW1Bn+iq9GzfQTXQqUDXbKf4GrLNGuDRcfGxgBjaUL1CxRuozLFtQ13prNlxkNGKouPBhT8OJjJ/UaxhAM6Shxr3bXOYpzEcPVXdtG8d0sa+aAMTjmlEnx87tv0JHsKlnaA29gEurNbjOSBui2LnPZj2G6P+crfho5qaF44vGLRFJ4P9L77pQES0PSW0AgyAGIS3hlNbYxgxcXmYmX1ESgZ7dY8AxeiqGCkKOMLDeSc9nKY1ASUTqXuRxY+GL7mkXPTKd0KBDhLGmL0Ppld0d7OaO/fTF16sEd4MKXQERCla53ZNwV+DHXEfbcttIhnnL64axwCnMSYk="
+  file:
+    - build/_output/crossword.wigt
+    - build/_output/crossword-build-info.yml
+  on:
+    tags: true
+    repo: ucfopen/crossword-materia-widget
+notifications:
+  email: false
+  slack:
+    secure: "U7sFPuf5cudomrT4fo6JLxEETh1IGu5uMcCHF9tn2cCJGte29ZoWfj9KgTnclBs5nUYkAMDEOT+dnM2pEfnPUlx9xSBEnbl5LtubFrLxN5HxFyiE44C3mXU/rYef74A11uyUCaBpKngmJqf3BzNN+t0QKDUxkwO1yIpEq3eKptWvk7fPXsbd7K+AgaZPLU0u9yrHVLBJYU1pJGVHbCcKRgRHWvHu1RiBqn+7ZAYAmdtfjDQUXufXJFaEUSYG22ipekWUZgRRri6vY/FvGVYPt/pAgqGQDMFShNs1v3UhF2OCOLWOxRve3kJAf9IV/Tzj8B5g/Mj+0biXqDGyVk44Cfsy8bf8ATCtK5V3fY7Z5L9HjXX6W8QyZnoGfyL3fvSPF0ZAsKKArwVNtulcFPC9++moDx8eqmEj287tbREomC2HfMXXc45YLriNtFbpb0zsMGFxtDUQRnNz4JY72I4HyPacgX8UffjhmPzQsjxr7fEwd85iTA+0RMzRefC0ypMmkTJtc5J5aBvBhlLf/SJ2ME5q7E/w0wbFPsyCbL/J23RRp8Fr/mU1bKxLqvp5IT2iNRn/4Z0gebW8O7X6yo+dKDKbCGMqjOu2UZ3T8H0Vx9Z488MCsgqFLyenx1Tredl/52bCX6YuhkfQve9J1e3RWyyPt8Lr8vIbb8+bCG21+vI="

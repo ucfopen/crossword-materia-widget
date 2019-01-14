@@ -6,7 +6,7 @@
   "version": "1.2.2",
   "dependencies": {
     "hammerjs": "2.0.6",
-    "materia-widget-development-kit": "2.0.0"
+    "materia-widget-development-kit": "^2.3.0"
   },
   "scripts": {
     "start": "webpack-dev-server",
