@@ -17,8 +17,6 @@ CrosswordCreator.directive 'selectMe', ['$timeout', '$parse', ($timeout, $parse)
 			if value is true
 				$timeout ->
 					$(element[0]).focus().select()
-		element.bind 'blur', ->
-			scope.$apply(model.assign(scope, false))
 ]
 
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($scope, $timeout) ->
@@ -79,7 +77,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		$scope.$apply ->
 			for item in items
 				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options?.hint || '', item.id
-			$scope.generateNewPuzzle true			
+			$scope.generateNewPuzzle true
 
 	$scope.onMediaImportComplete = (media) -> null
 
