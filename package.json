@@ -12,7 +12,7 @@
     "yargs": "^4.5.0"
   },
   "devDependencies": {
-    "materia-widget-development-kit": "git+ssh://git@clu.cdl.ucf.edu:materia/materia-widget-development-kit.git#v1.1.1",
+    "materia-widget-development-kit": "^1.1.0",
     "angular": "~1.5.0",
     "angular-animate": "~1.5.0",
     "angular-loader": "~1.5.0",
