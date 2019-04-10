@@ -1,12 +1,14 @@
-html, body {
+html,
+body {
 	line-height: 1.5em;
 }
-h1, h2, h3, h4
-{
+h1,
+h2,
+h3,
+h4 {
 	color: #333333;
 }
-h1
-{
+h1 {
 	font-size: 50px;
 	line-height: 45px;
 	letter-spacing: -1px;
@@ -14,15 +16,14 @@ h1
 	margin: 30px 0 30px 0;
 }
 
-
-h3
-{
+h3 {
 	color: #5e5e5e;
 	font-size: 18px;
 }
 
-h4, h5, h6
-{
+h4,
+h5,
+h6 {
 	font-size: 16px;
 	color: #5e5e5e;
 }
@@ -32,59 +33,54 @@ ol + h2 {
 	margin-top: 0;
 }
 
-table
-{
-	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", "Verdana", sans;
+table {
+	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode",
+		"Verdana", sans;
 	color: black;
 	background: white;
 }
 
-table th
-{
+table th {
 	text-align: left;
 	background: #eee;
 }
 
 table td,
-table th
-{
+table th {
 	padding: 3px 8px 3px 8px;
 	border: 1px solid #e4e4e4;
-
 }
 
-table tr:nth-child(even)
-{
+table tr:nth-child(even) {
 	background: #f9f9f9;
 }
 
-
-code:not(.hljs)
-{
+code:not(.hljs) {
 	color: #941794;
-	padding: .3em .6em;
+	padding: 0.3em 0.6em;
 	white-space: nowrap;
 }
 
-p
-{
-	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", "Verdana", sans;
+p {
+	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode",
+		"Verdana", sans;
 	color: black;
 }
 
 sup {
-	font-size:.15em;
+	font-size: 0.15em;
 	vertical-align: top;
-	top:0em;
+	top: 0em;
 }
 
 blockquote,
 aside {
-	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", "Verdana", sans;
+	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode",
+		"Verdana", sans;
 	font-size: 11pt;
 	color: black;
 	display: block;
-	background: #FCF6D4;
+	background: #fcf6d4;
 	padding: 1em;
 	border-radius: 8px;
 	margin: 1em 0 1em 0;
@@ -103,98 +99,37 @@ aside h1 {
 }
 
 .graphical-heading {
-	padding: 120px 0 0 0;
-	margin-bottom: 30px;
+	padding: 30px 0 0 0;
 	position: relative;
-
-	-webkit-box-shadow: inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2);
-	-moz-box-shadow: inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2);
-	box-shadow: inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2);
-
-	background: #017496;
-	background-image: linear-gradient(top, #017496, #00bde9);
-	background-image: -webkit-linear-gradient(top, #017496, #00bde9);
-	background-image: -o-linear-gradient(top, #017496, #00bde9);
-	background-image: -moz-linear-gradient(top, #017496, #00bde9);
-	background-image: -ms-linear-gradient(top, #017496, #00bde9);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00bde9', endColorstr='#3690e6' );
-}
-
-.students .graphical-heading
-{
-	background: #017496;
-	background-image: linear-gradient(top, #017496, #00bde9);
-	background-image: -webkit-linear-gradient(top, #017496, #00bde9);
-	background-image: -o-linear-gradient(top, #017496, #00bde9);
-	background-image: -moz-linear-gradient(top, #017496, #00bde9);
-	background-image: -ms-linear-gradient(top, #017496, #00bde9);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#017496', endColorstr='#00bde9' );
 }
 
 .navbar,
-.students .navbar
-{
+.students .navbar {
 	border-bottom: 4px solid #00bde9;
 }
 
-.developers .graphical-heading
-{
-	background: #793786;
-	background-image: linear-gradient(top, #793786, #a346b9);
-	background-image: -webkit-linear-gradient(top, #793786, #a346b9);
-	background-image: -o-linear-gradient(top, #793786, #a346b9);
-	background-image: -moz-linear-gradient(top, #793786, #a346b9);
-	background-image: -ms-linear-gradient(top, #793786, #a346b9);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#793786', endColorstr='#a346b9' );
-}
-
-.developers .navbar
-{
+.developers .navbar {
 	border-bottom: 4px solid #a346b9;
 }
 
-.admin .graphical-heading
-{
-	background: #f2824c;
-	background-image: linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -webkit-linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -o-linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -moz-linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -ms-linear-gradient(top, #f2824c, #ff5B23);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2824c', endColorstr='#ff5B23' );
+.admin .navbar {
+	border-bottom: 4px solid #ff5b23;
 }
 
-.admin .navbar
-{
-	border-bottom: 4px solid #ff5B23;
-}
-
-.instructors .graphical-heading
-{
-	background: #0d853f;
-	background-image: linear-gradient(top, #0d853f, #13c356);
-	background-image: -webkit-linear-gradient(top, #0d853f, #13c356);
-	background-image: -o-linear-gradient(top, #0d853f, #13c356);
-	background-image: -moz-linear-gradient(top, #0d853f, #13c356);
-	background-image: -ms-linear-gradient(top, #0d853f, #13c356);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0d853f', endColorstr='#13c356' );
-}
-
-.instructors .navbar
-{
+.instructors .navbar {
 	border-bottom: 4px solid #13c356;
 }
 
 .graphical-heading h1 {
-	color: white;
+	color: #333333;
 	font-weight: 900;
 	font-size: 42pt;
-	text-shadow: 0 1px 0 rgba(0,0,0,.4);
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 	margin: 10px 0 4px 0;
 }
 
 .graphical-heading h2 {
-	color: white;
+	color: #333333;
 	font-weight: 400;
 	font-size: 11pt;
 	line-height: 28px;
@@ -203,21 +138,9 @@ aside h1 {
 	padding-left: 3px;
 }
 
-.graphical-heading::after {
-	content: '';
-	display: block;
-	position: absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background: url(../img/stacked_circles.png) repeat center center;
-	opacity: .08;
-}
-
 header .navbar .nav {
 	font-size: 18px;
-	margin-top:5px;
+	margin-top: 5px;
 }
 
 .page-wrapper {
@@ -231,59 +154,49 @@ header .navbar .nav {
 
 .page-content h2 {
 	font-size: 23px;
-	margin: 40px 0 20px 0;
+	margin: 20px 0 20px 0;
 	border-bottom: 1px solid #e9e9e9;
 }
 
-.page-content img
-{
+.page-content img {
 	border: 6px solid white;
-	box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
 }
-.page-content .noborder
-{
+.page-content .noborder {
 	border: none;
 	box-shadow: none;
 }
 
-.page-content figure
-{
+.page-content figure {
 	margin: 30px 0 20px 0;
-	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", "Verdana", sans;
+	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode",
+		"Verdana", sans;
 	font-size: 10pt;
 	display: block; /*inline-block;*/
 }
 
-.page-content figure figcaption
-{
-	margin-top: .5em;
-}
-
-.figure  {
-
+.page-content figure figcaption {
+	margin-top: 0.5em;
 }
 
 .page-content ul,
-.page-content li
-{
+.page-content li {
 	color: black;
-	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", "Verdana", sans;
+	font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode",
+		"Verdana", sans;
 	margin-left: 2em;
 }
 
-.page-content a
-{
+.page-content a {
 	color: #f65118;
 	text-decoration: underline;
 	font-weight: normal;
 }
-.page-content figure a
-{
+.page-content figure a {
 	color: white;
 }
 
-.page-content a:hover
-{
+.page-content a:hover {
 	color: #ff7444;
 }
 
@@ -293,26 +206,8 @@ header .navbar .nav {
 
 .page-content nav.pages {
 	margin: 30px 0 0 0;
-	border-top: 1px solid #CECECE;
+	border-top: 1px solid #cecece;
 	padding: 20px 0 0 0;
-
-/*	border-radius: 7px;*/
-	/*background: rgba(0, 0, 0, 0.05);*/
-	/*border: solid 2px #dbdbdb;*/
-/*	padding: 10px 15px;
-
-	border: 1px solid #ddd;
-	-webkit-border-radius: 4px;
-	 -moz-border-radius: 4px;
-	      border-radius: 4px;
-	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
-	 -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
-	      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
-	-webkit-transition: all 0.2s ease-in-out;
-	 -moz-transition: all 0.2s ease-in-out;
-	   -o-transition: all 0.2s ease-in-out;
-	      transition: all 0.2s ease-in-out;
-*/
 }
 
 .page-content nav.pages a {
@@ -325,7 +220,7 @@ header .navbar .nav {
 }
 
 .page-content nav.pages p {
-	color: #5A5A5A;
+	color: #5a5a5a;
 }
 
 .page-content nav.pages .right {
@@ -356,61 +251,14 @@ header .navbar .nav {
 	margin-bottom: 10px;
 }
 
-.guide.crossword .screenshot {
-	margin-left: -17px;
-}
-
-.guide.enigma .screenshot.first {
-	margin-left: -17px;
-}
-
-.guide.timeline .screenshot.first {
-	margin-left: -18px;
-}
-
-.guide.timeline .screenshot.first {
-	margin-left: -12px;
-}
-
-.guide.timeline .screenshot.second {
-	margin-left: -8px;
-}
-
-.guide ol.screenshot_labels {
-	margin-top: 0;
-	/*margin-bottom: 25px;*/
-	margin-bottom: 20px;
-	margin-left: 55px;
-}
-
-.guide ol.screenshot_labels li {
-	font-size: 13pt;
-	margin-left: 0;
-	line-height: 18pt;
-	color: #5E5E5E;
-}
-
-.guide ol.screenshot_labels li p {
-	font-size: 10.5pt;
-	margin: 0;
-}
-
-.guide ol.screenshot_labels li ol li {
-	list-style-type: lower-latin;
-	font-size: 10.5pt;
-	margin: 0;
-}
-
-pre
-{
+pre {
 	background: none;
 	border: none;
 	padding: 0;
 	margin: 0;
 }
 
-pre code
-{
+pre code {
 	background: #343434;
 	border-radius: 6px;
 	display: block;
@@ -420,8 +268,7 @@ pre code
 	tab-size: 4;
 }
 
-code .tab
-{
+code .tab {
 	border: 1px solid #505050;
 	height: 0;
 	display: inline-block;
@@ -430,21 +277,18 @@ code .tab
 	vertical-align: middle;
 }
 
-code .space
-{
+code .space {
 	color: #505050;
 }
 
 /* fix for font-awesome background images showing up with the text */
-.[class^="icon-"], [class*=" icon-"] {
-  background-image:none;
+.[class^="icon-"],
+[class*=" icon-"] {
+	background-image: none;
 }
 
-
-
 /**Custom menu hover colors**/
-#student-menu li > a:hover
-{
+#student-menu li > a:hover {
 	background: #017496;
 	background-image: linear-gradient(top, #00bde9, #017496);
 	background-image: -webkit-linear-gradient(top, #00bde9, #017496);
@@ -454,8 +298,7 @@ code .space
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00bde9', endColorstr='#017496' );
 }
 
-#instructors-menu li > a:hover
-{
+#instructors-menu li > a:hover {
 	background: #0d853f;
 	background-image: linear-gradient(top, #13c356, #0d853f);
 	background-image: -webkit-linear-gradient(top, #13c356, #0d853f);
@@ -465,8 +308,7 @@ code .space
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#13c356', endColorstr='#0d853f' );
 }
 
-#developers-menu li > a:hover
-{
+#developers-menu li > a:hover {
 	background: #793786;
 	background-image: linear-gradient(top, #a346b9, #793786);
 	background-image: -webkit-linear-gradient(top, #a346b9, #793786);
@@ -476,14 +318,13 @@ code .space
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a346b9', endColorstr='#793786' );
 }
 
-#admin-menu li > a:hover
-{
+#admin-menu li > a:hover {
 	background: #f2824c;
-	background-image: linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -webkit-linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -o-linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -moz-linear-gradient(top, #f2824c, #ff5B23);
-	background-image: -ms-linear-gradient(top, #f2824c, #ff5B23);
+	background-image: linear-gradient(top, #f2824c, #ff5b23);
+	background-image: -webkit-linear-gradient(top, #f2824c, #ff5b23);
+	background-image: -o-linear-gradient(top, #f2824c, #ff5b23);
+	background-image: -moz-linear-gradient(top, #f2824c, #ff5b23);
+	background-image: -ms-linear-gradient(top, #f2824c, #ff5b23);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2824c', endColorstr='#ff5B23' );
 }
 
@@ -495,7 +336,6 @@ h1 {
 	font-weight: 200;
 	margin: 0 0 20px 0;
 }
-
 
 /* Large */
 @media (min-width: 980px) {
@@ -515,7 +355,6 @@ h1 {
 
 /* Tablet */
 @media (min-width: 768px) and (max-width: 979px) {
-
 }
 
 /* Phone */
@@ -528,7 +367,6 @@ h1 {
 	.graphical-heading h1 {
 		font-size: 30pt;
 	}
-
 }
 
 figure img.materia-logo {
