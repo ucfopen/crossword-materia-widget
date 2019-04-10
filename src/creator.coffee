@@ -22,9 +22,7 @@ CrosswordCreator.directive 'selectMe', ['$timeout', '$parse', ($timeout, $parse)
 ]
 
 CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($scope, $timeout) ->
-
 	### Initialize class variables ###
-
 	_title = _qset = $scope.hasFreshPuzzle = null
 
 	$scope.widget =
@@ -42,7 +40,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.specialInputState = false
 	$scope.specialInputChar = null
 	$scope.specialCharacters = ['À', 'Â', 'Ä', 'Ã', 'Å', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ñ', 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ', 'Ú', 'Ù', 'Û', 'Ü']
-	
+
 	specialInputTarget =
 		index: -1
 		field: null
@@ -50,7 +48,6 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	specialInputTargetElement = null
 
 	### Scope Methods ###
-
 	$scope.initNewWidget = (widget, baseUrl) ->
 		$scope.$apply ->
 			$scope.showIntroDialog = true
@@ -81,8 +78,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.onQuestionImportComplete = (items) ->
 		$scope.$apply ->
 			for item in items
-				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options.hint, item.id
-			return
+				$scope.addPuzzleItem item.questions[0].text, item.answers[0].text, item.options?.hint || '', item.id
+			$scope.generateNewPuzzle true			
 
 	$scope.onMediaImportComplete = (media) -> null
 
@@ -157,9 +154,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 	$scope.resetTimer = ->
 		$scope.stopTimer()
 		$scope.startTimer()
-	
+
 	$scope.setSpecialInputTarget = (event, index, field) ->
-				
 		specialInputTarget.index = index
 		specialInputTarget.field = field
 		specialInputTargetElement = angular.element event.currentTarget
@@ -171,7 +167,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		if specialInputTarget is null then return
 
 		$scope.specialInputChar = character
-		
+
 		inputString = specialInputTargetElement[0].value
 		cursorPos = specialInputTargetElement[0].selectionStart
 		textBefore = inputString.substring 0, cursorPos
@@ -188,7 +184,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 			specialInputTargetElement[0].focus()
 			specialInputTargetElement[0].selectionStart = specialInputTargetElement[0].selectionEnd = cursorPos + 1
 
-			if specialInputTarget.field is 'answer' then $scope.noLongerFresh()		
+			if specialInputTarget.field is 'answer' then $scope.noLongerFresh()
 
 	### Private methods ###
 

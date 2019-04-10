@@ -1,35 +1,49 @@
 const path = require('path')
+const srcPath = path.join(process.cwd(), 'src') + path.sep
+const outputPath = path.join(process.cwd(), 'build')
+const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
+const entries = widgetWebpack.getDefaultEntries()
+const copy = widgetWebpack.getDefaultCopyList()
 
-let srcPath = path.join(process.cwd(), 'src')
-let outputPath = path.join(process.cwd(), 'build')
+const newCopy = copy.concat([
+	{
+		from: path.join(__dirname, 'node_modules', 'hammerjs', 'hammer.min.js'),
+		to: outputPath,
+	},
+	{
+		from: `${srcPath}/classList.min.js`,
+		to: outputPath,
+	},
+	{
+		from: `${srcPath}/_helper-docs`,
+		to: `${outputPath}/_helper-docs`,
+		toType: 'dir'
+	}
+])
 
-// load the reusable legacy webpack config from materia-widget-dev
-let webpackConfig = require('materia-widget-development-kit/webpack-widget').getLegacyWidgetBuildConfig({
-	//pass in extra files for webpack to copy
-	preCopy: [
-		{
-			from: `${srcPath}/classList.min.js`,
-			to: outputPath,
-		},
-		{
-			from: `${srcPath}/hammer.min.js`,
-			to: outputPath,
-		},
-		{
-			from: `${srcPath}/_helper-docs`,
-			to: `${outputPath}/_helper-docs`,
-			toType: 'dir'
-		},
-	]
-})
-
-webpackConfig.entry['scoreScreen.js'] = [path.join(__dirname, 'src', 'scoreScreen.coffee')]
-webpackConfig.entry['scoreScreen.css'] = [
-	path.join(__dirname, 'src', 'scoreScreen.html'),
-	path.join(__dirname, 'src', 'scoreScreen.scss')
+entries['scoreScreen.js'] = [
+	srcPath+'scoreScreen.coffee'
+]
+entries['scoreScreen.css'] = [
+	srcPath+'scoreScreen.html',
+	srcPath+'scoreScreen.scss'
 ]
 
-webpackConfig.entry['print.js'] = [path.join(__dirname, 'src', 'print.coffee')]
-webpackConfig.entry['creator.puzzle.js'] = [path.join(__dirname, 'src', 'creator.puzzle.coffee')]
+entries['player.js'] = [
+	srcPath+'print.coffee',
+	srcPath+'player.coffee',
+]
+entries['creator.js'] = [
+	srcPath+'print.coffee',
+	srcPath+'creator.puzzle.coffee',
+	srcPath+'creator.coffee',
+]
 
-module.exports = webpackConfig
+
+// options for the build
+const options = {
+	entries: entries,
+	copyList: newCopy,
+}
+
+module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)

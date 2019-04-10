@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<!-- INJECTS IE CLASSES ONTO HTML TAG -->
-<!--[if IE 8 ]>    <html class="IE8"> <![endif]-->
-<!--[if IE 9 ]>    <html class="IE9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
+<html>
 	<head>
 		<title>Crossword Creator</title>
 		<meta charset="utf-8" />
@@ -16,11 +13,9 @@
 
 		<!-- YOUR PREREQUISITES -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular.min.js"></script>
-		<script src="print.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.min.js"></script>
 
 		<!-- MAIN CREATOR SCRIPT -->
-		<script src="creator.puzzle.js"></script>
 		<script src="creator.js"></script>
 	</head>
 	<body ng-app='crosswordCreator' ng-controller='crosswordCreatorCtrl'>
@@ -46,21 +41,26 @@
 							<td class="answer editable">
 								<textarea
 									class='unicase'
-									ng-focus='startTimer()'
+									ng-focus='startTimer(); setSpecialInputTarget($event, $index, "answer")'
 									ng-model='item.answer'
 									ng-change='noLongerFresh()'
-									ng-blur='generateNewPuzzle()'
-									ng-click='setSpecialInputTarget($event, $index, "answer")'>{{item.answer}}</textarea>
+									ng-blur='generateNewPuzzle()'>
+									{{item.answer}}
+								</textarea>
 							</td>
 							<td class="question editable">
 								<textarea
 									ng-model='item.question'
-									ng-click='setSpecialInputTarget($event, $index, "question")'>{{item.question}}</textarea>
+									ng-focus='setSpecialInputTarget($event, $index, "question")'>
+									{{item.question}}
+								</textarea>
 							</td>
 							<td class='hint editable'>
 								<textarea
 									ng-model='item.hint'
-									ng-click='setSpecialInputTarget($event, $index, "hint")'>{{item.hint}}</textarea>
+									ng-focus='setSpecialInputTarget($event, $index, "hint")'>
+									{{item.hint}}
+								</textarea>
 							</td>
 							<td class='last'>
 								<span class='icon-close' ng-click='removePuzzleItem($index)'></span>
