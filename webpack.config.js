@@ -8,35 +8,24 @@ const outputPath = path.join(process.cwd(), 'build')
 
 const customCopy = copy.concat([
 	{
-		from: `${srcPath}/classList.min.js`,
-		to: outputPath,
-	},
-	{
-		from: `${srcPath}/hammer.min.js`,
-		to: outputPath,
-	},
-	{
 		from: `${srcPath}/_helper-docs/assets`,
 		to: `${outputPath}/guides/assets`,
 		toType: 'dir'
+	},
+	{
+		from: path.join(__dirname, 'node_modules', 'hammerjs', 'hammer.min.js'),
+		to: outputPath,
 	}
 ])
 
-const customRules = [
-	rules.loaderDoNothingToJs,
-	rules.loaderCompileCoffee,
-	rules.copyImages,
-	rules.loadHTMLAndReplaceMateriaScripts,
-	rules.loadAndPrefixCSS,
-	rules.loadAndPrefixSASS,
-	rules.loadGuideTemplate
-]
-
 const entries = {
 	'creator.js': [
+		path.join(__dirname, 'src', 'print.coffee'),
+		path.join(__dirname, 'src', 'creator.puzzle.coffee'),
 		path.join(__dirname, 'src', 'creator.coffee')
 	],
 	'player.js': [
+		path.join(__dirname, 'src', 'print.coffee'),
 		path.join(__dirname, 'src', 'player.coffee')
 	],
 	'creator.css': [
@@ -54,12 +43,6 @@ const entries = {
 		path.join(__dirname, 'src', 'scoreScreen.html'),
 		path.join(__dirname, 'src', 'scoreScreen.scss')
 	],
-	'print.js': [
-		path.join(__dirname, 'src', 'print.coffee')
-	],
-	'creator.puzzle.js': [
-		path.join(__dirname, 'src', 'creator.puzzle.coffee')
-	],
 	'guides/guideStyles.css': [
 		path.join(__dirname, 'src', '_helper-docs', 'guideStyles.scss')
 	],
@@ -72,7 +55,6 @@ const entries = {
 }
 
 const options = {
-	moduleRules: customRules,
 	copyList: customCopy,
 	entries: entries
 }

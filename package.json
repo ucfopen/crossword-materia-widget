@@ -1,47 +1,50 @@
 {
-  "name": "Crossword",
+  "name": "@ucfopen/crossword",
   "materia": {
     "cleanName": "crossword"
   },
-  "version": "0.1.0",
-  "private": true,
-  "main": "app.js",
+  "version": "1.2.3",
   "dependencies": {
-    "fs": "0.0.2",
-    "markdown-loader": "^5.0.0",
-    "run-sequence": "^1.1.5",
-    "yargs": "^4.5.0"
-  },
-  "devDependencies": {
-    "angular": "~1.5.0",
-    "angular-animate": "~1.5.0",
-    "angular-loader": "~1.5.0",
-    "angular-mocks": "~1.5.0",
-    "angular-route": "~1.5.0",
-    "angular-sanitize": "~1.5.0",
-    "babel-loader": "^7.1.4",
-    "http-server": "^0.9.0",
-    "jasmine-core": "^2.4.1",
-    "karma": "^0.13.22",
-    "karma-coverage": "^0.5.5",
-    "karma-eslint": "^2.1.0",
-    "karma-jasmine": "^0.3.8",
-    "karma-json-fixtures-preprocessor": "0.0.6",
-    "karma-junit-reporter": "^0.4.1",
-    "karma-mocha-reporter": "^2.1.0",
-    "karma-phantomjs-launcher": "^1.0.2",
+    "hammerjs": "2.0.6",
     "materia-widget-development-kit": "^2.3.0",
-    "protractor": "^3.2.2",
-    "webpack-strip-block": "^0.2.0"
+    "markdown-loader": "^5.0.0"
   },
   "scripts": {
     "start": "webpack-dev-server",
-    "build-dev": "webpack",
     "build": "webpack -p",
-    "pretest": "npm run build-dev",
-    "test": "karma start ./karma.conf.js --no-auto-watch --single-run",
-    "clientAssets:link": "cd ../materia-client-assets && yarn link && cd - && yarn link materia-client-assets",
-    "devKit:link": "cd ../materia-widget-development-kit && yarn link && cd - && yarn link materia-widget-development-kit"
+    "build-dev": "webpack",
+    "test": "TZ='America/New_York' jest --verbose",
+    "test-ci": "TZ='America/New_York' CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura"
   },
-  "author": "New Media"
+  "devDependencies": {
+    "angular": "1.6.9",
+    "angular-mocks": "1.6.9",
+    "jest": "^23.6.0",
+    "jest-coffee-preprocessor": "^1.0.0",
+    "jquery-1x": "^1.12.1"
+  },
+  "jest": {
+    "verbose": true,
+    "transform": {
+      "^.+\\.coffee$": "<rootDir>/node_modules/jest-coffee-preprocessor/index.js"
+    },
+    "moduleFileExtensions": [
+      "coffee",
+      "js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,coffee}"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 5,
+        "branches": 1,
+        "functions": 3,
+        "lines": 15
+      }
+    }
+  },
+  "license": "AGPL-3.0",
+  "description": "Crossword is a quiz tool that uses words and clues to randomly generate a crossword puzzle.",
+  "author": "University of Central Florida, Center for Distributed Learning"
 }
