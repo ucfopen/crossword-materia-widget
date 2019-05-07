@@ -1,4 +1,7 @@
+const fs = require('fs')
 const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const marked = require('meta-marked')
 const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
 const rules = widgetWebpack.getDefaultRules()
 const copy = widgetWebpack.getDefaultCopyList()
@@ -45,12 +48,6 @@ const entries = {
 	],
 	'guides/guideStyles.css': [
 		path.join(__dirname, 'src', '_helper-docs', 'guideStyles.scss')
-	],
-	'guides/creator.html': [
-		__dirname + '/src/_helper-docs/creatorTemplate.html'
-	],
-	'guides/player.html': [
-		__dirname + '/src/_helper-docs/playerTemplate.html'
 	]
 }
 
@@ -59,4 +56,25 @@ const options = {
 	entries: entries
 }
 
-module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
+const generateHelperPlugin = name => {
+	const file = fs.readFileSync(path.join(__dirname, 'src', '_helper-docs', name+'.md'), 'utf8')
+	const content = marked(file)
+
+	return new HtmlWebpackPlugin({
+		template: path.join(__dirname, 'src', '_helper-docs', 'helperTemplate'),
+		filename: path.join(outputPath, 'guides', name+'.html'),
+		title: name.charAt(0).toUpperCase() + name.slice(1),
+		chunks: ['guides'],
+		content: content.html
+	})
+}
+
+let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
+
+buildConfig.plugins.push(generateHelperPlugin('creator'))
+buildConfig.plugins.push(generateHelperPlugin('player'))
+
+module.exports = buildConfig
+
+// module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
+
