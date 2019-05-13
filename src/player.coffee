@@ -3,6 +3,7 @@ Namespace('Crossword').Engine = do ->
 	_qset                 = null
 	_questions            = null
 	_usedHints            = []
+	_usedFreeWords        = []
 	_freeWordsRemaining   = 0
 	_puzzleGrid           = {}
 	_instance             = {}
@@ -448,7 +449,6 @@ Namespace('Crossword').Engine = do ->
 			_curLetter.x--
 
 	_clueKeyDownHandler = (keyEvent) ->
-		console.log keyEvent.keyCode
 		keyEvent.preventDefault
 		switch keyEvent.keyCode
 			when 32 #space
@@ -457,6 +457,14 @@ Namespace('Crossword').Engine = do ->
 				_changeSelectedClue true
 			when 40 #down
 				_changeSelectedClue false
+			when 70 #f
+				unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
+					_getFreeword {target: $('#clue_'+_curClue)[0]}
+					_selectCurrentClue()
+			when 72 #h
+				unless _questions[_curClue].options.hint is '' or _usedHints[_curClue]
+					_getHint _curClue
+					_selectCurrentClue()
 
 	_boardFocused = () ->
 		_dom('board-reader').innerHTML = ''
@@ -488,6 +496,7 @@ Namespace('Crossword').Engine = do ->
 
 		combinedClueText = 'Word ' + (_curClue + 1) + ' of ' + _questions.length + '. '
 		combinedClueText += _questions[_curClue].prefix + '. '
+		combinedClueText += clue.answers[0].text.length + ' letters. '
 		combinedClueText += _ensurePeriod clue.questions[0].text
 
 		unless clue.options.hint is ''
@@ -495,7 +504,7 @@ Namespace('Crossword').Engine = do ->
 				combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
 			else
 				combinedClueText += HINT_CLUE_TEXT + '. '
-		unless _freeWordsRemaining is 0
+		unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
 			plural = if _freeWordsRemaining > 1 then 'words' else 'word'
 			combinedClueText += ' ' + FREE_WORD_CLUE_TEXT + 'You have ' + _freeWordsRemaining + ' free ' + plural + ' remaining. '
 		combinedClueText += ' ' + BASE_CLUE_TEXT
@@ -704,6 +713,8 @@ Namespace('Crossword').Engine = do ->
 
 		# get question index from button attributes
 		index = parseInt(e.target.getAttribute('data-i'))
+
+		_usedFreeWords[index] = true
 
 		# letter array to fill
 		letters = _questions[index].answers[0].text.split('')
