@@ -2,6 +2,7 @@ Namespace('Crossword').Engine = do ->
 	# variables to store widget data in this scope
 	_qset                 = null
 	_questions            = null
+	_usedHints            = []
 	_freeWordsRemaining   = 0
 	_puzzleGrid           = {}
 	_instance             = {}
@@ -34,6 +35,8 @@ Namespace('Crossword').Engine = do ->
 	_prevDir              = 0
 	# the current letter that is highlighted
 	_curLetter            = false
+	# the current clue that is selected
+	_curClue              = 0
 
 	# cache DOM elements for performance
 	_domCache             = {}
@@ -56,6 +59,10 @@ Namespace('Crossword').Engine = do ->
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
+	BASE_CLUE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the space bar to automatically select the answer grid and move to the first letter tile for this word. '
+	HINT_CLUE_TEXT        = 'Press the H key to receive a hint and reduce this answer\'s value by '
+	FREE_WORD_CLUE_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
+
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
 		# if we're on a mobile device, some event listening will be different
@@ -70,6 +77,8 @@ Namespace('Crossword').Engine = do ->
 		# store widget data
 		_instance = instance
 		_qset = qset
+
+		HINT_CLUE_TEXT += qset.options.hintPenalty + '%. '
 
 		# easy access to questions
 		_questions = _qset.items[0].items
@@ -145,7 +154,9 @@ Namespace('Crossword').Engine = do ->
 		# keep focus on the last letter that was highlighted whenever we move the board around
 		$('#board').click -> _highlightPuzzleLetter false
 
-		$('#board').keydown _keydownHandler
+		$('#board').focus -> _boardFocused
+
+		$('#board').keydown _boardKeyDownHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#zoomout').click _zoomOut
@@ -170,6 +181,9 @@ Namespace('Crossword').Engine = do ->
 			document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
 			document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
 			document.addEventListener 'mouseup', _mouseUpHandler
+
+			$('#clues').keydown _clueKeyDownHandler
+			$('#clues').focus _cluesFocused
 
 	# start dragging
 	_mouseDownHandler = (e) ->
@@ -248,6 +262,7 @@ Namespace('Crossword').Engine = do ->
 				_wordIntersections[location] = intersection
 				_labelIndexShift += 1
 			hintPrefix = _wordMapping[location] + (if dir then ' down' else ' across')
+
 			_renderClue questionText, hintPrefix, i, dir
 
 			_prevDir = dir if ~~i == 0
@@ -277,7 +292,9 @@ Namespace('Crossword').Engine = do ->
 				letterElement = document.createElement if protectedSpace then 'div' else 'input'
 				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
 				letterElement.classList.add 'letter'
+				letterElement.setAttribute 'tabindex', '-1'
 				letterElement.setAttribute 'readonly', true
+				letterElement.setAttribute 'aria-hidden', true
 				letterElement.setAttribute 'data-q', i
 				letterElement.setAttribute 'data-dir', dir
 				letterElement.onclick = _letterClicked
@@ -430,7 +447,69 @@ Namespace('Crossword').Engine = do ->
 		else
 			_curLetter.x--
 
-	_keydownHandler = (keyEvent, iteration = 0) ->
+	_clueKeyDownHandler = (keyEvent) ->
+		console.log keyEvent.keyCode
+		keyEvent.preventDefault
+		switch keyEvent.keyCode
+			when 32 #space
+				_clueMouseUp {target: $('#clue_'+_curClue)[0]}
+			when 38 #up
+				_changeSelectedClue true
+			when 40 #down
+				_changeSelectedClue false
+
+	_boardFocused = () ->
+		_dom('board-reader').innerHTML = ''
+		_updateClue()
+
+	_cluesFocused = () ->
+		_dom('clue-reader').innerHTML = ''
+		_selectCurrentClue()
+
+	_changeSelectedClue = (up) ->
+		# _dom('clue_'+_curClue).classList.remove 'highlight'
+		_clueMouseOut {target: $('#clue_'+_curClue)[0]}
+
+		if up
+			_curClue--
+			if _curClue < 0 then _curClue = _questions.length - 1
+		else
+			_curClue++
+			if _curClue >= _questions.length then _curClue = 0
+
+		_selectCurrentClue()
+
+	_selectCurrentClue = ->
+		$('#clues .highlight').removeClass 'highlight'
+		clueElement = _dom('clue_'+_curClue)
+		clueElement.classList.add 'highlight'
+
+		clue = _questions[_curClue]
+
+		combinedClueText = 'Word ' + (_curClue + 1) + ' of ' + _questions.length + '. '
+		combinedClueText += _questions[_curClue].prefix + '. '
+		combinedClueText += _ensurePeriod clue.questions[0].text
+
+		unless clue.options.hint is ''
+			if _usedHints[_curClue]
+				combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
+			else
+				combinedClueText += HINT_CLUE_TEXT + '. '
+		unless _freeWordsRemaining is 0
+			plural = if _freeWordsRemaining > 1 then 'words' else 'word'
+			combinedClueText += ' ' + FREE_WORD_CLUE_TEXT + 'You have ' + _freeWordsRemaining + ' free ' + plural + ' remaining. '
+		combinedClueText += ' ' + BASE_CLUE_TEXT
+
+		_dom('clue-reader').innerHTML = combinedClueText
+
+		_dom('clues').scrollTop = clueElement.offsetTop
+
+	_ensurePeriod = (text) ->
+		unless text[text.length - 1] == '.'
+			return text + '. '
+		text
+
+	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
 		return if keyEvent.altKey
 		_lastLetter = {}
 		_lastLetter.x = _curLetter.x
@@ -534,7 +613,7 @@ Namespace('Crossword').Engine = do ->
 				if iteration == (NEXT_RECURSE_LIMIT - 2) and keyEvent.keyCode >= 48
 					# simulates enter being pressed after a letter typed in last slot
 					keyEvent.keyCode = 13
-				_keydownHandler(keyEvent, (iteration || 0)+1)
+				_boardKeyDownHandler(keyEvent, (iteration || 0)+1)
 				return
 			else
 				# highlight the last successful letter
@@ -678,6 +757,7 @@ Namespace('Crossword').Engine = do ->
 
 	# called after confirm dialog
 	_getHint = (index) ->
+		_usedHints[index] = true
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
 		hintSpot = _dom("hintspot_#{index}")
@@ -715,6 +795,7 @@ Namespace('Crossword').Engine = do ->
 		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
 		numberLabel.classList.add 'numberlabel'
+		numberLabel.setAttribute 'aria-hidden', true
 		numberLabel.style.top = y * LETTER_HEIGHT + 'px'
 		numberLabel.style.left = x * LETTER_WIDTH + 'px'
 		numberLabel.onclick = -> _letterClicked target: $("#letter_#{x}_#{y}")[0]
@@ -725,6 +806,9 @@ Namespace('Crossword').Engine = do ->
 		clue = document.createElement 'div'
 		clue.id = 'clue_' + i
 
+		# store the '# across/down' information in the question for later use
+		_questions[i].prefix = hintPrefix
+
 		clue.innerHTML = $('#t_hints').html()
 			.replace(/{{hintPrefix}}/g, hintPrefix)
 			.replace(/{{question}}/g, question)
@@ -733,6 +817,8 @@ Namespace('Crossword').Engine = do ->
 
 		clue.setAttribute 'data-i', i
 		clue.setAttribute 'data-dir', dir
+		clue.setAttribute 'aria-hidden', true
+		clue.setAttribute 'role', 'listitem'
 		clue.classList.add 'clue'
 
 		clue.onmouseover = _clueMouseOver

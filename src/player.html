@@ -23,27 +23,44 @@
 	</head>
 
 	<body>
-		<div class="header">
+		<div class="header"
+			aria-labelledby='title'
+			aria-describedby='instructions'
+			tabindex='1'>
 			<div class='logo'></div>
 			<h1 id='title'></h1>
-			<div class='icon-print' id='printbtn' title='Print'></div>
-			<div class='icon-zoomout' id='zoomout' title='Zoom Out'></div>
+			<div class='icon-print' id='printbtn' title='Print' aria-hidden></div>
+			<div class='icon-zoomout' id='zoomout' title='Zoom Out' aria-hidden></div>
+			<div id='instructions'
+				class='reader-instructions'>
+				Use the Tab key to switch between the list of words and the answer grid.
+			</div>
 			<div class='submitholder'>
-				<input type='button' value='Submit Answers' id='checkBtn' class='button submit'>
+				<input type='button' id='checkBtn' class='button submit' value='Submit Answers'>
 			</div>
 		</div>
-		<div id="board" class="screen board">
+		<div id='board-reader' class='reader-instructions' aria-live='polite'></div>
+		<div id="board" class="screen board"
+			aria-describedby='board-reader'
+			tabindex='3'>
 			<div id="movable-container">
 				<div id='movable' class='crossword-board'></div>
 			</div>
 		</div>
 
-		<div id='clues'>
+		<div id='clue-reader' class='reader-instructions' aria-live='polite'></div>
+		<div id='clues'
+			role='list'
+			aria-describedby='clue-reader'
+			tabindex='2'>
 			<span style='display:none'>Clues</span>
 		</div>
 
 		<div id='controlbar'>
-			<span id='freeWordsRemaining'></span>
+			<span id='freeWordsRemaining'
+				tabindex='-1'
+				aria-hidden>
+			</span>
 		</div>
 		<div id='specialInput' class='down'>
 			<div id='specialInputHead'>Special Characters</div>
@@ -89,8 +106,16 @@
 		<div id='t_hints' style='display:none' class="clue">
 			<em data-i='{{i}}'>{{hintPrefix}}:</em><br>
 			{{question}}<br>
-			<div class='hint button' data-i='{{i}}' data-dir='{{dir}}' id='hintbtn_{{i}}'>Hint</div>
-			<div class='free-word button' data-i='{{i}}' data-dir='{{dir}}' id='freewordbtn_{{i}}'>Free word</div>
+			<div id='hintbtn_{{i}}'
+				class='hint button'
+				data-i='{{i}}'
+				data-dir='{{dir}}'
+				aria-hidden>Hint</div>
+			<div id='freewordbtn_{{i}}'
+				class='free-word button'
+				data-i='{{i}}'
+				data-dir='{{dir}}'
+				aria-hidden>Free word</div>
 			<span class='hintspot' id='hintspot_{{i}}'></span>
 		</div>
 		<div class="arrow_box">Click to finish</div>
