@@ -60,9 +60,16 @@ Namespace('Crossword').Engine = do ->
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
-	BASE_CLUE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the space bar to automatically select the answer grid and move to the first letter tile for this word. '
-	HINT_CLUE_TEXT        = 'Press the H key to receive a hint and reduce this answer\'s value by '
-	FREE_WORD_CLUE_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
+	CLUE_HELP_TEXT        = 'Press the I key to receive additional instructions. '
+	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to automatically select the answer grid and move to the first letter tile for this word. '
+	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce this answer\'s value by '
+	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
+
+	BOARD_HELP_TEXT       = 'Hold the Alt key and press the I key to receive additional instructions. '
+	BOARD_CLUE_TEXT       = 'Hold the Alt key and press the C key to hear the clue for this space. '
+	BOARD_LETTERS_TEXT    = 'Hold the Alt key and press the L key to hear the letters currently provided for the word this space is in. '
+	BOARD_LOCATION_TEXT   = 'Hold the ALt key and press the'
+	BOARD_BASE_TEXT       = 'Press the Tab key to return to the clue list. Press the Return or Enter key to select the next word and automatically move to the first letter tile for that word. '
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
@@ -79,7 +86,7 @@ Namespace('Crossword').Engine = do ->
 		_instance = instance
 		_qset = qset
 
-		HINT_CLUE_TEXT += qset.options.hintPenalty + '%. '
+		CLUE_HINT_TEXT += qset.options.hintPenalty + '%. '
 
 		# easy access to questions
 		_questions = _qset.items[0].items
@@ -250,7 +257,8 @@ Namespace('Crossword').Engine = do ->
 
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir) ->
-			questionText   = _questions[i].questions[0].text
+			questionText = _questions[i].questions[0].text
+			locationArray = []
 
 			location = "" + x + y
 			questionNumber = ~~i + 1 - _labelIndexShift
@@ -274,6 +282,8 @@ Namespace('Crossword').Engine = do ->
 			$('#freewordbtn_'+i).click _getFreeword
 
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
+				locationArray.push '' + letterLeft + letterTop
+
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
 					# keep track of overlaps and store in _wordIntersections
@@ -295,6 +305,7 @@ Namespace('Crossword').Engine = do ->
 				letterElement.classList.add 'letter'
 				letterElement.setAttribute 'tabindex', '-1'
 				letterElement.setAttribute 'readonly', true
+				letterElement.setAttribute 'aria-describedby', 'board-reader'
 				letterElement.setAttribute 'aria-hidden', true
 				letterElement.setAttribute 'data-q', i
 				letterElement.setAttribute 'data-dir', dir
@@ -313,7 +324,10 @@ Namespace('Crossword').Engine = do ->
 				# init the puzzle grid for this row and letter
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
+
 				_boardDiv.append letterElement
+
+			_questions[i].locations = locationArray
 
 		# Select the first clue
 		_clueMouseUp {target: $('#clue_0')[0]}
@@ -421,6 +435,7 @@ Namespace('Crossword').Engine = do ->
 			if _wordIntersections.hasOwnProperty(location)
 				index = _wordIntersections[location][~~(_prevDir == 1)] - 1
 				clue = _dom('clue_'+index)
+				_curClue = index
 
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
@@ -449,9 +464,10 @@ Namespace('Crossword').Engine = do ->
 			_curLetter.x--
 
 	_clueKeyDownHandler = (keyEvent) ->
-		keyEvent.preventDefault
+		preventDefault = true
+
 		switch keyEvent.keyCode
-			when 32 #space
+			when 13 #enter
 				_clueMouseUp {target: $('#clue_'+_curClue)[0]}
 			when 38 #up
 				_changeSelectedClue true
@@ -460,11 +476,27 @@ Namespace('Crossword').Engine = do ->
 			when 70 #f
 				unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
 					_getFreeword {target: $('#clue_'+_curClue)[0]}
-					_selectCurrentClue()
+					_updateClueReader()
 			when 72 #h
 				unless _questions[_curClue].options.hint is '' or _usedHints[_curClue]
 					_getHint _curClue
-					_selectCurrentClue()
+					_updateClueReader()
+			when 73 #i
+				clue = _questions[_curClue]
+
+				instructionText = ''
+
+				unless clue.options.hint is '' or _usedHints[_curClue]
+					instructionText += CLUE_HINT_TEXT + '. '
+				unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
+					plural = if _freeWordsRemaining > 1 then 'words' else 'word'
+					instructionText += ' ' + CLUE_FREE_WORD_TEXT + 'You have ' + _freeWordsRemaining + ' free ' + plural + ' remaining. '
+				instructionText += ' ' + CLUE_BASE_TEXT
+
+				_dom('clue-reader').innerHTML = instructionText
+			else
+				preventDefault = false
+		if preventDefault then keyEvent.preventDefault()
 
 	_boardFocused = () ->
 		_dom('board-reader').innerHTML = ''
@@ -472,11 +504,11 @@ Namespace('Crossword').Engine = do ->
 
 	_cluesFocused = () ->
 		_dom('clue-reader').innerHTML = ''
-		_selectCurrentClue()
+		_updateClueReader()
 
 	_changeSelectedClue = (up) ->
-		# _dom('clue_'+_curClue).classList.remove 'highlight'
-		_clueMouseOut {target: $('#clue_'+_curClue)[0]}
+		target = {target: $('#clue_'+_curClue)[0]}
+		_clueMouseOut target
 
 		if up
 			_curClue--
@@ -485,9 +517,10 @@ Namespace('Crossword').Engine = do ->
 			_curClue++
 			if _curClue >= _questions.length then _curClue = 0
 
-		_selectCurrentClue()
+		_clueMouseOver target
+		_updateClueReader()
 
-	_selectCurrentClue = ->
+	_updateClueReader = ->
 		$('#clues .highlight').removeClass 'highlight'
 		clueElement = _dom('clue_'+_curClue)
 		clueElement.classList.add 'highlight'
@@ -499,19 +532,56 @@ Namespace('Crossword').Engine = do ->
 		combinedClueText += clue.answers[0].text.length + ' letters. '
 		combinedClueText += _ensurePeriod clue.questions[0].text
 
-		unless clue.options.hint is ''
-			if _usedHints[_curClue]
-				combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
-			else
-				combinedClueText += HINT_CLUE_TEXT + '. '
-		unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
-			plural = if _freeWordsRemaining > 1 then 'words' else 'word'
-			combinedClueText += ' ' + FREE_WORD_CLUE_TEXT + 'You have ' + _freeWordsRemaining + ' free ' + plural + ' remaining. '
-		combinedClueText += ' ' + BASE_CLUE_TEXT
+		if _usedHints[_curClue]
+			combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
+
+		combinedClueText += CLUE_HELP_TEXT
 
 		_dom('clue-reader').innerHTML = combinedClueText
 
-		_dom('clues').scrollTop = clueElement.offsetTop
+		$('#clues').stop true
+		$('#clues').animate scrollTop: clueElement.offsetTop, 150
+
+	_updateBoardReader = (lastKey = null) ->
+		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		location = "" + _curLetter.x + _curLetter.y
+
+		combinedMessage = ''
+		#if we got here from a letter input, read out the last letter entered
+		if lastKey
+			switch lastKey
+				when 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
+					combinedMessage += ''
+				when 'Backspace', 'Delete'
+					combinedMessage += 'Last character deleted. '
+				else
+					combinedMessage += 'Last character: ' + lastKey.toUpperCase() + '. '
+
+		#figure out where the current position is and whether it's part of multiple words or not
+		if _wordIntersections[location]
+			qi1 = _wordIntersections[location][0] - 1
+			qi2 = _wordIntersections[location][1] - 1
+			q1 = _questions[qi1]
+			q2 = _questions[qi2]
+			p1 = q1.locations.indexOf(location) + 1
+			p2 = q2.locations.indexOf(location) + 1
+			combinedMessage += ' Intersection of '
+			combinedMessage += q1.prefix + ': Character ' + p1 + ' of ' + q1.answers[0].text.length
+			combinedMessage += ' and ' + q2.prefix + ': Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
+		else
+			#figure out where we are in the current word - letter x of y
+			question = _questions[letterElement.getAttribute('data-q')]
+			position = question.locations.indexOf(location) + 1
+			combinedMessage += question.prefix + '. '
+			combinedMessage += ' Character ' + position + ' of ' + question.answers[0].text.length + '. '
+
+		currentLetter = letterElement.value
+		currentLetter = 'Empty' if not currentLetter
+		combinedMessage += ' Current value: ' + currentLetter + '. '
+
+		combinedMessage += BOARD_HELP_TEXT
+
+		_dom('board-reader').innerHTML = combinedMessage
 
 	_ensurePeriod = (text) ->
 		unless text[text.length - 1] == '.'
@@ -519,7 +589,14 @@ Namespace('Crossword').Engine = do ->
 		text
 
 	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
-		return if keyEvent.altKey
+		if keyEvent.altKey
+			console.log keyEvent.keyCode
+			switch keyEvent.keyCode
+				when 73 #i
+					_dom('board-reader').innerHTML = BOARD_CLUE_TEXT + BOARD_LETTERS_TEXT + BOARD_LOCATION_TEXT + BOARD_BASE_TEXT
+			return
+		preventDefault = true
+
 		_lastLetter = {}
 		_lastLetter.x = _curLetter.x
 		_lastLetter.y = _curLetter.y
@@ -555,7 +632,9 @@ Namespace('Crossword').Engine = do ->
 			when 16
 				_highlightPuzzleLetter()
 				return
-			when 13, 9 #enter or tab
+			when 9
+				preventDefault = false
+			when 13 #enter
 				# go to the next clue, based on the clue that is currently selected
 				highlightedClue = $(".clue.highlight")
 				questionIndex = ~~highlightedClue.attr("data-i")
@@ -642,6 +721,11 @@ Namespace('Crossword').Engine = do ->
 
 			_prevDir = _curDir unless _curDir == -1
 
+		# to shut up screenreaders
+		if preventDefault then keyEvent.preventDefault()
+
+		_updateBoardReader keyEvent.key
+
 		nextletterElement?.focus()
 
 	# is a letter one that can be guessed?
@@ -690,6 +774,8 @@ Namespace('Crossword').Engine = do ->
 			_highlightPuzzleWord (target).getAttribute('data-q')
 
 		_highlightPuzzleLetter(animate)
+
+		_updateBoardReader()
 
 		_updateClue()
 
