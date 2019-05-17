@@ -66,9 +66,9 @@ Namespace('Crossword').Engine = do ->
 	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
 
 	BOARD_HELP_TEXT       = 'Hold the Alt key and press the I key to receive additional instructions. '
-	BOARD_CLUE_TEXT       = 'Hold the Alt key and press the C key to hear the clue for this space. '
-	BOARD_LETTERS_TEXT    = 'Hold the Alt key and press the L key to hear the letters currently provided for the word this space is in. '
-	BOARD_LOCATION_TEXT   = 'Hold the ALt key and press the'
+	BOARD_CLUE_TEXT       = 'Hold the Alt key and press the C key to hear the clue or clues for this space. '
+	BOARD_LETTERS_TEXT    = 'Hold the Alt key and press the W key to hear the letters currently provided for the word or words this space is in. '
+	BOARD_LOCATION_TEXT   = 'Hold the Alt key and press the L key to describe the spaces adjacent to this space. '
 	BOARD_BASE_TEXT       = 'Press the Tab key to return to the clue list. Press the Return or Enter key to select the next word and automatically move to the first letter tile for that word. '
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
@@ -258,7 +258,7 @@ Namespace('Crossword').Engine = do ->
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir) ->
 			questionText = _questions[i].questions[0].text
-			locationArray = []
+			locationList = {}
 
 			location = "" + x + y
 			questionNumber = ~~i + 1 - _labelIndexShift
@@ -282,7 +282,10 @@ Namespace('Crossword').Engine = do ->
 			$('#freewordbtn_'+i).click _getFreeword
 
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
-				locationArray.push '' + letterLeft + letterTop
+				locationList['' + letterLeft + letterTop] =
+					index: Object.keys(locationList).length
+					x: letterLeft
+					y: letterTop
 
 				# overlapping connectors should not be duplicated
 				if _puzzleGrid[letterTop]? and _puzzleGrid[letterTop][letterLeft] == letters[l]
@@ -327,7 +330,7 @@ Namespace('Crossword').Engine = do ->
 
 				_boardDiv.append letterElement
 
-			_questions[i].locations = locationArray
+			_questions[i].locations = locationList
 
 		# Select the first clue
 		_clueMouseUp {target: $('#clue_0')[0]}
@@ -520,20 +523,134 @@ Namespace('Crossword').Engine = do ->
 		_clueMouseOver target
 		_updateClueReader()
 
+	_fullClueText = (clueId = false) ->
+		clueId = _curClue unless clueId
+		clue = _questions[clueId]
+
+		clueText = 'Word ' + (clueId + 1) + ' of ' + _questions.length + '. '
+		clueText += clue.prefix + '. '
+		clueText += clue.answers[0].text.length + ' letters. '
+		clueText += 'Clue is: ' + _ensurePeriod clue.questions[0].text
+
+		if _usedHints[clueId]
+			combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
+
+		clueText
+
+	_getClueForCurrentLetter = ->
+		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		location = "" + _curLetter.x + _curLetter.y
+
+		combinedClueText = ''
+
+		#figure out where the current position is and whether it's part of multiple words or not
+		if _wordIntersections[location]
+			combinedClueText = 'Character is in two words. '
+
+			qi1 = _wordIntersections[location][0] - 1
+			qi2 = _wordIntersections[location][1] - 1
+			c1 = _fullClueText qi1
+			c2 = _fullClueText qi2
+			combinedClueText += ' Word one: ' + c1 + '. '
+			combinedClueText += ' Word two: ' + c2 + '. '
+		else
+			qi = letterElement.getAttribute 'data-q'
+			combinedClueText = _fullClueText qi
+
+		combinedClueText
+
+	_getWordPositionForCurrentLetter = ->
+		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		location = "" + _curLetter.x + _curLetter.y
+
+		#figure out where the current position is and whether it's part of multiple words or not
+		if _wordIntersections[location]
+			qi1 = _wordIntersections[location][0] - 1
+			qi2 = _wordIntersections[location][1] - 1
+			q1 = _questions[qi1]
+			q2 = _questions[qi2]
+			p1 = q1.locations[location].index + 1
+			p2 = q2.locations[location].index + 1
+			locationMessage = ' Intersection of '
+			locationMessage += q1.prefix + ': Character ' + p1 + ' of ' + q1.answers[0].text.length
+			locationMessage += ' and ' + q2.prefix + ': Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
+		else
+			question = _questions[letterElement.getAttribute('data-q')]
+			position = question.locations[location].index + 1
+			locationMessage = question.prefix + '. '
+			locationMessage += ' Character ' + position + ' of ' + question.answers[0].text.length + '. '
+
+		currentLetter = letterElement.value
+		currentLetter = 'Empty' if not currentLetter
+		locationMessage += ' Current value: ' + currentLetter + '. '
+
+		locationMessage
+
+	_describeLocationForCurrentLetter = ->
+		# describe the letter's location and current value
+		combinedLocationText = _getWordPositionForCurrentLetter()
+		# also describe the letters in adjacent cells
+		above = _checkLetterInLocation _curLetter.x, _curLetter.y - 1
+		left  = _checkLetterInLocation _curLetter.x - 1, _curLetter.y
+		right = _checkLetterInLocation _curLetter.x + 1, _curLetter.y
+		below = _checkLetterInLocation _curLetter.x, _curLetter.y + 1
+
+		if above then combinedLocationText += ' Character above: ' + above + '. '
+		if left then combinedLocationText += ' Character left: ' + left + '. '
+		if right then combinedLocationText += ' Character right: ' + right + '. '
+		if below then combinedLocationText += ' Character below: ' + below + '. '
+
+		combinedLocationText
+
+	_describeLettersAlreadyEnteredForCurrentLetterWord = ->
+		#first - get the word or words the current letter space is in
+		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+		location = "" + _curLetter.x + _curLetter.y
+
+		enteredLettersText = ''
+
+		#figure out where the current position is and whether it's part of multiple words or not
+		if _wordIntersections[location]
+			qi1 = _wordIntersections[location][0] - 1
+			qi2 = _wordIntersections[location][1] - 1
+			q1 = _questions[qi1]
+			q2 = _questions[qi2]
+			enteredLettersText = 'Letters entered for ' + q1.prefix + ': '
+			for location, info of q1.locations
+				letter = _checkLetterInLocation info.x, info.y
+				if letter
+					enteredLettersText += ' ' + letter + '. '
+				else
+					enteredLettersText += 'Blank. '
+			enteredLettersText += 'Letters entered for ' + q2.prefix + ': '
+			for location, info of q2.locations
+				letter = _checkLetterInLocation info.x, info.y
+				if letter
+					enteredLettersText += ' ' + letter + '. '
+				else
+					enteredLettersText += 'Blank. '
+		else
+			question = _questions[letterElement.getAttribute('data-q')]
+			enteredLettersText = 'Letters entered for ' + question.prefix + ': '
+			for location, info of question.locations
+				letter = _checkLetterInLocation info.x, info.y
+				if letter
+					enteredLettersText += ' ' + letter + '. '
+				else
+					enteredLettersText += 'Blank. '
+
+		enteredLettersText
+
+	_checkLetterInLocation = (x, y) ->
+		letterElement = _dom("letter_#{x}_#{y}")
+		if letterElement?.value then letterElement.value else null
+
 	_updateClueReader = ->
 		$('#clues .highlight').removeClass 'highlight'
 		clueElement = _dom('clue_'+_curClue)
 		clueElement.classList.add 'highlight'
 
-		clue = _questions[_curClue]
-
-		combinedClueText = 'Word ' + (_curClue + 1) + ' of ' + _questions.length + '. '
-		combinedClueText += _questions[_curClue].prefix + '. '
-		combinedClueText += clue.answers[0].text.length + ' letters. '
-		combinedClueText += _ensurePeriod clue.questions[0].text
-
-		if _usedHints[_curClue]
-			combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
+		combinedClueText = _fullClueText()
 
 		combinedClueText += CLUE_HELP_TEXT
 
@@ -543,9 +660,6 @@ Namespace('Crossword').Engine = do ->
 		$('#clues').animate scrollTop: clueElement.offsetTop, 150
 
 	_updateBoardReader = (lastKey = null) ->
-		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		location = "" + _curLetter.x + _curLetter.y
-
 		combinedMessage = ''
 		#if we got here from a letter input, read out the last letter entered
 		if lastKey
@@ -557,27 +671,7 @@ Namespace('Crossword').Engine = do ->
 				else
 					combinedMessage += 'Last character: ' + lastKey.toUpperCase() + '. '
 
-		#figure out where the current position is and whether it's part of multiple words or not
-		if _wordIntersections[location]
-			qi1 = _wordIntersections[location][0] - 1
-			qi2 = _wordIntersections[location][1] - 1
-			q1 = _questions[qi1]
-			q2 = _questions[qi2]
-			p1 = q1.locations.indexOf(location) + 1
-			p2 = q2.locations.indexOf(location) + 1
-			combinedMessage += ' Intersection of '
-			combinedMessage += q1.prefix + ': Character ' + p1 + ' of ' + q1.answers[0].text.length
-			combinedMessage += ' and ' + q2.prefix + ': Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
-		else
-			#figure out where we are in the current word - letter x of y
-			question = _questions[letterElement.getAttribute('data-q')]
-			position = question.locations.indexOf(location) + 1
-			combinedMessage += question.prefix + '. '
-			combinedMessage += ' Character ' + position + ' of ' + question.answers[0].text.length + '. '
-
-		currentLetter = letterElement.value
-		currentLetter = 'Empty' if not currentLetter
-		combinedMessage += ' Current value: ' + currentLetter + '. '
+		combinedMessage += _getWordPositionForCurrentLetter()
 
 		combinedMessage += BOARD_HELP_TEXT
 
@@ -590,10 +684,15 @@ Namespace('Crossword').Engine = do ->
 
 	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
 		if keyEvent.altKey
-			console.log keyEvent.keyCode
 			switch keyEvent.keyCode
+				when 67 #c
+					_dom('board-reader').innerHTML = _getClueForCurrentLetter()
 				when 73 #i
 					_dom('board-reader').innerHTML = BOARD_CLUE_TEXT + BOARD_LETTERS_TEXT + BOARD_LOCATION_TEXT + BOARD_BASE_TEXT
+				when 76 #l
+					_dom('board-reader').innerHTML = _describeLocationForCurrentLetter()
+				when 87 #w
+					_dom('board-reader').innerHTML = _describeLettersAlreadyEnteredForCurrentLetterWord()
 			return
 		preventDefault = true
 
