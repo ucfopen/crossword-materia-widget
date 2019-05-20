@@ -62,6 +62,7 @@ Namespace('Crossword').Engine = do ->
 
 	CLUE_HELP_TEXT        = 'Press the I key to receive additional instructions. '
 	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to select the first letter tile for this word in the answer grid. Press the Tab key to move to the submit button. '
+	CLUE_CHECK_TEXT       = 'Press the C key to check if all of this word\'s letters have been filled in. '
 	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce this answer\'s value by '
 	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
 
@@ -474,6 +475,13 @@ Namespace('Crossword').Engine = do ->
 				_changeSelectedClue true
 			when 40 #down
 				_changeSelectedClue false
+			when 87 #w
+				question = _questions[_curClue]
+				enteredLettersText = 'Letters entered for ' + question.prefix + ': '
+				enteredLettersText += _getLettersFilledInForClue question
+				_dom('clue-reader').innerHTML = enteredLettersText
+			when 67 #c
+				_checkCurrentClueCompletion()
 			when 70 #f
 				unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
 					_getFreeword {target: $('#clue_'+_curClue)[0]}
@@ -492,7 +500,7 @@ Namespace('Crossword').Engine = do ->
 				unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
 					plural = if _freeWordsRemaining > 1 then 'words' else 'word'
 					instructionText += ' ' + CLUE_FREE_WORD_TEXT + 'You have ' + _freeWordsRemaining + ' free ' + plural + ' remaining. '
-				instructionText += ' ' + CLUE_BASE_TEXT
+				instructionText += ' ' + CLUE_CHECK_TEXT + CLUE_BASE_TEXT
 
 				_dom('clue-reader').innerHTML = instructionText
 			else
@@ -503,6 +511,24 @@ Namespace('Crossword').Engine = do ->
 		e.preventDefault()
 		_dom('clue-reader').innerHTML = ''
 		_updateClueReader()
+
+	_checkCurrentClueCompletion = ->
+		question = _questions[_curClue]
+
+		missing = null
+
+		for index in Object.keys question.locations
+			location = question.locations[index]
+			missing = location.index + 1 if _dom("letter_#{location.x}_#{location.y}").value == ''
+
+		completionText = ''
+
+		if missing
+			completionText = question.prefix + ' is missing a letter in position ' + missing + '.'
+		else
+			completionText = 'All letters have all been filled in for word ' + question.prefix + '.'
+
+		_dom('clue-reader').innerHTML = completionText
 
 	_changeSelectedClue = (up) ->
 		target = {target: $('#clue_'+_curClue)[0]}
@@ -518,6 +544,16 @@ Namespace('Crossword').Engine = do ->
 		target = {target: $('#clue_'+_curClue)[0]}
 		_clueMouseOver target
 		_updateClueReader()
+
+	_getLettersFilledInForClue = (question) ->
+		enteredLettersText = ''
+		for location, info of question.locations
+			letter = _checkLetterInLocation info.x, info.y
+			if letter
+				enteredLettersText += ' ' + letter + '. '
+			else
+				enteredLettersText += 'Blank. '
+		enteredLettersText
 
 	_fullClueText = (clueId = false) ->
 		clueId = _curClue unless clueId
@@ -612,28 +648,13 @@ Namespace('Crossword').Engine = do ->
 			q1 = _questions[qi1]
 			q2 = _questions[qi2]
 			enteredLettersText = 'Letters entered for ' + q1.prefix + ': '
-			for location, info of q1.locations
-				letter = _checkLetterInLocation info.x, info.y
-				if letter
-					enteredLettersText += ' ' + letter + '. '
-				else
-					enteredLettersText += 'Blank. '
+			enteredLettersText += _getLettersFilledInForClue q1
 			enteredLettersText += 'Letters entered for ' + q2.prefix + ': '
-			for location, info of q2.locations
-				letter = _checkLetterInLocation info.x, info.y
-				if letter
-					enteredLettersText += ' ' + letter + '. '
-				else
-					enteredLettersText += 'Blank. '
+			enteredLettersText += _getLettersFilledInForClue q2
 		else
 			question = _questions[letterElement.getAttribute('data-q')]
 			enteredLettersText = 'Letters entered for ' + question.prefix + ': '
-			for location, info of question.locations
-				letter = _checkLetterInLocation info.x, info.y
-				if letter
-					enteredLettersText += ' ' + letter + '. '
-				else
-					enteredLettersText += 'Blank. '
+			enteredLettersText += _getLettersFilledInForClue question
 
 		enteredLettersText
 
