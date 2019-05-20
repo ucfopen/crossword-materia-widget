@@ -31,10 +31,11 @@
 				aria-label='Use the Tab key to select the list of clues.'></h1>
 			<div class='icon-print' id='printbtn' title='Print' aria-hidden></div>
 			<div class='icon-zoomout' id='zoomout' title='Zoom Out' aria-hidden></div>
-			<div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div>
 			<div class='submitholder'>
-				<input type='button' id='checkBtn'
-					class='button submit'
+				<div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div>
+				<input id='checkBtn'
+					type='button'
+					class='submit button'
 					value='Submit Answers'
 					aria-describedby='submit-progress-reader'
 					tabindex='3'>
@@ -97,10 +98,13 @@
 		</div>
 
 		<div id='backgroundcover' class='fade'></div>
-		<div id='alertbox' class='fade'>
+		<div id='alertbox' class='fade' tabindex='4'>
 			<div id='alertcaption'></div>
 			<input id='cancelbtn' class='cancel button' type='button'>
-			<input id='okbtn' class='submit button' type='button'>
+			<input id='okbtn'
+				type='button'
+				class='submit button'
+				aria-describedby='submit-progress-reader'>
 		</div>
 
 		<div id='t_hints' style='display:none' class="clue">

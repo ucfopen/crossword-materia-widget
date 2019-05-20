@@ -500,7 +500,6 @@ Namespace('Crossword').Engine = do ->
 		if preventDefault then keyEvent.preventDefault()
 
 	_cluesFocused = (e) ->
-		console.log 'clue list focused'
 		e.preventDefault()
 		_dom('clue-reader').innerHTML = ''
 		_updateClueReader()
@@ -942,11 +941,13 @@ Namespace('Crossword').Engine = do ->
 		ab.find('.submit').unbind('click').click ->
 			_hideAlert()
 			action()
+		ab.focus()
 
 	# hide it
 	_hideAlert = ->
 		_dom('alertbox').classList.remove 'show'
 		_dom('backgroundcover').classList.remove 'show'
+		_dom('clues').focus()
 
 	# called after confirm dialog
 	_getHint = (index) ->
