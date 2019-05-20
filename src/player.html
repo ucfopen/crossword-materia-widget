@@ -25,30 +25,30 @@
 	<body>
 		<div class="header"
 			aria-labelledby='title'
-			aria-describedby='instructions'
 			tabindex='1'>
 			<div class='logo'></div>
-			<h1 id='title'></h1>
+			<h1 id='title'
+				aria-label='Use the Tab key to select the list of clues.'></h1>
 			<div class='icon-print' id='printbtn' title='Print' aria-hidden></div>
 			<div class='icon-zoomout' id='zoomout' title='Zoom Out' aria-hidden></div>
-			<div id='instructions'
-				class='reader-instructions'>
-				Use the Tab key to switch between the list of words and the answer grid.
-			</div>
+			<div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div>
 			<div class='submitholder'>
-				<input type='button' id='checkBtn' class='button submit' value='Submit Answers' tabindex='4'>
+				<input type='button' id='checkBtn'
+					class='button submit'
+					value='Submit Answers'
+					aria-describedby='submit-progress-reader'
+					tabindex='3'>
 			</div>
 		</div>
 		<div id='board-reader' class='reader-instructions' aria-live='polite'></div>
 		<div id="board" class="screen board"
-			aria-describedby='board-reader'
-			tabindex='3'>
+			aria-describedby='board-reader'>
 			<div id="movable-container">
 				<div id='movable' class='crossword-board'></div>
 			</div>
 		</div>
 
-		<div id='clue-reader' class='reader-instructions' aria-live='polite'></div>
+		<div id='clue-reader' class='reader-instructions'></div>
 		<div id='clues'
 			role='list'
 			aria-describedby='clue-reader'

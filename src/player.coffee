@@ -61,7 +61,7 @@ Namespace('Crossword').Engine = do ->
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
 	CLUE_HELP_TEXT        = 'Press the I key to receive additional instructions. '
-	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to automatically select the answer grid and move to the first letter tile for this word. '
+	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to select the first letter tile for this word in the answer grid. Press the Tab key to move to the submit button. '
 	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce this answer\'s value by '
 	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
 
@@ -161,8 +161,6 @@ Namespace('Crossword').Engine = do ->
 	_setupEventHandlers = ->
 		# keep focus on the last letter that was highlighted whenever we move the board around
 		$('#board').click -> _highlightPuzzleLetter false
-
-		$('#board').focus -> _boardFocused
 
 		$('#board').keydown _boardKeyDownHandler
 		$('#printbtn').click (e) ->
@@ -501,11 +499,9 @@ Namespace('Crossword').Engine = do ->
 				preventDefault = false
 		if preventDefault then keyEvent.preventDefault()
 
-	_boardFocused = () ->
-		_dom('board-reader').innerHTML = ''
-		_updateClue()
-
-	_cluesFocused = () ->
+	_cluesFocused = (e) ->
+		console.log 'clue list focused'
+		e.preventDefault()
 		_dom('clue-reader').innerHTML = ''
 		_updateClueReader()
 
@@ -520,6 +516,7 @@ Namespace('Crossword').Engine = do ->
 			_curClue++
 			if _curClue >= _questions.length then _curClue = 0
 
+		target = {target: $('#clue_'+_curClue)[0]}
 		_clueMouseOver target
 		_updateClueReader()
 
@@ -732,7 +729,7 @@ Namespace('Crossword').Engine = do ->
 				_highlightPuzzleLetter()
 				return
 			when 9
-				preventDefault = false
+				return
 			when 13 #enter
 				# go to the next clue, based on the clue that is currently selected
 				highlightedClue = $(".clue.highlight")
@@ -971,18 +968,24 @@ Namespace('Crossword').Engine = do ->
 
 	# highlight submit button if all letters are filled in
 	_checkIfDone = ->
+		console.log 'HERE BE THE NEW CHECKS?'
+		_dom('submit-progress-reader').innerHTML = ''
 		done = true
+		unfinishedWord = null
 
 		forEveryQuestion (i, letters, x, y, dir) ->
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
 				if letters[l] != ' '
 					if _dom("letter_#{letterLeft}_#{letterTop}").value == ''
+						unfinishedWord = _dom("letter_#{letterLeft}_#{letterTop}").getAttribute('data-q')
 						done = false
 						return
 		if done
 			$('.arrow_box').show()
 			_dom('checkBtn').classList.add 'done'
+			_dom('submit-progress-reader').innerHTML = 'All characters filled.'
 		else
+			_dom('submit-progress-reader').innerHTML = 'There are empty letter tiles.'
 			_dom('checkBtn').classList.remove 'done'
 			$('.arrow_box').hide()
 
