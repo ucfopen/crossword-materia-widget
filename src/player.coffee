@@ -707,6 +707,7 @@ Namespace('Crossword').Engine = do ->
 
 	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
 		if keyEvent.altKey
+			event.preventDefault()
 			switch keyEvent.keyCode
 				when 67 #c
 					_dom('board-reader').innerHTML = _getClueForCurrentLetter()
