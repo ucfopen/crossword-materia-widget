@@ -61,16 +61,16 @@ Namespace('Crossword').Engine = do ->
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
 	CLUE_HELP_TEXT        = 'Press the I key to receive additional instructions. '
-	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to select the first letter tile for this word in the answer grid. Press the Tab key to move to the submit button. '
-	CLUE_CHECK_TEXT       = 'Press the C key to check if all of this word\'s letters have been filled in. '
-	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce this answer\'s value by '
-	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this word\'s letters filled in automatically. '
+	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to select the first letter tile for this clue in the letter grid. Press the Tab key to move to the submit button. '
+	CLUE_CHECK_TEXT       = 'Press the C key to check if all of this clue\'s letters have been filled in. '
+	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce the value of a correct answer to this clue by '
+	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this clue\'s letter tiles in the letter grid filled in automatically. '
 
 	BOARD_HELP_TEXT       = 'Hold the Alt key and press the I key to receive additional instructions. '
-	BOARD_CLUE_TEXT       = 'Hold the Alt key and press the C key to hear the clue or clues for this space. '
-	BOARD_LETTERS_TEXT    = 'Hold the Alt key and press the W key to hear the letters currently provided for the word or words this space is in. '
-	BOARD_LOCATION_TEXT   = 'Hold the Alt key and press the L key to describe the spaces adjacent to this space. '
-	BOARD_BASE_TEXT       = 'Press the Tab key to return to the clue list. Press the Return or Enter key to select the next word and automatically move to the first letter tile for that word. '
+	BOARD_CLUE_TEXT       = 'Hold the Alt key and press the C key to hear the clue or clues this tile is included in. '
+	BOARD_LETTERS_TEXT    = 'Hold the Alt key and press the W key to hear the letters currently provided for the clue or clues this tile is included in. '
+	BOARD_LOCATION_TEXT   = 'Hold the Alt key and press the L key to describe the tiles adjacent to this tile. '
+	BOARD_BASE_TEXT       = 'Press the Tab key to return to the clue list. Press the Return or Enter key to select the next clue and automatically move to the first letter tile for that clue. '
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
@@ -117,6 +117,7 @@ Namespace('Crossword').Engine = do ->
 
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
+		_dom('widget-header').focus()
 
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -166,7 +167,11 @@ Namespace('Crossword').Engine = do ->
 		$('#board').keydown _boardKeyDownHandler
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
+		$('#printbtn').keyup (e) ->
+			if e.keyCode is 13 then Crossword.Print.printBoard(_instance, _questions)
 		$('#zoomout').click _zoomOut
+		$('#zoomout').keyup (e) ->
+			if e.keyCode is 13 then _zoomOut()
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
@@ -488,7 +493,8 @@ Namespace('Crossword').Engine = do ->
 					_updateClueReader()
 			when 72 #h
 				unless _questions[_curClue].options.hint is '' or _usedHints[_curClue]
-					_getHint _curClue
+					# _getHint _curClue
+					_hintConfirm {target: $('#hintbtn_'+_curClue)[0]}
 					_updateClueReader()
 			when 73 #i
 				clue = _questions[_curClue]
@@ -620,7 +626,7 @@ Namespace('Crossword').Engine = do ->
 
 	_describeLocationForCurrentLetter = ->
 		# describe the letter's location and current value
-		combinedLocationText = _getWordPositionForCurrentLetter()
+		combinedLocationText = 'Current location: ' + _getWordPositionForCurrentLetter()
 		# also describe the letters in adjacent cells
 		above = _checkLetterInLocation _curLetter.x, _curLetter.y - 1
 		left  = _checkLetterInLocation _curLetter.x - 1, _curLetter.y
@@ -688,7 +694,7 @@ Namespace('Crossword').Engine = do ->
 				else
 					combinedMessage += 'Last character: ' + lastKey.toUpperCase() + '. '
 
-		combinedMessage += _getWordPositionForCurrentLetter()
+		combinedMessage += 'Current location: ' + _getWordPositionForCurrentLetter()
 
 		combinedMessage += BOARD_HELP_TEXT
 
@@ -900,7 +906,7 @@ Namespace('Crossword').Engine = do ->
 		return if e.target.classList.contains 'disabled'
 		# only do it if the parent clue is highlighted
 		if _dom('clue_' + e.target.getAttribute('data-i')).classList.contains 'highlight'
-			_showAlert "Receiving a hint will result in a #{_qset.options.hintPenalty}% penalty for this question", 'Okay', 'Nevermind', ->
+			_showAlert "Receiving a hint will result in a #{_qset.options.hintPenalty}% penalty for this question.", 'Okay', 'Nevermind', ->
 				_getHint e.target.getAttribute 'data-i'
 
 	# fired by the free word buttons
@@ -990,7 +996,6 @@ Namespace('Crossword').Engine = do ->
 
 	# highlight submit button if all letters are filled in
 	_checkIfDone = ->
-		console.log 'HERE BE THE NEW CHECKS?'
 		_dom('submit-progress-reader').innerHTML = ''
 		done = true
 		unfinishedWord = null
@@ -1002,12 +1007,20 @@ Namespace('Crossword').Engine = do ->
 						unfinishedWord = _dom("letter_#{letterLeft}_#{letterTop}").getAttribute('data-q')
 						done = false
 						return
+
 		if done
 			$('.arrow_box').show()
 			_dom('checkBtn').classList.add 'done'
 			_dom('submit-progress-reader').innerHTML = 'All characters filled.'
 		else
-			_dom('submit-progress-reader').innerHTML = 'There are empty letter tiles.'
+			question = _questions[unfinishedWord]
+			missing = null
+			for index in Object.keys question.locations
+				location = question.locations[index]
+				missing = location.index + 1 if _dom("letter_#{location.x}_#{location.y}").value == ''
+
+			_dom('submit-progress-reader').innerHTML = question.prefix + ' is missing a letter in position ' + missing + '.'
+
 			_dom('checkBtn').classList.remove 'done'
 			$('.arrow_box').hide()
 
