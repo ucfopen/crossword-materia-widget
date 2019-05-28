@@ -66,10 +66,10 @@ Namespace('Crossword').Engine = do ->
 	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce the value of a correct answer to this clue by '
 	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this clue\'s letter tiles in the letter grid filled in automatically. '
 
-	BOARD_HELP_TEXT       = 'Hold the Alt key and press the I key to receive additional instructions. '
-	BOARD_CLUE_TEXT       = 'Hold the Alt key and press the C key to hear the clue or clues this tile is included in. '
-	BOARD_LETTERS_TEXT    = 'Hold the Alt key and press the W key to hear the letters currently provided for the clue or clues this tile is included in. '
-	BOARD_LOCATION_TEXT   = 'Hold the Alt key and press the L key to describe the tiles adjacent to this tile. '
+	BOARD_HELP_TEXT       = 'Hold the Control key and the Alt key and press the I key to receive additional instructions. '
+	BOARD_CLUE_TEXT       = 'Hold the Control key and the Alt key and press the C key to hear the clue or clues this tile is included in. '
+	BOARD_LETTERS_TEXT    = 'Hold the Control key and the Alt key and press the W key to hear the letters currently provided for the clue or clues this tile is included in. '
+	BOARD_LOCATION_TEXT   = 'Hold the Control key and the Alt key and press the L key to describe the tiles adjacent to this tile. '
 	BOARD_BASE_TEXT       = 'Press the Tab key to return to the clue list. Press the Return or Enter key to select the next clue and automatically move to the first letter tile for that clue. '
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
@@ -480,11 +480,6 @@ Namespace('Crossword').Engine = do ->
 				_changeSelectedClue true
 			when 40 #down
 				_changeSelectedClue false
-			when 87 #w
-				question = _questions[_curClue]
-				enteredLettersText = 'Letters entered for ' + question.prefix + ': '
-				enteredLettersText += _getLettersFilledInForClue question
-				_dom('clue-reader').innerHTML = enteredLettersText
 			when 67 #c
 				_checkCurrentClueCompletion()
 			when 70 #f
@@ -493,7 +488,6 @@ Namespace('Crossword').Engine = do ->
 					_updateClueReader()
 			when 72 #h
 				unless _questions[_curClue].options.hint is '' or _usedHints[_curClue]
-					# _getHint _curClue
 					_hintConfirm {target: $('#hintbtn_'+_curClue)[0]}
 					_updateClueReader()
 			when 73 #i
@@ -509,6 +503,11 @@ Namespace('Crossword').Engine = do ->
 				instructionText += ' ' + CLUE_CHECK_TEXT + CLUE_BASE_TEXT
 
 				_dom('clue-reader').innerHTML = instructionText
+			when 87 #w
+				question = _questions[_curClue]
+				enteredLettersText = 'Letters entered for ' + question.prefix + ': '
+				enteredLettersText += _getLettersFilledInForClue question
+				_dom('clue-reader').innerHTML = enteredLettersText
 			else
 				preventDefault = false
 		if preventDefault then keyEvent.preventDefault()
@@ -706,7 +705,7 @@ Namespace('Crossword').Engine = do ->
 		text
 
 	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
-		if keyEvent.altKey
+		if keyEvent.ctrlKey and keyEvent.altKey
 			event.preventDefault()
 			switch keyEvent.keyCode
 				when 67 #c
@@ -756,6 +755,8 @@ Namespace('Crossword').Engine = do ->
 				_highlightPuzzleLetter()
 				return
 			when 9
+				keyEvent.preventDefault()
+				$('#clues').focus()
 				return
 			when 13 #enter
 				# go to the next clue, based on the clue that is currently selected
