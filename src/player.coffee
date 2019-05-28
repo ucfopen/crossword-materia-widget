@@ -65,6 +65,7 @@ Namespace('Crossword').Engine = do ->
 	CLUE_CHECK_TEXT       = 'Press the C key to check if all of this clue\'s letters have been filled in. '
 	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce the value of a correct answer to this clue by '
 	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this clue\'s letter tiles in the letter grid filled in automatically. '
+	CLUE_REPEAT_TEXT      = 'Press the R key to repeat this clue. '
 
 	BOARD_HELP_TEXT       = 'Hold the Control key and the Alt key and press the I key to receive additional instructions. '
 	BOARD_CLUE_TEXT       = 'Hold the Control key and the Alt key and press the C key to hear the clue or clues this tile is included in. '
@@ -500,12 +501,14 @@ Namespace('Crossword').Engine = do ->
 				unless _freeWordsRemaining is 0 or _usedFreeWords[_curClue]
 					plural = if _freeWordsRemaining > 1 then 'words' else 'word'
 					instructionText += ' ' + CLUE_FREE_WORD_TEXT + 'You have ' + _freeWordsRemaining + ' free ' + plural + ' remaining. '
-				instructionText += ' ' + CLUE_CHECK_TEXT + CLUE_BASE_TEXT
+				instructionText += ' ' + CLUE_CHECK_TEXT + CLUE_REPEAT_TEXT + CLUE_BASE_TEXT
 
 				_dom('clue-reader').innerHTML = instructionText
+			when 82 #r
+				_dom('clue-reader').innerHTML = _fullClueText _curClue
 			when 87 #w
 				question = _questions[_curClue]
-				enteredLettersText = 'Letters entered for ' + question.prefix + ': '
+				enteredLettersText = 'Letters entered for ' + question.prefix + '. '
 				enteredLettersText += _getLettersFilledInForClue question
 				_dom('clue-reader').innerHTML = enteredLettersText
 			else
@@ -567,10 +570,10 @@ Namespace('Crossword').Engine = do ->
 		clueText = 'Word ' + (clueId + 1) + ' of ' + _questions.length + '. '
 		clueText += clue.prefix + '. '
 		clueText += clue.answers[0].text.length + ' letters. '
-		clueText += 'Clue is: ' + _ensurePeriod clue.questions[0].text
+		clueText += 'Clue is. ' + _ensurePeriod clue.questions[0].text
 
 		if _usedHints[clueId]
-			combinedClueText += 'Hint: ' + _ensurePeriod clue.options.hint
+			combinedClueText += 'Hint. ' + _ensurePeriod clue.options.hint
 
 		clueText
 
@@ -588,8 +591,8 @@ Namespace('Crossword').Engine = do ->
 			qi2 = _wordIntersections[location][1] - 1
 			c1 = _fullClueText qi1
 			c2 = _fullClueText qi2
-			combinedClueText += ' Word one: ' + c1 + '. '
-			combinedClueText += ' Word two: ' + c2 + '. '
+			combinedClueText += ' Word one. ' + c1 + '. '
+			combinedClueText += ' Word two. ' + c2 + '. '
 		else
 			qi = letterElement.getAttribute 'data-q'
 			combinedClueText = _fullClueText qi
@@ -609,8 +612,8 @@ Namespace('Crossword').Engine = do ->
 			p1 = q1.locations[location].index + 1
 			p2 = q2.locations[location].index + 1
 			locationMessage = ' Intersection of '
-			locationMessage += q1.prefix + ': Character ' + p1 + ' of ' + q1.answers[0].text.length
-			locationMessage += ' and ' + q2.prefix + ': Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
+			locationMessage += 'word ' + q1.prefix + '. Character ' + p1 + ' of ' + q1.answers[0].text.length
+			locationMessage += ' and word ' + q2.prefix + '. Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
 		else
 			question = _questions[letterElement.getAttribute('data-q')]
 			position = question.locations[location].index + 1
@@ -619,23 +622,23 @@ Namespace('Crossword').Engine = do ->
 
 		currentLetter = letterElement.value
 		currentLetter = 'Empty' if not currentLetter
-		locationMessage += ' Current value: ' + currentLetter + '. '
+		locationMessage += ' Current value. ' + currentLetter + '. '
 
 		locationMessage
 
 	_describeLocationForCurrentLetter = ->
 		# describe the letter's location and current value
-		combinedLocationText = 'Current location: ' + _getWordPositionForCurrentLetter()
+		combinedLocationText = 'Current location. ' + _getWordPositionForCurrentLetter()
 		# also describe the letters in adjacent cells
 		above = _checkLetterInLocation _curLetter.x, _curLetter.y - 1
 		left  = _checkLetterInLocation _curLetter.x - 1, _curLetter.y
 		right = _checkLetterInLocation _curLetter.x + 1, _curLetter.y
 		below = _checkLetterInLocation _curLetter.x, _curLetter.y + 1
 
-		if above then combinedLocationText += ' Character above: ' + above + '. '
-		if left then combinedLocationText += ' Character left: ' + left + '. '
-		if right then combinedLocationText += ' Character right: ' + right + '. '
-		if below then combinedLocationText += ' Character below: ' + below + '. '
+		if above then combinedLocationText += ' Character above. ' + above + '. '
+		if left then combinedLocationText += ' Character left. ' + left + '. '
+		if right then combinedLocationText += ' Character right. ' + right + '. '
+		if below then combinedLocationText += ' Character below. ' + below + '. '
 
 		combinedLocationText
 
@@ -652,13 +655,13 @@ Namespace('Crossword').Engine = do ->
 			qi2 = _wordIntersections[location][1] - 1
 			q1 = _questions[qi1]
 			q2 = _questions[qi2]
-			enteredLettersText = 'Letters entered for ' + q1.prefix + ': '
+			enteredLettersText = 'Letters entered for ' + q1.prefix + '. '
 			enteredLettersText += _getLettersFilledInForClue q1
-			enteredLettersText += 'Letters entered for ' + q2.prefix + ': '
+			enteredLettersText += 'Letters entered for ' + q2.prefix + '. '
 			enteredLettersText += _getLettersFilledInForClue q2
 		else
 			question = _questions[letterElement.getAttribute('data-q')]
-			enteredLettersText = 'Letters entered for ' + question.prefix + ': '
+			enteredLettersText = 'Letters entered for ' + question.prefix + '. '
 			enteredLettersText += _getLettersFilledInForClue question
 
 		enteredLettersText
@@ -691,9 +694,9 @@ Namespace('Crossword').Engine = do ->
 				when 'Backspace', 'Delete'
 					combinedMessage += 'Last character deleted. '
 				else
-					combinedMessage += 'Last character: ' + lastKey.toUpperCase() + '. '
+					combinedMessage += 'Last character. ' + lastKey.toUpperCase() + '. '
 
-		combinedMessage += 'Current location: ' + _getWordPositionForCurrentLetter()
+		combinedMessage += 'Current location. ' + _getWordPositionForCurrentLetter()
 
 		combinedMessage += BOARD_HELP_TEXT
 
@@ -984,7 +987,7 @@ Namespace('Crossword').Engine = do ->
 		Materia.Score.submitInteractionForScoring _questions[index].id, 'question_hint', '-' + _qset.options.hintPenalty
 
 		hintSpot = _dom("hintspot_#{index}")
-		hintSpot.innerHTML = "Hint: #{_questions[index].options.hint}"
+		hintSpot.innerHTML = "Hint. #{_questions[index].options.hint}"
 		hintSpot.style.opacity = 1
 
 		hintButton = _dom("hintbtn_#{index}")
