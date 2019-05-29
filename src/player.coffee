@@ -51,8 +51,8 @@ Namespace('Crossword').Engine = do ->
 	_zoomedIn             = false
 
 	# constants
-	LETTER_HEIGHT         = 23 # how many pixles high is a space?
-	LETTER_WIDTH          = 27 # how many pixles wide is a space?
+	LETTER_HEIGHT         = 23 # how many pixels high is a space?
+	LETTER_WIDTH          = 27 # how many pixels wide is a space?
 	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
 	BOARD_WIDTH           = 472 # visible board width
 	BOARD_HEIGHT          = 485 # visible board height
@@ -60,11 +60,23 @@ Namespace('Crossword').Engine = do ->
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
+	KEYBOARD_HELP = [
+		'Use the Tab key to navigate between the clue list, submit, print, and zoom buttons.'
+		'While the clue list is selected, use the Up and Down arrow keys to navigate between clues.'
+		'While a clue is selected, Press the H key to receive a hint and reduce the value of a correct answer to that clue.'
+		'While a clue is selected, Press the F key to use a free word and have that clue\'s letter tiles in the letter grid filled in automatically.'
+		'While a clue is selected, Press the Return or Enter key to select the first letter tile for that clue in the letter grid.'
+		'While the letter grid is selected, Use the Up, Down, Left, and Right arrow keys inside the letter grid to navigate between letter tiles.'
+		'Press the Return or Enter key to automatically move to the first letter tile of the next clue.'
+		'Press the Tab key to return the clue list.'
+		'Press the Escape key to cancel or the Return or Enter key to confirm during prompts like this one.'
+	]
+
 	CLUE_HELP_TEXT        = 'Press the I key to receive additional instructions. '
 	CLUE_BASE_TEXT        = 'Use the Up and Down arrow keys to navigate between clues. Press the Return or Enter key to select the first letter tile for this clue in the letter grid. Press the Tab key to move to the submit button. '
 	CLUE_CHECK_TEXT       = 'Press the C key to check if all of this clue\'s letters have been filled in. '
 	CLUE_HINT_TEXT        = 'Press the H key to receive a hint and reduce the value of a correct answer to this clue by '
-	CLUE_FREE_WORD_TEXT   = 'Press the F key to have this clue\'s letter tiles in the letter grid filled in automatically. '
+	CLUE_FREE_WORD_TEXT   = 'Press the F key to use a free word and have this clue\'s letter tiles in the letter grid filled in automatically. '
 	CLUE_REPEAT_TEXT      = 'Press the R key to repeat this clue. '
 
 	BOARD_HELP_TEXT       = 'Hold the Control key and the Alt key and press the I key to receive additional instructions. '
@@ -176,6 +188,19 @@ Namespace('Crossword').Engine = do ->
 		$('#alertbox .button.cancel').click _hideAlert
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
+
+		$('#alertbox').keyup (e) ->
+			switch e.keyCode
+				when 13 #enter
+					$('#okbtn').click();
+				when 27 #escape
+					$('#cancelbtn').click();
+
+		$('#keyboard-instructions').keyup (e) ->
+			if e.keyCode is 13 or e.keyCode is 32
+				formattedKeyboardHelp = ''
+				formattedKeyboardHelp += v + '<br/>' for i, v of KEYBOARD_HELP
+				_showAlert formattedKeyboardHelp, 'Okay', null, _hideAlert
 
 		$('#specialInputBody span').click ->
 			spoof = $.Event('keydown')
@@ -963,12 +988,15 @@ Namespace('Crossword').Engine = do ->
 	# show the modal alert dialog
 	_showAlert = (caption, okayCaption, cancelCaption, action) ->
 		ab = $('#alertbox')
-		ab.addClass 'show'
 		_dom('backgroundcover').classList.add 'show'
+
+		_dom('cancelbtn').classList.add('removed')
 
 		$('#alertcaption').html caption
 		$('#okbtn').val okayCaption
-		$('#cancelbtn').val cancelCaption
+		if cancelCaption
+			_dom('cancelbtn').classList.remove('removed')
+			$('#cancelbtn').val cancelCaption
 
 		ab.find('.submit').unbind('click').click ->
 			_hideAlert()
@@ -977,7 +1005,6 @@ Namespace('Crossword').Engine = do ->
 
 	# hide it
 	_hideAlert = ->
-		_dom('alertbox').classList.remove 'show'
 		_dom('backgroundcover').classList.remove 'show'
 		_dom('clues').focus()
 

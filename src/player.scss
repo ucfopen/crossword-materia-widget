@@ -314,6 +314,10 @@ html, body {
 	border:0;
 	cursor: pointer;
 
+	&.removed{
+		display: none;
+	}
+
 	&.disabled{
 		opacity: 0.5;
 		cursor: default !important;
@@ -399,41 +403,51 @@ input {
 }
 
 #backgroundcover {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+
 	position: fixed;
-	top: 0px;
-	right: 0px;
-	bottom: 0px;
-	left: 0px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 9999;
 
 	max-height: 592;
 	max-width: 715;
 
-	background: #000;
-	z-index: -5;
+	background: rgba(0, 0, 0, 0.5);
+
+	pointer-events: none;
 	opacity: 0;
 
 	&.show {
-		opacity: 0.5;
-		z-index: 9999;
+		opacity: 1;
+		pointer-events: all;
 	}
 }
 
 #alertbox {
-	width: 300px;
-	left: 50%;
-	top: 49%;
-	margin-left: -250px;
-	margin-top: -50px;
+	display: block;
+	margin: 0 auto;
+	min-width: 300px;
+	max-width: 500px;
 	padding: 15px;
-	position: absolute;
 	background: #fff;
 	border: solid 1px #999;
 	border-radius: 0px;
-	z-index: 10000;
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 	text-align: center;
-	display: none;
-	z-index: -5;
+
+	#alertcaption {
+		text-align: left;
+
+		br {
+			display: block;
+			height: 3px;
+		}
+	}
 
 	.button {
 		margin: 20px 10px 10px;
@@ -449,16 +463,11 @@ input {
 			color:white
 		}
 	}
-
-	&.show {
-		display: block;
-		z-index: 10000;
-	}
 }
 
 .fade {
-	-webkit-transition: all 0.2s ease;
-	transition: all 0.2s ease;
+	-webkit-transition: opacity 0.2s ease;
+	transition: opacity 0.2s ease;
 }
 
 .arrow_box {
@@ -543,7 +552,8 @@ input {
 	right: 50%;
 	top: 70px;
 	text-align: center;
-	display: inline-block;
+	pointer-events: none;
+	display: block;
 }
 .invisible-until-focused:focus {
 	opacity: 1;
