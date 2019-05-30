@@ -222,21 +222,33 @@ html, body {
 	font-size: 19px;
 	font-family: 'Delius Unicase';
 	text-align: center;
-	background: #fff;
+	background: #FFF;
 
 	margin: 0;
 
 	color: transparent;
 	text-shadow: 0 0 0 black;
+
+	&.locked {
+		background: #E3E4E4;
+		&.focus {
+			background: #838B96;
+		}
+		&.highlight:not(.focus) {
+			background: #CED4DA;
+		}
+	}
+
+	&.highlight {
+		border: solid 1px #6E7DA3;
+		background: #E5F3FF;
+	}
+
+	&.focus {
+		background: #AECEFF;
+	}
 }
 
-.letter.highlight {
-	border: solid 1px #6E7DA3;
-	background: #E5F3FF;
-}
-.letter.focus {
-	background: #AECEFF;
-}
 
 #controls {
 	overflow-y: hidden;

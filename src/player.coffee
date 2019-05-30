@@ -648,6 +648,8 @@ Namespace('Crossword').Engine = do ->
 		currentLetter = letterElement.value
 		currentLetter = 'Empty' if not currentLetter
 		locationMessage += ' Current value. ' + currentLetter + '. '
+		if letterElement.getAttribute('data-locked')?
+			locationMessage += ' This tile is locked and the value will not be changed. '
 
 		locationMessage
 
@@ -754,6 +756,7 @@ Namespace('Crossword').Engine = do ->
 		_removePuzzleLetterHighlight()
 		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 		isProtected = letterElement.getAttribute('data-protected')?
+		isLocked = letterElement.getAttribute('data-locked')?
 
 		switch keyEvent.keyCode
 			when 37 #left
@@ -777,7 +780,7 @@ Namespace('Crossword').Engine = do ->
 				_curDir = -1
 				_updateClue()
 			when 46 #delete
-				letterElement.value = '' unless isProtected
+				letterElement.value = '' unless isProtected or isLocked
 				_checkIfDone()
 			when 16
 				_highlightPuzzleLetter()
@@ -814,10 +817,10 @@ Namespace('Crossword').Engine = do ->
 					_prevLetter(_curDir)
 
 					# clear value
-					letterElement.value = '' unless isProtected
+					letterElement.value = '' unless isProtected or isLocked
 
 				_checkIfDone()
-			else
+			else #any letter
 				if keyEvent && keyEvent.key
 					letterTyped = keyEvent.key.toUpperCase();
 				else
@@ -832,7 +835,7 @@ Namespace('Crossword').Engine = do ->
 						_curDir = ~~letterElement.getAttribute('data-dir')
 					_nextLetter(_curDir)
 
-					letterElement.value = letterTyped unless isProtected
+					letterElement.value = letterTyped unless isProtected or isLocked
 
 					# if the puzzle is filled out, highlight the submit button
 					_checkIfDone()
@@ -963,7 +966,10 @@ Namespace('Crossword').Engine = do ->
 
 		# fill every letter element
 		forEveryLetter x,y,dir,letters, (letterLeft, letterTop, l) ->
-			_dom("letter_#{letterLeft}_#{letterTop}").value = letters[l].toUpperCase()
+			letter = _dom("letter_#{letterLeft}_#{letterTop}")
+			letter.classList.add 'locked'
+			letter.setAttribute('data-locked', '1')
+			letter.value = letters[l].toUpperCase()
 
 		_freeWordsRemaining--
 
