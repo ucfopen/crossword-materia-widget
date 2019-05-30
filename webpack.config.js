@@ -71,8 +71,8 @@ const generateHelperPlugin = name => {
 
 let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
 
-buildConfig.plugins.push(generateHelperPlugin('creator'))
-buildConfig.plugins.push(generateHelperPlugin('player'))
+buildConfig.plugins.unshift(generateHelperPlugin('creator'))
+buildConfig.plugins.unshift(generateHelperPlugin('player'))
 
 module.exports = buildConfig
 
