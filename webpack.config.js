@@ -1,24 +1,20 @@
 const fs = require('fs')
 const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const marked = require('meta-marked')
 const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
-const rules = widgetWebpack.getDefaultRules()
 const copy = widgetWebpack.getDefaultCopyList()
 
-const srcPath = path.join(process.cwd(), 'src')
 const outputPath = path.join(process.cwd(), 'build')
 
 const customCopy = copy.concat([
 	{
-		from: `${srcPath}/_helper-docs/assets`,
-		to: `${outputPath}/guides/assets`,
-		toType: 'dir'
-	},
-	{
 		from: path.join(__dirname, 'node_modules', 'hammerjs', 'hammer.min.js'),
 		to: outputPath,
-	}
+	},
+	{
+		from: path.join(__dirname, 'src', '_guides', 'assets'),
+		to: path.join(outputPath, 'guides', 'assets'),
+		toType: 'dir'
+	},
 ])
 
 const entries = {
@@ -46,8 +42,11 @@ const entries = {
 		path.join(__dirname, 'src', 'scoreScreen.html'),
 		path.join(__dirname, 'src', 'scoreScreen.scss')
 	],
-	'guides/guideStyles.css': [
-		path.join(__dirname, 'src', '_helper-docs', 'guideStyles.scss')
+	'guides/player.tmp.html': [
+		path.join(__dirname, 'src', '_guides', 'player.md')
+	],
+	'guides/creator.tmp.html': [
+		path.join(__dirname, 'src', '_guides', 'creator.md')
 	]
 }
 
@@ -56,23 +55,7 @@ const options = {
 	entries: entries
 }
 
-const generateHelperPlugin = name => {
-	const file = fs.readFileSync(path.join(__dirname, 'src', '_helper-docs', name+'.md'), 'utf8')
-	const content = marked(file)
-
-	return new HtmlWebpackPlugin({
-		template: path.join(__dirname, 'src', '_helper-docs', 'helperTemplate'),
-		filename: path.join(outputPath, 'guides', name+'.html'),
-		title: name.charAt(0).toUpperCase() + name.slice(1),
-		chunks: ['guides'],
-		content: content.html
-	})
-}
-
 let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
-
-buildConfig.plugins.unshift(generateHelperPlugin('creator'))
-buildConfig.plugins.unshift(generateHelperPlugin('player'))
 
 module.exports = buildConfig
 
