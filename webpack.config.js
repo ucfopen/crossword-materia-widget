@@ -42,10 +42,10 @@ const entries = {
 		path.join(__dirname, 'src', 'scoreScreen.html'),
 		path.join(__dirname, 'src', 'scoreScreen.scss')
 	],
-	'guides/player.tmp.html': [
+	'guides/player.temp.html': [
 		path.join(__dirname, 'src', '_guides', 'player.md')
 	],
-	'guides/creator.tmp.html': [
+	'guides/creator.temp.html': [
 		path.join(__dirname, 'src', '_guides', 'creator.md')
 	]
 }
