@@ -45,7 +45,7 @@ describe('Creator', () => {
 
 	test('initExistingWidget sets up environment correctly', () => {
 		var demo = require('./demo.json')
-		var $scope = { 
+		var $scope = {
 				$apply: jest.fn().mockImplementation(fn => {
 					if(angular.isFunction(fn)) fn()
 				}),
@@ -76,7 +76,7 @@ describe('Creator', () => {
 
 	test('onSaveClicked saves correctly', () => {
 		var demo = require('./demo.json')
-		var $scope = { 
+		var $scope = {
 			$apply: jest.fn().mockImplementation(fn => {
 				if(angular.isFunction(fn)) fn()
 			}),
