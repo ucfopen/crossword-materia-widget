@@ -25,7 +25,7 @@
 				class='header'>
 				<div class='logo'></div>
 				<h1 id='title' aria-describedby='widget-reader' tabindex='1'></h1>
-				<div id='title-instructions' class='reader-instructions'>Use the Tab key to select the list of clues.</div>
+				<div id='title-instructions' class='reader-instructions'>Use the Tab key to select the list of clues. Press the Return or Enter key to receive a full list of keyboard instructions.</div>
 				<div id='keyboard-instructions'
 					class='invisible-until-focused button'
 					aria-labelledby='title-instructions'
@@ -110,10 +110,15 @@
 
 			<div id='backgroundcover' class='fade'>
 				<div id='alertbox'
-					aria-labelledby='alertcaption alert-instructions'
+					aria-labelledby='alertcaption alert-reader alert-instructions'
+					aria-live='polite'
 					tabindex='5'>
 					<div id='alertcaption'></div>
-					<div id='alert-instructions' class='reader-instructions'>Use the Escape key to cancel or the Return or Enter key to confirm.</div>
+					<div id='alert-reader' class='reader-instructions'></div>
+					<div id='alert-instructions' class='reader-instructions'>
+						Use the Escape key to cancel or the Return or Enter key to confirm.
+						Press the R key to repeat.
+					</div>
 					<input id='cancelbtn'
 						aria-label='Cancel.'
 						class='cancel button'

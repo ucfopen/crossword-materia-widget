@@ -66,9 +66,9 @@ Namespace('Crossword').Engine = do ->
 		'While a clue is selected, Press the H key to receive a hint and reduce the value of a correct answer to that clue.'
 		'While a clue is selected, Press the F key to use a free word and have that clue\'s letter tiles in the letter grid filled in automatically.'
 		'While a clue is selected, Press the Return or Enter key to select the first letter tile for that clue in the letter grid.'
-		'While the letter grid is selected, Use the Up, Down, Left, and Right arrow keys inside the letter grid to navigate between letter tiles.'
-		'Press the Return or Enter key to automatically move to the first letter tile of the next clue.'
-		'Press the Tab key to return the clue list.'
+		'While the letter grid is selected, use the Up, Down, Left, and Right arrow keys inside the letter grid to navigate between letter tiles.'
+		'While the letter grid is selected, press the Return or Enter key to automatically move to the first letter tile of the next clue.'
+		'While the letter grid is selected, press the Tab key to return to the clue list.'
 		'Press the Escape key to cancel or the Return or Enter key to confirm during prompts like this one.'
 	]
 
@@ -192,9 +192,17 @@ Namespace('Crossword').Engine = do ->
 		$('#alertbox').keyup (e) ->
 			switch e.keyCode
 				when 13 #enter
-					$('#okbtn').click();
+					$('#okbtn').click()
 				when 27 #escape
-					$('#cancelbtn').click();
+					$('#cancelbtn').click()
+				when 82 #r
+					$('#alert-reader').html ''
+					regex = new RegExp(/<br\/?>/, 'g')
+					formattedKeyboardHelp = $('#alertcaption').html().replace(regex, ' ')
+					formattedKeyboardHelp += ' Use the Escape key to cancel or the Return or Enter key to confirm. ' +
+						'Press the R key to repeat.'
+					$('#alert-reader').html formattedKeyboardHelp
+					$('#alertbox').focus()
 
 		$('#keyboard-instructions').keyup (e) ->
 			if e.keyCode is 13 or e.keyCode is 32
@@ -822,7 +830,7 @@ Namespace('Crossword').Engine = do ->
 				_checkIfDone()
 			else #any letter
 				if keyEvent && keyEvent.key
-					letterTyped = keyEvent.key.toUpperCase();
+					letterTyped = keyEvent.key.toUpperCase()
 				else
 					letterTyped = String.fromCharCode(keyEvent.keyCode)
 				# a letter was typed, move onto the next letter or override if this is the last letter
