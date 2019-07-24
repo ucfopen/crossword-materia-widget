@@ -189,7 +189,7 @@ Namespace('Crossword').Engine = do ->
 		$('#checkBtn').click ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
 
-		$('#alertbox').keyup (e) ->
+		$('#alertbox').keydown (e) ->
 			switch e.keyCode
 				when 13 #enter
 					$('#okbtn').click()
