@@ -222,21 +222,33 @@ html, body {
 	font-size: 19px;
 	font-family: 'Delius Unicase';
 	text-align: center;
-	background: #fff;
+	background: #FFF;
 
 	margin: 0;
 
 	color: transparent;
 	text-shadow: 0 0 0 black;
+
+	&.locked {
+		background: #E3E4E4;
+		&.focus {
+			background: #838B96;
+		}
+		&.highlight:not(.focus) {
+			background: #CED4DA;
+		}
+	}
+
+	&.highlight {
+		border: solid 1px #6E7DA3;
+		background: #E5F3FF;
+	}
+
+	&.focus {
+		background: #AECEFF;
+	}
 }
 
-.letter.highlight {
-	border: solid 1px #6E7DA3;
-	background: #E5F3FF;
-}
-.letter.focus {
-	background: #AECEFF;
-}
 
 #controls {
 	overflow-y: hidden;
@@ -313,6 +325,10 @@ html, body {
 	background: #C5C5C5;
 	border:0;
 	cursor: pointer;
+
+	&.removed{
+		display: none;
+	}
 
 	&.disabled{
 		opacity: 0.5;
@@ -399,41 +415,51 @@ input {
 }
 
 #backgroundcover {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+
 	position: fixed;
-	top: 0px;
-	right: 0px;
-	bottom: 0px;
-	left: 0px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 9999;
 
 	max-height: 592;
 	max-width: 715;
 
-	background: #000;
-	z-index: -5;
+	background: rgba(0, 0, 0, 0.5);
+
+	pointer-events: none;
 	opacity: 0;
 
 	&.show {
-		opacity: 0.5;
-		z-index: 9999;
+		opacity: 1;
+		pointer-events: all;
 	}
 }
 
 #alertbox {
-	width: 300px;
-	left: 50%;
-	top: 49%;
-	margin-left: -250px;
-	margin-top: -50px;
+	display: block;
+	margin: 0 auto;
+	min-width: 300px;
+	max-width: 500px;
 	padding: 15px;
-	position: absolute;
 	background: #fff;
 	border: solid 1px #999;
 	border-radius: 0px;
-	z-index: 10000;
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 	text-align: center;
-	opacity: 0;
-	z-index: -5;
+
+	#alertcaption {
+		text-align: left;
+
+		br {
+			display: block;
+			height: 3px;
+		}
+	}
 
 	.button {
 		margin: 20px 10px 10px;
@@ -449,16 +475,11 @@ input {
 			color:white
 		}
 	}
-
-	&.show {
-		opacity: 1;
-		z-index: 10000;
-	}
 }
 
 .fade {
-	-webkit-transition: all 0.2s ease;
-	transition: all 0.2s ease;
+	-webkit-transition: opacity 0.2s ease;
+	transition: opacity 0.2s ease;
 }
 
 .arrow_box {
@@ -524,4 +545,28 @@ input {
 	text-align: center;
 	display: inline-block;
 	margin-right: 20px;
+}
+
+.reader-instructions {
+	position: absolute;
+	margin: -1px;
+	border: 0;
+	padding: 0;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+}
+
+.invisible-until-focused {
+	opacity: 0;
+	position: absolute;
+	right: 50%;
+	top: 70px;
+	text-align: center;
+	pointer-events: none;
+	display: block;
+}
+.invisible-until-focused:focus {
+	opacity: 1;
 }
