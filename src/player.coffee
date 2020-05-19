@@ -345,7 +345,6 @@ Namespace('Crossword').Engine = do ->
 				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
 				letterElement.classList.add 'letter'
 				letterElement.setAttribute 'tabindex', '-1'
-				letterElement.setAttribute 'readonly', true
 				letterElement.setAttribute 'aria-describedby', 'board-reader'
 				letterElement.setAttribute 'aria-hidden', true
 				letterElement.setAttribute 'data-q', i
