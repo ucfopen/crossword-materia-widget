@@ -1,7 +1,6 @@
 ---
 general:
   name: Crossword
-  group: Materia
   height: 592
   width: 715
   in_catalog: Yes
