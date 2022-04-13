@@ -834,6 +834,10 @@ Namespace('Crossword').Engine = do ->
 					letterTyped = String.fromCharCode(keyEvent.keyCode)
 				# a letter was typed, move onto the next letter or override if this is the last letter
 				if letterElement?
+					if letterTyped == ' '
+						# disallow spaces from being entered
+						keyEvent.preventDefault()
+
 					if !_isGuessable(letterTyped)
 						_highlightPuzzleLetter()
 						return
