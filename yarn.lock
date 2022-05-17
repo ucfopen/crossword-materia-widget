@@ -1044,6 +1044,11 @@ angular-mocks@1.6.9:
   resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.6.9.tgz#4fed8c8293a5080e0919a7ff0dcf0f704864b7ba"
   integrity sha512-5aEwXmfd5DQvb64pOgP2W2D3ozAQSARkB6q+6NQfUJvJs9bD2YcExrUc1P4EbiIuyWag2OQM+pIKUNojVi3SBg==
 
+angular-mocks@1.8.3:
+  version "1.8.3"
+  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.8.3.tgz#c0dd05e5c3fc014e07af6289b23f0e817d7a4724"
+  integrity sha512-vqsT6zwu80cZ8RY7qRQBZuy6Fq5X7/N5hkV9LzNT0c8b546rw4ErGK6muW1u2JnDKYa7+jJuaGM702bWir4HGw==
+
 angular@1.6.9:
   version "1.6.9"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.9.tgz#bc812932e18909038412d594a5990f4bb66c0619"
@@ -6079,7 +6084,6 @@ next-tick@^1.1.0:
 
 ngmodal@ucfcdl/ngModal#v1.2.2:
   version "1.2.2"
-  uid "6abad982bdb8f258ffcdc20316a907c2292399d2"
   resolved "https://codeload.github.com/ucfcdl/ngModal/tar.gz/6abad982bdb8f258ffcdc20316a907c2292399d2"
 
 nice-try@^1.0.4:
