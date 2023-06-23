@@ -20,57 +20,48 @@
 	</head>
 
 	<body>
-		<div role="application">
-			<div id='widget-header'
-				class='header'>
+		<div class='application'>
+			<div id='assistive-notification' class='reader-instructions' aria-live='polite'></div>
+			<header id='widget-header' class='header'>
 				<div class='logo'></div>
-				<h1 id='title' aria-describedby='widget-reader' tabindex='1'></h1>
-				<div id='title-instructions' class='reader-instructions'>Use the Tab key to select the list of clues. Press the Return or Enter key to receive a full list of keyboard instructions.</div>
-				<div id='keyboard-instructions'
-					class='invisible-until-focused button'
-					aria-labelledby='title-instructions'
-					tabindex='2'>
-					Keyboard Instructions
-				</div>
-				<div id='printbtn'
-					class='icon-print'
-					title='Print'
-					aria-label='Print. Press the Enter key to produce a printout for this Crossword puzzle.'
-					tabindex='6'></div>
-				<div id='zoomout'
-					class='icon-zoomout'
-					title='Zoom Out'
-					aria-label='Zoom Out. Press the Enter key to select the letter grid.'
-					tabindex='7'></div>
-				<div class='submitholder'>
-					<div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div>
-					<input id='checkBtn'
+				<h1 id='title'></h1>
+				<button id='submit' class='button submit'>Submit Answers</button>
+					<!-- <div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div> -->
+					<!-- <input id='checkBtn'
 						type='button'
 						class='submit button'
-						value='Submit Answers'
-						aria-describedby='submit-progress-reader'
-						tabindex='4'>
-				</div>
+						value='Submit Answers'> -->
+				</button>
+			</header>
+			<!-- <div id='board-reader' class='reader-instructions' aria-live='polite'></div> -->
+			<div id='options' role='toolbar'>
+				<button id='printbtn'
+					class='icon-print'
+					title='Print'
+					aria-label='Print. Press the Enter key to produce a printout for this Crossword puzzle.'>
+				</button>
+				<button id='zoomout'
+					class='icon-zoomout'
+					title='Zoom Out'
+					aria-label='Zoom Out. Press the Enter key to select the letter grid.'>
+				</button>
 			</div>
-			<div id='board-reader' class='reader-instructions' aria-live='polite'></div>
-			<div id="board" class="screen board"
-				aria-describedby='board-reader'>
+			<div id='board' class="screen board">
+				<div id='board-info' class='assistive-element'>
+					Crossword game board selected.
+					Use tab and shift-tab to navigate between character spaces within a word.
+					Use left and right arrow keys to cycle between words. Use the down arrow to select the hint and free word buttons sequentially,
+					and the up arrow to return focus to the game board.</div>
 				<div id="movable-container">
-					<div id='movable' class='crossword-board'></div>
+					<div id='movable' class='crossword-board' role='application' aria-describedby='board-info' tabindex='0'></div>
 				</div>
 			</div>
 
-			<div id='clue-reader' class='reader-instructions' aria-live='polite'></div>
-			<div id='clues'
-				role='list'
-				aria-describedby='clue-reader'
-				tabindex='3'>
+			<ul id='clues' role='list' aria-describedby='clue-reader'>
 				<span style='display:none'>Clues</span>
-			</div>
+			</ul>
 
-			<div id='controlbar'
-				tabindex='-1'
-				aria-hidden>
+			<div id='controlbar' aria-hidden>
 				<span id='freeWordsRemaining'>
 				</span>
 			</div>
@@ -108,7 +99,7 @@
 				</div>
 			</div>
 
-			<div id='backgroundcover' class='fade'>
+			<!-- <div id='backgroundcover' class='fade'>
 				<div id='alertbox'
 					aria-labelledby='alertcaption alert-reader alert-instructions'
 					aria-live='polite'
@@ -131,21 +122,25 @@
 						class='submit button'
 						aria-describedby='submit-progress-reader'>
 				</div>
-			</div>
+			</div> -->
 
 			<div id='t_hints' style='display:none' class="clue">
-				<em data-i='{{i}}'>{{hintPrefix}}:</em><br>
-				{{question}}<br>
-				<div id='hintbtn_{{i}}'
+				<em data-i='{{i}}'>{{hintPrefix}}:</em>
+				<span class='clue-text' id='cluetext_{{i}}' data-i='{{i}}'>
+					{{question}}
+				</span>
+				<button id='hintbtn_{{i}}'
 					class='hint button'
 					data-i='{{i}}'
 					data-dir='{{dir}}'
-					aria-hidden>Hint</div>
-				<div id='freewordbtn_{{i}}'
+					tabindex='-1'
+					aria-hidden>Hint</button>
+				<button id='freewordbtn_{{i}}'
 					class='free-word button'
 					data-i='{{i}}'
 					data-dir='{{dir}}'
-					aria-hidden>Free word</div>
+					tabindex='-1'
+					aria-hidden>Free word</button>
 				<span class='hintspot' id='hintspot_{{i}}'></span>
 			</div>
 			<div class="arrow_box">Click to finish</div>

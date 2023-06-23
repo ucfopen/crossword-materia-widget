@@ -41,12 +41,16 @@ $lightgreen:#6BBC68;
 }
 
 html, body {
-	cursor: default;
+	width: 100%;
+	height: 100%;
+	
 	background: #eeedee;
 	padding: 0;
 	margin: 0;
 
 	overflow: hidden;
+
+	cursor: default;
 
 	font-family: 'Roboto Slab', serif;
 
@@ -57,18 +61,163 @@ html, body {
 	user-select: none;
 }
 
-#board {
-	position: fixed;
-	display: block;
-	left: 0px;
-	top: 0px;
-	right: 0px;
-	bottom: 0px;
+.application {
+	position: relative;
+	width: 100%;
+	height: 100%;
 
-	max-height: 592;
-	max-width: 715;
+	.button{
+		position: relative;
+		color: #fff;
+		margin: 10px 0px;
+		margin-right: 4px;
+		padding: 4px 8px;
+		display: inline-block;
+		background: #C5C5C5;
+		border: solid 2px rgba(0,0,0,0);
+		cursor: pointer;
 
-	overflow: hidden;
+		&:focus {
+			border: solid 2px #fff;
+			border-radius: 2px;
+		}
+	
+		&.removed{
+			display: none;
+		}
+	
+		&.disabled{
+			opacity: 0.5;
+			cursor: default !important;
+		}
+	
+		&.hidden {
+			opacity: 0;
+			cursor: default;
+		}
+	
+		&.submit{
+			background: $green;
+			font-family: 'Roboto Slab', sans-serif;
+		}
+	
+		&.cancel{
+			background: white;
+			color:#333;
+		}
+	}
+
+	.header {
+		display: block;
+		display: flex;
+		flex-direction: row;
+		top: 0;
+		z-index: 5;
+		width: 100%;
+		height: 60px;
+		background: #333333;
+		color: #fff;
+	
+		border-bottom: solid 1px #333;
+	
+		.logo {
+			display: block;
+			background: url(assets/materialogo.png) no-repeat;
+			width: 60px;
+			height: 50px;
+			margin-left: 17px;
+			margin-top: 16px;
+		}
+	
+		h1 {
+			line-height: 65px;
+			flex-grow: 2;
+			// width: 77%;
+			height: 60px;
+			margin: 0 0 0 12px;
+			padding: 0;
+			overflow: hidden;
+			font-size: 28px;
+			font-family: 'Roboto Slab';
+			font-weight: 300;
+			span {
+				display: inline-block;
+				line-height: normal;
+				vertical-align: middle;
+			}
+		}
+
+		button.submit {
+			margin-right: 24px;
+		}
+
+		
+	}
+
+	#options {
+		position: relative;
+		.icon-print, .icon-zoomin, .icon-zoomout {
+			position: absolute;
+			right: 204px;
+			z-index: 100;
+
+			color: #999;
+
+			font-family: 'icomoon';
+			font-size: 20px;
+			// speak: none;
+			font-style: normal;
+			font-weight: normal;
+			font-variant: normal;
+			text-transform: none;
+			
+			line-height: 1;
+			-webkit-font-smoothing: antialiased;
+			transition: color 0.2s ease;
+	
+			cursor: pointer;
+	
+			&:hover {
+				color: #444;
+			}
+
+			&:focus {
+				color: #000;
+				// border: solid 1px #5163A6;
+			}
+		}
+		.icon-print {
+			top: 10px;
+			
+		}
+		.icon-zoomout {
+			top: 40px;
+		}
+	}
+
+	#board {
+		// position: fixed;
+		display: block;
+
+		width: 100%;
+		height: calc(100% - 61px);
+	
+		// max-height: 592;
+		// max-width: 715;
+	
+		overflow: hidden;
+
+		.crossword-board {
+			&:focus {
+				border: solid 1px #0000ff;
+			}
+		}
+
+	}
+}
+
+.assistive-element {
+	display: none;
 }
 
 #specialInput {
@@ -143,73 +292,10 @@ html, body {
 	content: '+';
 }
 
-.header {
-	position: fixed;
-	top: 0;
-	z-index: 5;
-	width: 100%;
-	height: 60px;
-	background: #333333;
-	color: #fff;
 
-	border-bottom: solid 1px #333;
 
-	.logo {
-		display: block;
-		background: url(assets/materialogo.png) no-repeat;
-		width: 60px;
-		height: 50px;
-		float: left;
-		margin-left: 17px;
-		margin-top: 16px;
-	}
+#options-buttons {
 
-	h1 {
-		line-height: 65px;
-		width: 77%;
-		height: 60px;
-		margin: 0;
-		margin-left: 83px;
-		padding: 0;
-		position: absolute;
-		overflow: hidden;
-		font-size: 28px;
-		font-family: 'Roboto Slab';
-		font-weight: 300;
-		span {
-			display: inline-block;
-			line-height: normal;
-			vertical-align: middle;
-		}
-	}
-	.icon-print, .icon-zoomin, .icon-zoomout {
-		font-size: 20px;
-		color: #999;
-		position: absolute;
-		right: 210px;
-
-		font-family: 'icomoon';
-		speak: none;
-		font-style: normal;
-		font-weight: normal;
-		font-variant: normal;
-		text-transform: none;
-		line-height: 1;
-		-webkit-font-smoothing: antialiased;
-		transition: color 0.2s ease;
-
-		cursor: pointer;
-
-		&:hover {
-			color: #444;
-		}
-	}
-	.icon-print {
-		top: 70px;
-	}
-	.icon-zoomout {
-		top: 100px;
-	}
 }
 
 .letter {
@@ -288,6 +374,10 @@ html, body {
 			margin-bottom: 10px;
 		}
 
+		.clue-text {
+			display: block;
+		}
+
 		.hintspot {
 			opacity: 0;
 			display: block;
@@ -308,6 +398,15 @@ html, body {
 				background:$green;
 				border-color:$green;
 				cursor: pointer;
+				
+				&:hover {
+					background: $lightgreen;
+					border-color:$lightgreen;
+				}
+
+				&:focus {
+					border-color: #fff;
+				}
 			}
 		}
 	}
@@ -315,40 +414,7 @@ html, body {
 }
 
 
-.button{
-	position: relative;
-	color: #fff;
-	margin: 10px 0px;
-	margin-right: 4px;
-	padding: 4px 8px;
-	display: inline-block;
-	background: #C5C5C5;
-	border:0;
-	cursor: pointer;
 
-	&.removed{
-		display: none;
-	}
-
-	&.disabled{
-		opacity: 0.5;
-		cursor: default !important;
-	}
-
-	&.hidden {
-		opacity: 0;
-		cursor: default;
-	}
-
-	&.submit{
-		background: $green;
-	}
-
-	&.cancel{
-		background: white;
-		color:#333;
-	}
-}
 
 
 input {
