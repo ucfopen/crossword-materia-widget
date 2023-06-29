@@ -40,6 +40,11 @@ Namespace('Crossword').Engine = do ->
 	_curClue              = 0
 	_curClueFocusDepth    = 0
 
+	# track number of questions complete - and which
+	# used to report status to assistive elements
+	_questionsComplete = new Map()
+	_completeCount = 0
+
 	# cache DOM elements for performance
 	_domCache             = {}
 	_boardDiv             = null # div containing the board
@@ -189,32 +194,32 @@ Namespace('Crossword').Engine = do ->
 		$('#zoomout').click _zoomOut
 		$('#zoomout').keyup (e) ->
 			if e.keyCode is 13 then _zoomOut()
-		$('#alertbox .button.cancel').click _hideAlert
-		$('#checkBtn').click ->
-			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
+		
+		_dom('alertbox').addEventListener 'click', _hideAlert
 
-		$('#alertbox').keydown (e) ->
-			switch e.keyCode
-				when 13 #enter
-					$('#okbtn').click()
-				when 27 #escape
-					$('#cancelbtn').click()
-				when 82 #r
-					$('#alert-reader').html ''
-					regex = new RegExp(/<br\/?>/, 'g')
-					formattedKeyboardHelp = $('#alertcaption').html().replace(regex, ' ')
-					formattedKeyboardHelp += ' Use the Escape key to cancel or the Return or Enter key to confirm. ' +
-						'Press the R key to repeat.'
-					$('#alert-reader').html formattedKeyboardHelp
-					$('#alertbox').focus()
+		# $('#alertbox').keydown (e) ->
+		# 	console.log e
+		# 	switch e.keyCode
+		# 		when 13 #enter
+		# 			$('#okbtn').click()
+		# 		when 27 #escape
+		# 			$('#cancelbtn').click()
+		# 		when 82 #r
+		# 			$('#alert-reader').html ''
+		# 			regex = new RegExp(/<br\/?>/, 'g')
+		# 			formattedKeyboardHelp = $('#alertcaption').html().replace(regex, ' ')
+		# 			formattedKeyboardHelp += ' Use the Escape key to cancel or the Return or Enter key to confirm. ' +
+		# 				'Press the R key to repeat.'
+		# 			$('#alert-reader').html formattedKeyboardHelp
+		# 			$('#alertbox').focus()
 
-		$('#keyboard-instructions').keyup (e) ->
-			if e.keyCode is 13 or e.keyCode is 32
-				formattedKeyboardHelp = ''
-				formattedKeyboardHelp += v + '<br/>' for i, v of KEYBOARD_HELP
-				_showAlert formattedKeyboardHelp, 'Okay', null, _hideAlert
+		# $('#keyboard-instructions').keyup (e) ->
+		# 	if e.keyCode is 13 or e.keyCode is 32
+		# 		formattedKeyboardHelp = ''
+		# 		formattedKeyboardHelp += v + '<br/>' for i, v of KEYBOARD_HELP
+		# 		_showAlert formattedKeyboardHelp, 'Okay', null, _hideAlert
 
-		$('#specialInputBody span').click ->
+		$('#specialInputBody li').click ->
 			spoof = $.Event('keydown')
 			spoof.which = this.innerText.charCodeAt(0)
 			spoof.keyCode = this.innerText.charCodeAt(0)
@@ -224,6 +229,9 @@ Namespace('Crossword').Engine = do ->
 			$('#specialInput').toggleClass 'down up'
 
 		_dom('movable').addEventListener 'focus', _boardFocusHandler
+
+		_dom('submit').addEventListener 'click', () ->
+			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
 
 		if _isMobile
 			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
@@ -235,13 +243,6 @@ Namespace('Crossword').Engine = do ->
 			document.addEventListener 'mouseup', _mouseUpHandler
 
 			$('#clues').keydown _clueKeyDownHandler
-			$('#clues').focus _cluesFocused
-
-	_reportBoardStatus = () ->
-		console.log 'curClue: ' + _curClue
-		console.log 'curDir: ' + _curDir
-		console.log 'currentLetter:'
-		console.log _curLetter
 
 	_assistiveNotification = (text) ->
 		_dom('assistive-notification').innerHTML = text
@@ -308,6 +309,8 @@ Namespace('Crossword').Engine = do ->
 		$('#title').html title
 		$('#title').css 'font-size', 25 - (title.length / 8) + 'px'
 
+		document.title = 'Crossword Materia widget: ' + title
+
 		# used to track the maximum dimensions of the puzzle
 		_top = 0
 
@@ -363,8 +366,8 @@ Namespace('Crossword').Engine = do ->
 				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
 				letterElement.classList.add 'letter'
 				letterElement.setAttribute 'tabindex', '-1'
+				letterElement.setAttribute 'aria-label', 'Character position ' + (l + 1) + ' of ' + _getInteractiveLetterCount(letters)
 				letterElement.setAttribute 'aria-describedby', 'cluetext_' + i
-				# letterElement.setAttribute 'aria-hidden', true
 				letterElement.setAttribute 'data-q', i
 				letterElement.setAttribute 'data-dir', dir
 				letterElement.onclick = _letterClicked
@@ -385,10 +388,19 @@ Namespace('Crossword').Engine = do ->
 
 				_boardDiv.append letterElement
 
+			_questionsComplete.set ~~i, false
+			_dom('submit-status').innerHTML = '' + _completeCount + ' of ' + _questions.length + ' completed.' 
+
 			_questions[i].locations = locationList
 
 		# Select the first clue
 		_clueMouseUp {target: $('#clue_0')[0]}
+
+	_getInteractiveLetterCount = (word) ->
+		interactive = word.map (letter) ->
+			if letter isnt '-' and letter isnt ' ' then return letter
+		
+		interactive.length
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
@@ -495,7 +507,7 @@ Namespace('Crossword').Engine = do ->
 				clue = _dom('clue_'+index)
 				_curClue = index
 
-			# _curClue = clue.getAttribute('data-i')
+			_curClue = clue.getAttribute('data-i')
 
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
@@ -511,6 +523,22 @@ Namespace('Crossword').Engine = do ->
 			$('#clues').stop true
 			$('#clues').animate scrollTop: scrolly, 150
 
+	_updateCompleteCount = () ->
+		count = 0
+		for question, i in _questions
+			missing = false
+			for index in Object.keys question.locations
+				location = question.locations[index]
+				if _dom("letter_#{location.x}_#{location.y}").value == '' then missing = true
+			
+			unless missing
+				_questionsComplete.set ~~i, true
+				count++
+		
+		if count isnt _completeCount
+			_completeCount = count
+			_dom('submit-status').innerHTML = '' + _completeCount + ' of ' + _questions.length + ' completed.' 
+
 	_nextLetter = (direction) ->
 		if direction == VERTICAL
 			_curLetter.y++
@@ -525,9 +553,7 @@ Namespace('Crossword').Engine = do ->
 
 	_clueKeyDownHandler = (keyEvent) ->
 		preventDefault = true
-
-		highlightedClue = $(".clue.highlight")
-		questionIndex = ~~highlightedClue.attr("data-i")
+		questionIndex = _curClue
 
 		switch keyEvent.key
 			when 'ArrowUp'
@@ -596,207 +622,219 @@ Namespace('Crossword').Engine = do ->
 					_curClueFocusDepth = 0
 					_dom('letter_' + _curLetter.x + '_' + _curLetter.y).focus()
 					_highlightPuzzleLetter()
+					_assistiveNotification 'Focus returned to game board for question ' + (index + 1) + '.'
 				when 2
 					_curClueFocusDepth = 1
-					_dom('hintbtn_' + index).focus()
+					if _dom('hintbtn_' + index).hasAttribute('disabled')
+						_assistiveNotification 'Hint button unavailable for question ' + (index + 1) + '.'
+					else
+						_dom('hintbtn_' + index).focus()
+						_assistiveNotification 'Hint button selected for question ' + (index + 1) + '.'
 		else if direction is 'down'
 			switch _curClueFocusDepth
 				when 0
 					_curClueFocusDepth = 1
-					_dom('hintbtn_' + index).focus()
+					if _dom('hintbtn_' + index).hasAttribute('disabled')
+						_assistiveNotification 'Hint button unavailable for question ' + (index + 1) + '.'
+					else
+						_dom('hintbtn_' + index).focus()
+						_assistiveNotification 'Hint button selected for question ' + (index + 1) + '.'
 				when 1
 					_curClueFocusDepth = 2
-					_dom('freewordbtn_' + index).focus()
+					if _dom('freewordbtn_' + index).hasAttribute('disabled')
+						_assistiveNotification 'Free Word button unavailable for question ' + (index + 1) + '.'
+					else
+						_dom('freewordbtn_' + index).focus()
+						_assistiveNotification 'Free Word button selected for question ' + (index + 1) + '. You have ' + _freeWordsRemaining + ' free words remaining.'
 				when 2 then return
 
-	_cluesFocused = (e) ->
-		e.preventDefault()
-		_dom('clue-reader').innerHTML = ''
-		_updateClueReader()
+	# _cluesFocused = (e) ->
+	# 	e.preventDefault()
+	# 	_dom('clue-reader').innerHTML = ''
+	# 	# _updateClueReader()
 
-	_checkCurrentClueCompletion = ->
-		question = _questions[_curClue]
+	# _checkCurrentClueCompletion = ->
+	# 	question = _questions[_curClue]
+	# 	missing = null
 
-		missing = null
+	# 	for index in Object.keys question.locations
+	# 		location = question.locations[index]
+	# 		missing = location.index + 1 if _dom("letter_#{location.x}_#{location.y}").value == ''
 
-		for index in Object.keys question.locations
-			location = question.locations[index]
-			missing = location.index + 1 if _dom("letter_#{location.x}_#{location.y}").value == ''
+	# 	completionText = ''
 
-		completionText = ''
+	# 	if missing
+	# 		completionText = question.prefix + ' is missing a letter in position ' + missing + '.'
+	# 	else
+	# 		completionText = 'All letters have all been filled in for word ' + question.prefix + '.'
 
-		if missing
-			completionText = question.prefix + ' is missing a letter in position ' + missing + '.'
-		else
-			completionText = 'All letters have all been filled in for word ' + question.prefix + '.'
+	# 	_dom('clue-reader').innerHTML = completionText
 
-		_dom('clue-reader').innerHTML = completionText
+	# _changeSelectedClue = (up) ->
+	# 	target = {target: $('#clue_'+_curClue)[0]}
+	# 	_clueMouseOut target
 
-	_changeSelectedClue = (up) ->
-		target = {target: $('#clue_'+_curClue)[0]}
-		_clueMouseOut target
+	# 	if up
+	# 		_curClue--
+	# 		if _curClue < 0 then _curClue = _questions.length - 1
+	# 	else
+	# 		_curClue++
+	# 		if _curClue >= _questions.length then _curClue = 0
 
-		if up
-			_curClue--
-			if _curClue < 0 then _curClue = _questions.length - 1
-		else
-			_curClue++
-			if _curClue >= _questions.length then _curClue = 0
+	# 	target = {target: $('#clue_'+_curClue)[0]}
+	# 	_clueMouseOver target
+		# _updateClueReader()
 
-		target = {target: $('#clue_'+_curClue)[0]}
-		_clueMouseOver target
-		_updateClueReader()
+	# _getLettersFilledInForClue = (question) ->
+	# 	enteredLettersText = ''
+	# 	for location, info of question.locations
+	# 		letter = _checkLetterInLocation info.x, info.y
+	# 		if letter
+	# 			enteredLettersText += ' ' + letter + '. '
+	# 		else
+	# 			enteredLettersText += 'Blank. '
+	# 	enteredLettersText
 
-	_getLettersFilledInForClue = (question) ->
-		enteredLettersText = ''
-		for location, info of question.locations
-			letter = _checkLetterInLocation info.x, info.y
-			if letter
-				enteredLettersText += ' ' + letter + '. '
-			else
-				enteredLettersText += 'Blank. '
-		enteredLettersText
+	# _fullClueText = (clueId = false) ->
+	# 	clueId = _curClue unless clueId
+	# 	clue = _questions[clueId]
 
-	_fullClueText = (clueId = false) ->
-		clueId = _curClue unless clueId
-		clue = _questions[clueId]
+	# 	clueText = 'Word ' + (clueId + 1) + ' of ' + _questions.length + '. '
+	# 	clueText += clue.prefix + '. '
+	# 	clueText += clue.answers[0].text.length + ' letters. '
+	# 	clueText += 'Clue is. ' + _ensurePeriod clue.questions[0].text
 
-		clueText = 'Word ' + (clueId + 1) + ' of ' + _questions.length + '. '
-		clueText += clue.prefix + '. '
-		clueText += clue.answers[0].text.length + ' letters. '
-		clueText += 'Clue is. ' + _ensurePeriod clue.questions[0].text
+	# 	if _usedHints[clueId]
+	# 		combinedClueText += 'Hint. ' + _ensurePeriod clue.options.hint
 
-		if _usedHints[clueId]
-			combinedClueText += 'Hint. ' + _ensurePeriod clue.options.hint
+	# 	clueText
 
-		clueText
+	# _getClueForCurrentLetter = ->
+	# 	letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+	# 	location = "" + _curLetter.x + _curLetter.y
 
-	_getClueForCurrentLetter = ->
-		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		location = "" + _curLetter.x + _curLetter.y
+	# 	combinedClueText = ''
 
-		combinedClueText = ''
+	# 	#figure out where the current position is and whether it's part of multiple words or not
+	# 	if _wordIntersections[location]
+	# 		combinedClueText = 'Character is in two words. '
 
-		#figure out where the current position is and whether it's part of multiple words or not
-		if _wordIntersections[location]
-			combinedClueText = 'Character is in two words. '
+	# 		qi1 = _wordIntersections[location][0] - 1
+	# 		qi2 = _wordIntersections[location][1] - 1
+	# 		c1 = _fullClueText qi1
+	# 		c2 = _fullClueText qi2
+	# 		combinedClueText += ' Word one. ' + c1 + '. '
+	# 		combinedClueText += ' Word two. ' + c2 + '. '
+	# 	else
+	# 		qi = letterElement.getAttribute 'data-q'
+	# 		combinedClueText = _fullClueText qi
 
-			qi1 = _wordIntersections[location][0] - 1
-			qi2 = _wordIntersections[location][1] - 1
-			c1 = _fullClueText qi1
-			c2 = _fullClueText qi2
-			combinedClueText += ' Word one. ' + c1 + '. '
-			combinedClueText += ' Word two. ' + c2 + '. '
-		else
-			qi = letterElement.getAttribute 'data-q'
-			combinedClueText = _fullClueText qi
+	# 	combinedClueText
 
-		combinedClueText
+	# _getWordPositionForCurrentLetter = ->
+	# 	letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+	# 	location = "" + _curLetter.x + _curLetter.y
 
-	_getWordPositionForCurrentLetter = ->
-		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		location = "" + _curLetter.x + _curLetter.y
+	# 	#figure out where the current position is and whether it's part of multiple words or not
+	# 	if _wordIntersections[location]
+	# 		qi1 = _wordIntersections[location][0] - 1
+	# 		qi2 = _wordIntersections[location][1] - 1
+	# 		q1 = _questions[qi1]
+	# 		q2 = _questions[qi2]
+	# 		p1 = q1.locations[location].index + 1
+	# 		p2 = q2.locations[location].index + 1
+	# 		locationMessage = ' Intersection of '
+	# 		locationMessage += 'word ' + q1.prefix + '. Character ' + p1 + ' of ' + q1.answers[0].text.length
+	# 		locationMessage += ' and word ' + q2.prefix + '. Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
+	# 	else
+	# 		question = _questions[letterElement.getAttribute('data-q')]
+	# 		position = question.locations[location].index + 1
+	# 		locationMessage = question.prefix + '. '
+	# 		locationMessage += ' Character ' + position + ' of ' + question.answers[0].text.length + '. '
 
-		#figure out where the current position is and whether it's part of multiple words or not
-		if _wordIntersections[location]
-			qi1 = _wordIntersections[location][0] - 1
-			qi2 = _wordIntersections[location][1] - 1
-			q1 = _questions[qi1]
-			q2 = _questions[qi2]
-			p1 = q1.locations[location].index + 1
-			p2 = q2.locations[location].index + 1
-			locationMessage = ' Intersection of '
-			locationMessage += 'word ' + q1.prefix + '. Character ' + p1 + ' of ' + q1.answers[0].text.length
-			locationMessage += ' and word ' + q2.prefix + '. Character ' + p2 + ' of ' + q2.answers[0].text.length + '. '
-		else
-			question = _questions[letterElement.getAttribute('data-q')]
-			position = question.locations[location].index + 1
-			locationMessage = question.prefix + '. '
-			locationMessage += ' Character ' + position + ' of ' + question.answers[0].text.length + '. '
+	# 	currentLetter = letterElement.value
+	# 	currentLetter = 'Empty' if not currentLetter
+	# 	locationMessage += ' Current value. ' + currentLetter + '. '
+	# 	if letterElement.getAttribute('data-locked')?
+	# 		locationMessage += ' This tile is locked and the value will not be changed. '
 
-		currentLetter = letterElement.value
-		currentLetter = 'Empty' if not currentLetter
-		locationMessage += ' Current value. ' + currentLetter + '. '
-		if letterElement.getAttribute('data-locked')?
-			locationMessage += ' This tile is locked and the value will not be changed. '
+	# 	locationMessage
 
-		locationMessage
+	# _describeLocationForCurrentLetter = ->
+	# 	# describe the letter's location and current value
+	# 	combinedLocationText = 'Current location. ' + _getWordPositionForCurrentLetter()
+	# 	# also describe the letters in adjacent cells
+	# 	above = _checkLetterInLocation _curLetter.x, _curLetter.y - 1
+	# 	left  = _checkLetterInLocation _curLetter.x - 1, _curLetter.y
+	# 	right = _checkLetterInLocation _curLetter.x + 1, _curLetter.y
+	# 	below = _checkLetterInLocation _curLetter.x, _curLetter.y + 1
 
-	_describeLocationForCurrentLetter = ->
-		# describe the letter's location and current value
-		combinedLocationText = 'Current location. ' + _getWordPositionForCurrentLetter()
-		# also describe the letters in adjacent cells
-		above = _checkLetterInLocation _curLetter.x, _curLetter.y - 1
-		left  = _checkLetterInLocation _curLetter.x - 1, _curLetter.y
-		right = _checkLetterInLocation _curLetter.x + 1, _curLetter.y
-		below = _checkLetterInLocation _curLetter.x, _curLetter.y + 1
+	# 	if above then combinedLocationText += ' Character above. ' + above + '. '
+	# 	if left then combinedLocationText += ' Character left. ' + left + '. '
+	# 	if right then combinedLocationText += ' Character right. ' + right + '. '
+	# 	if below then combinedLocationText += ' Character below. ' + below + '. '
 
-		if above then combinedLocationText += ' Character above. ' + above + '. '
-		if left then combinedLocationText += ' Character left. ' + left + '. '
-		if right then combinedLocationText += ' Character right. ' + right + '. '
-		if below then combinedLocationText += ' Character below. ' + below + '. '
+	# 	combinedLocationText
 
-		combinedLocationText
+	# _describeLettersAlreadyEnteredForCurrentLetterWord = ->
+	# 	#first - get the word or words the current letter space is in
+	# 	letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+	# 	location = "" + _curLetter.x + _curLetter.y
 
-	_describeLettersAlreadyEnteredForCurrentLetterWord = ->
-		#first - get the word or words the current letter space is in
-		letterElement = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-		location = "" + _curLetter.x + _curLetter.y
+	# 	enteredLettersText = ''
 
-		enteredLettersText = ''
+	# 	#figure out where the current position is and whether it's part of multiple words or not
+	# 	if _wordIntersections[location]
+	# 		qi1 = _wordIntersections[location][0] - 1
+	# 		qi2 = _wordIntersections[location][1] - 1
+	# 		q1 = _questions[qi1]
+	# 		q2 = _questions[qi2]
+	# 		enteredLettersText = 'Letters entered for ' + q1.prefix + '. '
+	# 		enteredLettersText += _getLettersFilledInForClue q1
+	# 		enteredLettersText += 'Letters entered for ' + q2.prefix + '. '
+	# 		enteredLettersText += _getLettersFilledInForClue q2
+	# 	else
+	# 		question = _questions[letterElement.getAttribute('data-q')]
+	# 		enteredLettersText = 'Letters entered for ' + question.prefix + '. '
+	# 		enteredLettersText += _getLettersFilledInForClue question
 
-		#figure out where the current position is and whether it's part of multiple words or not
-		if _wordIntersections[location]
-			qi1 = _wordIntersections[location][0] - 1
-			qi2 = _wordIntersections[location][1] - 1
-			q1 = _questions[qi1]
-			q2 = _questions[qi2]
-			enteredLettersText = 'Letters entered for ' + q1.prefix + '. '
-			enteredLettersText += _getLettersFilledInForClue q1
-			enteredLettersText += 'Letters entered for ' + q2.prefix + '. '
-			enteredLettersText += _getLettersFilledInForClue q2
-		else
-			question = _questions[letterElement.getAttribute('data-q')]
-			enteredLettersText = 'Letters entered for ' + question.prefix + '. '
-			enteredLettersText += _getLettersFilledInForClue question
-
-		enteredLettersText
+	# 	enteredLettersText
 
 	_checkLetterInLocation = (x, y) ->
 		letterElement = _dom("letter_#{x}_#{y}")
 		if letterElement?.value then letterElement.value else null
 
-	_updateClueReader = ->
-		$('#clues .highlight').removeClass 'highlight'
-		clueElement = _dom('clue_'+_curClue)
-		clueElement.classList.add 'highlight'
+	# _updateClueReader = ->
+	# 	$('#clues .highlight').removeClass 'highlight'
+	# 	clueElement = _dom('clue_'+_curClue)
+	# 	clueElement.classList.add 'highlight'
 
-		combinedClueText = _fullClueText()
+	# 	combinedClueText = _fullClueText()
 
-		combinedClueText += CLUE_HELP_TEXT
+	# 	combinedClueText += CLUE_HELP_TEXT
 
-		_dom('clue-reader').innerHTML = combinedClueText
+	# 	_dom('clue-reader').innerHTML = combinedClueText
 
-		$('#clues').stop true
-		$('#clues').animate scrollTop: clueElement.offsetTop, 150
+	# 	$('#clues').stop true
+	# 	$('#clues').animate scrollTop: clueElement.offsetTop, 150
 
-	_updateBoardReader = (lastKey = null) ->
-		combinedMessage = ''
-		#if we got here from a letter input, read out the last letter entered
-		if lastKey
-			switch lastKey
-				when 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
-					combinedMessage += ''
-				when 'Backspace', 'Delete'
-					combinedMessage += 'Last character deleted. '
-				else
-					combinedMessage += 'Last character. ' + lastKey.toUpperCase() + '. '
+	# _updateBoardReader = (lastKey = null) ->
+	# 	combinedMessage = ''
+	# 	#if we got here from a letter input, read out the last letter entered
+	# 	if lastKey
+	# 		switch lastKey
+	# 			when 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
+	# 				combinedMessage += ''
+	# 			when 'Backspace', 'Delete'
+	# 				combinedMessage += 'Last character deleted. '
+	# 			else
+	# 				combinedMessage += 'Last character. ' + lastKey.toUpperCase() + '. '
 
-		combinedMessage += 'Current location. ' + _getWordPositionForCurrentLetter()
+	# 	combinedMessage += 'Current location. ' + _getWordPositionForCurrentLetter()
 
-		combinedMessage += BOARD_HELP_TEXT
+	# 	combinedMessage += BOARD_HELP_TEXT
 
-		# _dom('board-reader').innerHTML = combinedMessage
+	# 	# _dom('board-reader').innerHTML = combinedMessage
 
 	_ensurePeriod = (text) ->
 		unless text[text.length - 1] == '.'
@@ -805,18 +843,6 @@ Namespace('Crossword').Engine = do ->
 
 	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
 
-		if keyEvent.ctrlKey and keyEvent.altKey
-			event.preventDefault()
-		# 	switch keyEvent.keyCode
-		# 		when 67 #c
-		# 			_dom('board-reader').innerHTML = _getClueForCurrentLetter()
-		# 		when 73 #i
-		# 			_dom('board-reader').innerHTML = BOARD_CLUE_TEXT + BOARD_LETTERS_TEXT + BOARD_LOCATION_TEXT + BOARD_BASE_TEXT
-		# 		when 76 #l
-		# 			_dom('board-reader').innerHTML = _describeLocationForCurrentLetter()
-		# 		when 87 #w
-		# 			_dom('board-reader').innerHTML = _describeLettersAlreadyEnteredForCurrentLetterWord()
-			return
 		preventDefault = true
 
 		_lastLetter = {}
@@ -828,10 +854,7 @@ Namespace('Crossword').Engine = do ->
 		isProtected = letterElement.getAttribute('data-protected')?
 		isLocked = letterElement.getAttribute('data-locked')?
 
-		# grab current question index based on the currently highlighted clue
-		# _curClue seems unreliably update - TODO should use _curClue instead
-		highlightedClue = $(".clue.highlight")
-		questionIndex = ~~highlightedClue.attr("data-i")
+		questionIndex = _curClue
 
 		switch keyEvent.key
 
@@ -886,8 +909,7 @@ Namespace('Crossword').Engine = do ->
 
 			when 'Enter' #enter
 				# go to the next clue, based on the clue that is currently selected
-				highlightedClue = $(".clue.highlight")
-				questionIndex = ~~highlightedClue.attr("data-i")
+				questionIndex = _curClue
 
 				nextQuestionIndex = (questionIndex + 1) % _questions.length
 				nextQuestion = _questions[nextQuestionIndex]
@@ -976,7 +998,8 @@ Namespace('Crossword').Engine = do ->
 		# to shut up screenreaders
 		if preventDefault then keyEvent.preventDefault()
 
-		_updateBoardReader keyEvent.key
+		# check and update number of words completed
+		_updateCompleteCount()
 
 		nextletterElement?.focus()
 
@@ -991,6 +1014,8 @@ Namespace('Crossword').Engine = do ->
 		_curLetter.x = prevQuestion.options.x
 		_curLetter.y = prevQuestion.options.y
 
+		_curClue = prevQuestionIndex
+
 		_assistiveNotification 'Question ' + (prevQuestionIndex + 1) + ' of ' + _questions.length + '. This question has ' + Object.keys(prevQuestion.locations).length + ' characters.'
 		_updateClue()
 
@@ -1004,6 +1029,8 @@ Namespace('Crossword').Engine = do ->
 		_prevDir = _curDir
 		_curLetter.x = nextQuestion.options.x
 		_curLetter.y = nextQuestion.options.y
+
+		_curClue = nextQuestionIndex
 
 		_assistiveNotification 'Question ' + (nextQuestionIndex + 1) + ' of ' + _questions.length + '. This question has ' + Object.keys(nextQuestion.locations).length + ' characters.'
 		_updateClue()
@@ -1054,9 +1081,6 @@ Namespace('Crossword').Engine = do ->
 			_highlightPuzzleWord (target).getAttribute('data-q')
 
 		_highlightPuzzleLetter(animate)
-
-		_updateBoardReader()
-
 		_updateClue()
 
 	# confirm that the user really wants to risk a penalty
@@ -1099,7 +1123,12 @@ Namespace('Crossword').Engine = do ->
 		_freeWordsRemaining--
 
 		_dom('freewordbtn_' + index).classList.add 'disabled'
+		_dom('freewordbtn_' + index).setAttribute 'inert', true
+		_dom('freewordbtn_' + index).setAttribute 'disabled', true
+		
 		_dom('hintbtn_' + index).classList.add 'disabled'
+		_dom('hintbtn_' + index).setAttribute 'inert', true
+		_dom('hintbtn_' + index).setAttribute 'disabled', true
 
 		_updateFreeWordsRemaining()
 		_checkIfDone()
@@ -1117,27 +1146,32 @@ Namespace('Crossword').Engine = do ->
 						l.classList.add 'highlight'
 
 	# show the modal alert dialog
-	_showAlert = (caption, okayCaption, cancelCaption, action) ->
-		ab = $('#alertbox')
+	_showAlert = (caption, okayCaption, cancelCaption, action, focusTarget = null) ->
+		ab = _dom('alertbox')
 		_dom('backgroundcover').classList.add 'show'
 
-		_dom('cancelbtn').classList.add('removed')
+		_dom('ab_cancel').classList.add('removed')
 
 		$('#alertcaption').html caption
-		$('#okbtn').val okayCaption
+		_dom('ab_confirm').innerHTML = okayCaption
 		if cancelCaption
-			_dom('cancelbtn').classList.remove('removed')
-			$('#cancelbtn').val cancelCaption
+			_dom('ab_cancel').classList.remove('removed')
+			_dom('ab_cancel').innerHTML = cancelCaption
 
-		ab.find('.submit').unbind('click').click ->
+		$(ab).find('#ab_confirm').unbind('click').click ->
 			_hideAlert()
 			action()
-		ab.focus()
+		
+		_dom('ab_cancel').focus()
+		# set the application to inert to prevent dialog being defocused
+		_dom('application').setAttribute('inert', 'true')
 
 	# hide it
 	_hideAlert = ->
 		_dom('backgroundcover').classList.remove 'show'
-		_dom('clues').focus()
+		_dom('application').removeAttribute 'inert'
+		_dom("letter_#{_curLetter.x}_#{_curLetter.y}").focus()
+		_highlightPuzzleLetter()
 
 	# called after confirm dialog
 	_getHint = (index) ->
@@ -1148,8 +1182,12 @@ Namespace('Crossword').Engine = do ->
 		hintSpot.innerHTML = "Hint. #{_questions[index].options.hint}"
 		hintSpot.style.opacity = 1
 
-		hintButton = _dom("hintbtn_#{index}")
+		hintButton = _dom('hintbtn_' + index)
 		hintButton.style.opacity = 0
+
+		hintButton.classList.add 'disabled'
+		hintButton.setAttribute 'inert', true
+		hintButton.setAttribute 'disabled', true
 
 		# move freeword button to where it should be
 		setTimeout ->
@@ -1173,6 +1211,7 @@ Namespace('Crossword').Engine = do ->
 
 		if done
 			$('.arrow_box').show()
+			_assistiveNotification 'You have completed every question and are ready to submit.'
 			# _dom('checkBtn').classList.add 'done'
 			# _dom('submit-progress-reader').innerHTML = 'All characters filled.'
 		else
@@ -1214,7 +1253,6 @@ Namespace('Crossword').Engine = do ->
 
 		clue.setAttribute 'data-i', i
 		clue.setAttribute 'data-dir', dir
-		clue.setAttribute 'aria-hidden', true
 		clue.setAttribute 'role', 'listitem'
 		clue.classList.add 'clue'
 
@@ -1223,6 +1261,10 @@ Namespace('Crossword').Engine = do ->
 		clue.onmouseup   = _clueMouseUp
 
 		$('#clues').append clue
+
+		# attach focus listeners to the hintbtn and freewordbtn after the clue element is attached to the DOM
+		_dom('hintbtn_' + i).addEventListener 'focus', _clueFocus
+		_dom('freewordbtn_' + i).addEventListener 'focus', _clueFocus
 
 	_clueMouseUp = (e) ->
 		e = window.event if not e?
@@ -1252,8 +1294,40 @@ Namespace('Crossword').Engine = do ->
 	_clueMouseOut = (e) ->
 		_highlightPuzzleWord -1
 
+	_clueFocus = (e) ->
+		e = window.event if not e?
+
+		# click on the first letter of the word
+		i = e.target.getAttribute('data-i')
+		x = _questions[i].options.x
+		y = _questions[i].options.y
+		
+		_curLetter = { x: x, y: y }
+		_curClue = i
+		clueElement = _dom('clue_'+_curClue)
+
+		# if the clue is already highlighted, do not try to scroll to it
+		unless clueElement.classList.contains 'highlight'
+			# remove the highlight from all others
+			for j of _questions
+				_dom('clue_'+j).classList.remove 'highlight'
+
+			scrolly = clueElement.offsetTop
+			clueElement.classList.add 'highlight'
+
+			$('#clues').stop true
+			$('#clues').animate scrollTop: scrolly, 150
+
+		# make sure the word associated with the current clue is highlighted (focus is not on the word)
+		_highlightPuzzleWord _curClue
+
+		# sync focusDepth
+		if e.target.classList.contains 'hint' then _curClueFocusDepth = 1
+		if e.target.classList.contains 'free-word' then _curClueFocusDepth = 2
+
 	# submit every question to the scoring engine
 	_submitAnswers = ->
+		console.log 'submitAnswers called'
 		forEveryQuestion (i, letters, x, y, dir) ->
 			answer = ''
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->

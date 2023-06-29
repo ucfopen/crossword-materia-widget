@@ -20,20 +20,15 @@
 	</head>
 
 	<body>
-		<div class='application'>
+		<div id='application' class='application'>
 			<div id='assistive-notification' class='reader-instructions' aria-live='polite'></div>
 			<header id='widget-header' class='header'>
 				<div class='logo'></div>
 				<h1 id='title'></h1>
-				<button id='submit' class='button submit'>Submit Answers</button>
-					<!-- <div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div> -->
-					<!-- <input id='checkBtn'
-						type='button'
-						class='submit button'
-						value='Submit Answers'> -->
-				</button>
+				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit Answers</button>
+				<div id='submit-label' class='assistive-element'>Submit Answers for scoring.</div>
+				<div id='submit-status' class='assistive-element'></div>
 			</header>
-			<!-- <div id='board-reader' class='reader-instructions' aria-live='polite'></div> -->
 			<div id='options' role='toolbar'>
 				<button id='printbtn'
 					class='icon-print'
@@ -57,72 +52,46 @@
 				</div>
 			</div>
 
-			<ul id='clues' role='list' aria-describedby='clue-reader'>
-				<span style='display:none'>Clues</span>
+			<ul id='clues' role='list' aria-label='List of clues'>
 			</ul>
 
 			<div id='controlbar' aria-hidden>
 				<span id='freeWordsRemaining'>
 				</span>
 			</div>
-			<div id='specialInput' class='down'>
-				<div id='specialInputHead'>Special Characters</div>
-				<div id='specialInputBody'>
-					<span>Á</span>
-					<span>À</span>
-					<span>Â</span>
-					<span>Ä</span>
-					<span>Ã</span>
-					<span>Å</span>
-					<span>Æ</span>
-					<span>Ç</span>
-					<span>É</span>
-					<span>È</span>
-					<span>Ê</span>
-					<span>Ë</span>
-					<span>Í</span>
-					<span>Ì</span>
-					<span>Î</span>
-					<span>Ï</span>
-					<span>Ñ</span>
-					<span>Ó</span>
-					<span>Ò</span>
-					<span>Ô</span>
-					<span>Ö</span>
-					<span>Õ</span>
-					<span>Ø</span>
-					<span>Œ</span>
-					<span>Ú</span>
-					<span>Ù</span>
-					<span>Û</span>
-					<span>Ü</span>
-				</div>
-			</div>
-
-			<!-- <div id='backgroundcover' class='fade'>
-				<div id='alertbox'
-					aria-labelledby='alertcaption alert-reader alert-instructions'
-					aria-live='polite'
-					tabindex='5'>
-					<div id='alertcaption'></div>
-					<div id='alert-reader' class='reader-instructions'></div>
-					<div id='alert-instructions' class='reader-instructions'>
-						Use the Escape key to cancel or the Return or Enter key to confirm.
-						Press the R key to repeat.
-					</div>
-					<input id='cancelbtn'
-						aria-label='Cancel.'
-						class='cancel button'
-						tabindex='0'
-						type='button'>
-					<input id='okbtn'
-						aria-label='Confirm.'
-						tabindex='0'
-						type='button'
-						class='submit button'
-						aria-describedby='submit-progress-reader'>
-				</div>
-			</div> -->
+			<details id='specialInput' class='down'>
+				<summary id='specialInputHead'>Special Characters</summary>
+				<ul id='specialInputBody'>
+					<li tabindex='0'>Á</li>
+					<li tabindex='0'>À</li>
+					<li tabindex='0'>Â</li>
+					<li tabindex='0'>Ä</li>
+					<li tabindex='0'>Ã</li>
+					<li tabindex='0'>Å</li>
+					<li tabindex='0'>Æ</li>
+					<li tabindex='0'>Ç</li>
+					<li tabindex='0'>É</li>
+					<li tabindex='0'>È</li>
+					<li tabindex='0'>Ê</li>
+					<li tabindex='0'>Ë</li>
+					<li tabindex='0'>Í</li>
+					<li tabindex='0'>Ì</li>
+					<li tabindex='0'>Î</li>
+					<li tabindex='0'>Ï</li>
+					<li tabindex='0'>Ñ</li>
+					<li tabindex='0'>Ó</li>
+					<li tabindex='0'>Ò</li>
+					<li tabindex='0'>Ô</li>
+					<li tabindex='0'>Ö</li>
+					<li tabindex='0'>Õ</li>
+					<li tabindex='0'>Ø</li>
+					<li tabindex='0'>Œ</li>
+					<li tabindex='0'>Ú</li>
+					<li tabindex='0'>Ù</li>
+					<li tabindex='0'>Û</li>
+					<li tabindex='0'>Ü</li>
+				</ul>
+			</details>
 
 			<div id='t_hints' style='display:none' class="clue">
 				<em data-i='{{i}}'>{{hintPrefix}}:</em>
@@ -130,17 +99,15 @@
 					{{question}}
 				</span>
 				<button id='hintbtn_{{i}}'
-					class='hint button'
+					class='hint action-button button'
 					data-i='{{i}}'
 					data-dir='{{dir}}'
-					tabindex='-1'
-					aria-hidden>Hint</button>
+					aria-label='Request a hint for this word. There may be a score deduction incurred.'>Hint</button>
 				<button id='freewordbtn_{{i}}'
-					class='free-word button'
+					class='free-word action-button button'
 					data-i='{{i}}'
 					data-dir='{{dir}}'
-					tabindex='-1'
-					aria-hidden>Free word</button>
+					aria-label='Complete this question by using a free word.'>Free word</button>
 				<span class='hintspot' id='hintspot_{{i}}'></span>
 			</div>
 			<div class="arrow_box">Click to finish</div>
@@ -150,6 +117,22 @@
 				Materia.Engine.start(Crossword.Engine);
 			</script>
 
+		</div>
+		<div id='backgroundcover' class='fade'>
+			<dialog id='alertbox' aria-describedby='alertcaption' role='alertdialog' aria-modal='true'>
+				<div id='alertcaption'></div>
+				<button id='ab_cancel'
+					aria-label='Cancel.'
+					class='cancel'
+					tabindex='0'
+					type='button'
+					autofocus></button>
+				<button id='ab_confirm'
+					aria-label='Confirm.'
+					tabindex='0'
+					type='button'
+					class='submit action-button'></button>
+			</dialog>
 		</div>
 	</body>
 </html>
