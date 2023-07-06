@@ -249,6 +249,7 @@ Namespace('Crossword').Engine = do ->
 
 	_boardFocusHandler = (e) ->
 		_highlightPuzzleWord _curClue
+		_highlightPuzzleLetter true, false
 
 	# start dragging
 	_mouseDownHandler = (e) ->
@@ -452,14 +453,14 @@ Namespace('Crossword').Engine = do ->
 		g.classList.remove('focus') if g?
 
 	# apply highlight class
-	_highlightPuzzleLetter = (animate = true) ->
+	_highlightPuzzleLetter = (animate = true, autofocus = true) ->
 		highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
 
 		_zoomIn() unless _zoomedIn
 
 		if highlightedLetter
 			highlightedLetter.classList.add 'focus'
-			highlightedLetter.focus()
+			if autofocus then highlightedLetter.focus()
 
 			# figure out if the _curLetter is on the screen
 			letterX = _curLetter.x * LETTER_WIDTH
@@ -505,9 +506,9 @@ Namespace('Crossword').Engine = do ->
 			if _wordIntersections.hasOwnProperty(location)
 				index = _wordIntersections[location][~~(_prevDir == 1)] - 1
 				clue = _dom('clue_'+index)
-				_curClue = index
+				_curClue = parseInt index
 
-			_curClue = clue.getAttribute('data-i')
+			else _curClue = parseInt clue.getAttribute('data-i') # TODO rework this?
 
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
@@ -886,21 +887,21 @@ Namespace('Crossword').Engine = do ->
 				if question.options.dir is 0
 					if keyEvent.shiftKey and position > 0
 							_curLetter.x--
-							_curDir = -1
+							_curDir = 0
 							keyEvent.preventDefault()
 					else if !keyEvent.shiftKey and position < Object.keys(question.locations).length - 1
 						_curLetter.x++
-						_curDir = -1
+						_curDir = 0
 						keyEvent.preventDefault()
 					else return
 				else
 					if keyEvent.shiftKey and position > 0
 						_curLetter.y--
-						_curDir = -1
+						_curDir = 1
 						keyEvent.preventDefault()
 					else if !keyEvent.shiftKey and position < Object.keys(question.locations).length - 1
 						_curLetter.y++
-						_curDir = -1
+						_curDir = 1
 						keyEvent.preventDefault()
 					else return
 
@@ -1303,7 +1304,8 @@ Namespace('Crossword').Engine = do ->
 		y = _questions[i].options.y
 		
 		_curLetter = { x: x, y: y }
-		_curClue = i
+		_curDir = _prevDir =  ~~e.target.getAttribute('data-dir')
+		_curClue = parseInt i
 		clueElement = _dom('clue_'+_curClue)
 
 		# if the clue is already highlighted, do not try to scroll to it
@@ -1327,7 +1329,6 @@ Namespace('Crossword').Engine = do ->
 
 	# submit every question to the scoring engine
 	_submitAnswers = ->
-		console.log 'submitAnswers called'
 		forEveryQuestion (i, letters, x, y, dir) ->
 			answer = ''
 			forEveryLetter x, y, dir, letters, (letterLeft, letterTop, l) ->
