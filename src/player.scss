@@ -444,7 +444,7 @@ html, body {
 				background-color: #fff;
 				padding: 5px;
 
-				&:hover, &:focus {
+				&:hover, &:focus, &.focus {
 					background-color: #AEC4FF;
 				}
 			}
@@ -576,6 +576,10 @@ input, button {
 	header {
 		margin-bottom: 1em;
 		font-weight: bold;
+	}
+
+	p {
+		margin-bottom: 0.5em;
 	}
 
 	span.bold {

@@ -22,6 +22,7 @@
 	<body>
 		<div id='application' class='application'>
 			<div id='assistive-notification' class='reader-instructions' aria-live='polite'></div>
+			<div id='assistive-alert' class='reader-instructions' aria-live='assertive'></div>
 			<header id='widget-header' class='header'>
 				<div class='logo'></div>
 				<h1 id='title'></h1>
@@ -139,13 +140,16 @@
 					class='submit action-button'></button>
 			</dialog>
 			<dialog id='tutorialbox' aria-modal='true'>
-				<header>Keyboard Controls</header>
-				<p>With the board selected, use the <span class='bold'>left</span> and <span class='bold'>right</span> keys to cycle between words.</p>
-				<p>Use the <span class='bold'>down</span> arrow to select the hint and free word buttons associated with the selected clue. Use the <span class='bold'>up</span> arrow to return to the board.</p>
-				<p>Use <span class='bold'>tab</span> and <span class='bold'>shift-tab</span> to cycle through letters in the current word before defocusing the board.</p>
-
+				<div id='tutorialcaption'>
+					<header>Keyboard Controls</header>
+						<p>With the board selected, use the <span class='bold'>left</span> and <span class='bold'>right</span> keys to cycle between words.</p>
+						<p>Use the <span class='bold'>down</span> key to select the hint and free word buttons associated with the selected clue. Use the <span class='bold'>up</span> key to return to the board.</p>
+						<p>When the current letter is selected, use the <span class='bold'>up</span> key to cycle through the special character drawer. <span class='bold'>Enter</span> will insert the selected character at the current letter. The <span class='bold'>down</span> key will return you to the board.</p>
+						<p>Use <span class='bold'>tab</span> and <span class='bold'>shift-tab</span> to cycle through letters in the current word before defocusing the board.</p>
+				</div>
 				<button id='tutorial_dismiss'
 					aria-label='Dismiss.'
+					aria-describedby='tutorialcaption'
 					tabindex='0'
 					type='button'
 					class='submit action-button'>Okay</button>

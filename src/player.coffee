@@ -40,6 +40,8 @@ Namespace('Crossword').Engine = do ->
 	_curClue              = 0
 	_curClueFocusDepth    = 0
 
+	_specialCharacterFocusDepth = -1
+
 	# track number of questions complete - and which
 	# used to report status to assistive elements
 	_questionsComplete = new Map()
@@ -171,28 +173,6 @@ Namespace('Crossword').Engine = do ->
 		
 		_dom('alertbox').addEventListener 'click', _hideAlert
 
-		# $('#alertbox').keydown (e) ->
-		# 	console.log e
-		# 	switch e.keyCode
-		# 		when 13 #enter
-		# 			$('#okbtn').click()
-		# 		when 27 #escape
-		# 			$('#cancelbtn').click()
-		# 		when 82 #r
-		# 			$('#alert-reader').html ''
-		# 			regex = new RegExp(/<br\/?>/, 'g')
-		# 			formattedKeyboardHelp = $('#alertcaption').html().replace(regex, ' ')
-		# 			formattedKeyboardHelp += ' Use the Escape key to cancel or the Return or Enter key to confirm. ' +
-		# 				'Press the R key to repeat.'
-		# 			$('#alert-reader').html formattedKeyboardHelp
-		# 			$('#alertbox').focus()
-
-		# $('#keyboard-instructions').keyup (e) ->
-		# 	if e.keyCode is 13 or e.keyCode is 32
-		# 		formattedKeyboardHelp = ''
-		# 		formattedKeyboardHelp += v + '<br/>' for i, v of KEYBOARD_HELP
-		# 		_showAlert formattedKeyboardHelp, 'Okay', null, _hideAlert
-
 		$('#specialInputBody li').click ->
 			spoof = $.Event('keydown')
 			spoof.which = this.innerText.charCodeAt(0)
@@ -220,6 +200,9 @@ Namespace('Crossword').Engine = do ->
 
 	_assistiveNotification = (text) ->
 		_dom('assistive-notification').innerHTML = text
+
+	_assistiveAlert = (text) ->
+		_dom('assistive-alert').innerHTML = text
 
 	_boardFocusHandler = (e) ->
 		_highlightPuzzleWord _curClue
@@ -582,7 +565,6 @@ Namespace('Crossword').Engine = do ->
 				when 2 then return
 
 	_boardKeyDownHandler = (keyEvent, iteration = 0) ->
-
 		preventDefault = true
 
 		_lastLetter = {}
@@ -594,23 +576,28 @@ Namespace('Crossword').Engine = do ->
 		isProtected = letterElement.getAttribute('data-protected')?
 		isLocked = letterElement.getAttribute('data-locked')?
 
+		unless keyEvent.key is 'ArrowUp' or keyEvent.key is 'ArrowDown' or keyEvent.key is 'Enter' and _specialCharacterFocusDepth > -1 then _dismissSpecialCharacterFocus()
+
 		questionIndex = _curClue
 
 		switch keyEvent.key
 
 			when 'ArrowLeft' then _selectPreviousQuestion questionIndex
-				
 
 			when 'ArrowUp' #up
-				_highlightPuzzleLetter() # puzzle letter highlight is removed by default
 				keyEvent.preventDefault()
+				_highlightPuzzleLetter() # puzzle letter highlight is removed by default
+				_handleSpecialCharacterFocus 'up'
 				return
 
 			when 'ArrowRight' then _selectNextQuestion questionIndex
 
 			when 'ArrowDown' #down
 				keyEvent.preventDefault()
-				_setClueFocusDepth 'down', questionIndex
+				if _specialCharacterFocusDepth is -1 then _setClueFocusDepth 'down', questionIndex
+				else
+					_handleSpecialCharacterFocus 'down'
+					_highlightPuzzleLetter() # puzzle letter highlight is removed by default
 				return
 
 			when 'Delete' #delete
@@ -648,6 +635,21 @@ Namespace('Crossword').Engine = do ->
 				_updateClue()
 
 			when 'Enter' #enter
+
+				if _specialCharacterFocusDepth > -1
+
+					select = $('#specialInputBody').find('li').eq(_specialCharacterFocusDepth)
+					spoof = $.Event('keydown')
+					spoof.which = select[0].innerText.charCodeAt(0)
+					spoof.keyCode = select[0].innerText.charCodeAt(0)
+					currentLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
+					$(currentLetter).trigger spoof
+
+					_assistiveNotification select[0].innerText.charCodeAt(0) + ' inserted. Focus returned to game board.'
+
+					keyEvent.preventDefault()
+					return
+
 				# go to the next clue, based on the clue that is currently selected
 				questionIndex = _curClue
 
@@ -791,6 +793,7 @@ Namespace('Crossword').Engine = do ->
 					$('#freewordbtn_'+i).css 'display', 'none'
 				else
 					_dom('freewordbtn_'+i).classList.add 'disabled'
+					_dom('freewordbtn_'+i).setAttribute 'disabled', 'true'
 
 	# highlight the clicked letter and set up direction
 	_letterClicked = (e, animate = true) ->
@@ -869,6 +872,8 @@ Namespace('Crossword').Engine = do ->
 		_dom('hintbtn_' + index).classList.add 'disabled'
 		_dom('hintbtn_' + index).setAttribute 'inert', true
 		_dom('hintbtn_' + index).setAttribute 'disabled', true
+
+		_assistiveNotification 'Free word selected. you have ' + _freeWordsRemaining + ' remaining free words.'
 
 		_updateFreeWordsRemaining()
 		_checkIfDone()
@@ -956,6 +961,55 @@ Namespace('Crossword').Engine = do ->
 			hintButton.style.left = '-52px'
 			_dom("freewordbtn_#{index}").style.left = '-52px'
 		,190
+
+	_handleSpecialCharacterFocus = (direction) ->
+
+		drawer = _dom 'specialInput'
+		specialCharacterSelectLength = $('#specialInputBody').find('li').length
+
+		if direction is 'up'
+			
+			unless drawer.hasAttribute 'open'
+				drawer.setAttribute 'open', 'true'
+				drawer.classList.remove 'down'
+				drawer.classList.add 'up'
+
+			$('#specialInputBody').find('li').eq(_specialCharacterFocusDepth)[0].classList.remove 'focus'
+			
+			if _specialCharacterFocusDepth + 1 < specialCharacterSelectLength then _specialCharacterFocusDepth++
+
+			select = $('#specialInputBody').find('li').eq(_specialCharacterFocusDepth)
+			select[0].classList.add 'focus'
+
+			_assistiveNotification select.html() + ' selected. Use enter to insert the value at the current character.'
+
+		else if direction is 'down'
+
+			if _specialCharacterFocusDepth is 0 and drawer.hasAttribute 'open'
+				drawer.removeAttribute 'open'
+				drawer.classList.remove 'up'
+				drawer.classList.add 'down'
+
+				_assistiveNotification 'Focus returned to game board.'
+
+			$('#specialInputBody').find('li').eq(_specialCharacterFocusDepth)[0].classList.remove 'focus'
+
+			_specialCharacterFocusDepth--
+
+			select = $('#specialInputBody').find('li').eq(_specialCharacterFocusDepth)
+			select[0].classList.add 'focus'
+
+	_dismissSpecialCharacterFocus = () ->
+		drawer = _dom 'specialInput'
+		_specialCharacterFocusDepth = -1
+
+		chars = document.querySelectorAll 'li.focus'
+		for char in chars
+			char.classList.remove 'focus'
+
+		drawer.removeAttribute 'open'
+		drawer.classList.remove 'up'
+		drawer.classList.add 'down'
 
 	# highlight submit button if all letters are filled in
 	_checkIfDone = ->
