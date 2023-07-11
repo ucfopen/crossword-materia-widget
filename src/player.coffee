@@ -160,6 +160,7 @@ Namespace('Crossword').Engine = do ->
 		$('#board').click -> _highlightPuzzleLetter false
 
 		$('#board').keydown _boardKeyDownHandler
+		$('#kbhelp').click -> _showKeyboardDialog()
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#printbtn').keyup (e) ->
@@ -884,12 +885,33 @@ Namespace('Crossword').Engine = do ->
 					if l?
 						l.classList.add 'highlight'
 
+	_showKeyboardDialog = () ->
+		modal = _dom('tutorialbox')
+		modal.classList.add 'show'
+		_dom('backgroundcover').classList.add 'show'
+
+		$(modal).find('#tutorial_dismiss').unbind('click').click ->
+			_hideKeyboardDialog()
+
+		_dom('tutorial_dismiss').focus()
+		# set the application to inert to prevent dialog being defocused
+		_dom('application').setAttribute('inert', 'true')
+
+	_hideKeyboardDialog = () ->
+		_dom('backgroundcover').classList.remove 'show'
+		_dom('tutorialbox').classList.remove 'show'
+		_dom('application').removeAttribute 'inert'
+
+		_dom('kbhelp').focus()
+
 	# show the modal alert dialog
 	_showAlert = (caption, okayCaption, cancelCaption, action, focusTarget = null) ->
 		ab = _dom('alertbox')
+
+		ab.classList.add 'show'
 		_dom('backgroundcover').classList.add 'show'
 
-		_dom('ab_cancel').classList.add('removed')
+		_dom('ab_cancel').classList.add 'removed'
 
 		$('#alertcaption').html caption
 		_dom('ab_confirm').innerHTML = okayCaption
@@ -908,6 +930,7 @@ Namespace('Crossword').Engine = do ->
 	# hide it
 	_hideAlert = ->
 		_dom('backgroundcover').classList.remove 'show'
+		_dom('alertbox').classList.remove 'show'
 		_dom('application').removeAttribute 'inert'
 		_dom("letter_#{_curLetter.x}_#{_curLetter.y}").focus()
 		_highlightPuzzleLetter()
@@ -1029,6 +1052,8 @@ Namespace('Crossword').Engine = do ->
 
 	_clueFocus = (e) ->
 		e = window.event if not e?
+
+		_removePuzzleLetterHighlight()
 
 		# click on the first letter of the word
 		i = e.target.getAttribute('data-i')

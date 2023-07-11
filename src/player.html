@@ -30,6 +30,11 @@
 				<div id='submit-status' class='assistive-element'></div>
 			</header>
 			<div id='options' role='toolbar'>
+				<button id='kbhelp'
+					class='icon-keyboard'
+					title='Keyboard Help'
+					aria-label='Display keyboard instructions.'>
+				</button>
 				<button id='printbtn'
 					class='icon-print'
 					title='Print'
@@ -132,6 +137,18 @@
 					tabindex='0'
 					type='button'
 					class='submit action-button'></button>
+			</dialog>
+			<dialog id='tutorialbox' aria-modal='true'>
+				<header>Keyboard Controls</header>
+				<p>With the board selected, use the <span class='bold'>left</span> and <span class='bold'>right</span> keys to cycle between words.</p>
+				<p>Use the <span class='bold'>down</span> arrow to select the hint and free word buttons associated with the selected clue. Use the <span class='bold'>up</span> arrow to return to the board.</p>
+				<p>Use <span class='bold'>tab</span> and <span class='bold'>shift-tab</span> to cycle through letters in the current word before defocusing the board.</p>
+
+				<button id='tutorial_dismiss'
+					aria-label='Dismiss.'
+					tabindex='0'
+					type='button'
+					class='submit action-button'>Okay</button>
 			</dialog>
 		</div>
 	</body>
