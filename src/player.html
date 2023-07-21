@@ -24,7 +24,6 @@
 			<div id='assistive-notification' class='reader-instructions' aria-live='polite'></div>
 			<div id='assistive-alert' class='reader-instructions' aria-live='assertive'></div>
 			<header id='widget-header' class='header'>
-				<div class='logo'></div>
 				<h1 id='title'></h1>
 				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit Answers</button>
 				<div id='submit-label' class='assistive-element'>Submit Answers for scoring.</div>
@@ -51,8 +50,11 @@
 				<div id='board-info' class='assistive-element'>
 					Crossword game board selected.
 					Use tab and shift-tab to navigate between character spaces within a word.
-					Use left and right arrow keys to cycle between words. Use the down arrow to select the hint and free word buttons sequentially,
-					and the up arrow to return focus to the game board.</div>
+					With the game board focused, use left and right arrow keys to cycle between words.
+					Use the down arrow to select the hint and free word buttons sequentially,
+					and the up arrow to return focus to the game board.
+					With the game board focused, use the up arrow to cycle through the special characters drawer, and the down arrow to cycle in reverse before
+					returning to the board.</div>
 				<div id="movable-container">
 					<div id='movable' class='crossword-board' role='application' aria-describedby='board-info' tabindex='0'></div>
 				</div>

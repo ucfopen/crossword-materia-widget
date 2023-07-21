@@ -171,8 +171,6 @@ Namespace('Crossword').Engine = do ->
 		$('#zoomout').keyup (e) ->
 			if e.keyCode is 13 then _zoomOut()
 		
-		_dom('alertbox').addEventListener 'click', _hideAlert
-
 		$('#specialInputBody li').click ->
 			spoof = $.Event('keydown')
 			spoof.which = this.innerText.charCodeAt(0)
@@ -185,7 +183,7 @@ Namespace('Crossword').Engine = do ->
 		_dom('movable').addEventListener 'focus', _boardFocusHandler
 
 		_dom('submit').addEventListener 'click', () ->
-			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _submitAnswers
+			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _dom('#board'), _submitAnswers
 
 		if _isMobile
 			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
@@ -324,7 +322,9 @@ Namespace('Crossword').Engine = do ->
 				letterElement.id = "letter_#{letterLeft}_#{letterTop}"
 				letterElement.classList.add 'letter'
 				letterElement.setAttribute 'tabindex', '-1'
-				letterElement.setAttribute 'aria-label', 'Character position ' + (l + 1) + ' of ' + _getInteractiveLetterCount(letters)
+				letterElement.setAttribute 'autocomplete', 'off'
+				if protectedSpace then letterElement.setAttribute 'aria-label', 'Reserved space representing a special character or white space. Input is not allowed for this character.'
+				else letterElement.setAttribute 'aria-label', 'Character position ' + (l + 1) + ' of ' + _getInteractiveLetterCount(letters)
 				letterElement.setAttribute 'aria-describedby', 'cluetext_' + i
 				letterElement.setAttribute 'data-q', i
 				letterElement.setAttribute 'data-dir', dir
@@ -540,10 +540,11 @@ Namespace('Crossword').Engine = do ->
 					_highlightPuzzleLetter()
 					_assistiveNotification 'Focus returned to game board for question ' + (index + 1) + '.'
 				when 2
-					_curClueFocusDepth = 1
+					_curClueFocusDepth = 0
 					if _dom('hintbtn_' + index).hasAttribute('disabled')
-						_assistiveNotification 'Hint button unavailable for question ' + (index + 1) + '.'
+						_assistiveNotification 'Hint button unavailable for question ' + (index + 1) + '. Focus returned to game board.'
 					else
+						_curClueFocusDepth = 1
 						_dom('hintbtn_' + index).focus()
 						_assistiveNotification 'Hint button selected for question ' + (index + 1) + '.'
 		else if direction is 'down'
@@ -551,15 +552,15 @@ Namespace('Crossword').Engine = do ->
 				when 0
 					_curClueFocusDepth = 1
 					if _dom('hintbtn_' + index).hasAttribute('disabled')
-						_assistiveNotification 'Hint button unavailable for question ' + (index + 1) + '.'
+						_assistiveNotification 'Hint has already been requested for question ' + (index + 1) + '.'
 					else
 						_dom('hintbtn_' + index).focus()
 						_assistiveNotification 'Hint button selected for question ' + (index + 1) + '.'
 				when 1
-					_curClueFocusDepth = 2
 					if _dom('freewordbtn_' + index).hasAttribute('disabled')
-						_assistiveNotification 'Free Word button unavailable for question ' + (index + 1) + '.'
+						_assistiveAlert 'You cannot request a free word. No free words remain.'
 					else
+						_curClueFocusDepth = 2
 						_dom('freewordbtn_' + index).focus()
 						_assistiveNotification 'Free Word button selected for question ' + (index + 1) + '. You have ' + _freeWordsRemaining + ' free words remaining.'
 				when 2 then return
@@ -581,6 +582,9 @@ Namespace('Crossword').Engine = do ->
 		questionIndex = _curClue
 
 		switch keyEvent.key
+
+			when 'Control' then _highlightPuzzleLetter()
+			when 'Alt' then _highlightPuzzleLetter()
 
 			when 'ArrowLeft' then _selectPreviousQuestion questionIndex
 
@@ -828,11 +832,13 @@ Namespace('Crossword').Engine = do ->
 
 	# confirm that the user really wants to risk a penalty
 	_hintConfirm = (e) ->
-		return if e.target.classList.contains 'disabled'
-		# only do it if the parent clue is highlighted
-		if _dom('clue_' + e.target.getAttribute('data-i')).classList.contains 'highlight'
-			_showAlert "Receiving a hint will result in a #{_qset.options.hintPenalty}% penalty for this question.", 'Okay', 'Nevermind', ->
-				_getHint e.target.getAttribute 'data-i'
+		if e.target.classList.contains 'disabled'
+			_assistiveAlert 'You have already requested the hint for this question.'
+			return
+		
+		index = e.target.getAttribute('data-i')
+		_showAlert "Receiving a hint will result in a #{_qset.options.hintPenalty}% penalty for this question.", 'Okay', 'Nevermind', _dom('hintbtn_'+index),  ->
+			_getHint index
 
 	# fired by the free word buttons
 	_getFreeword = (e) ->
@@ -860,6 +866,8 @@ Namespace('Crossword').Engine = do ->
 		forEveryLetter x,y,dir,letters, (letterLeft, letterTop, l) ->
 			letter = _dom("letter_#{letterLeft}_#{letterTop}")
 			letter.classList.add 'locked'
+			existingText = letter.getAttribute('aria-label')
+			letter.setAttribute('aria-label', existingText + '. This character is locked because it is part of a free word.')
 			letter.setAttribute('data-locked', '1')
 			letter.value = letters[l].toUpperCase()
 
@@ -870,13 +878,15 @@ Namespace('Crossword').Engine = do ->
 		_dom('freewordbtn_' + index).setAttribute 'disabled', true
 		
 		_dom('hintbtn_' + index).classList.add 'disabled'
-		_dom('hintbtn_' + index).setAttribute 'inert', true
-		_dom('hintbtn_' + index).setAttribute 'disabled', true
 
-		_assistiveNotification 'Free word selected. you have ' + _freeWordsRemaining + ' remaining free words.'
+		_assistiveAlert 'Free word selected. you have ' + _freeWordsRemaining + ' remaining free words.'
+		_curClueFocusDepth = 0
 
 		_updateFreeWordsRemaining()
 		_checkIfDone()
+		
+		_dom("letter_#{_curLetter.x}_#{_curLetter.y}").focus()
+		_highlightPuzzleLetter()
 
 	# highlight a word (series of letters)
 	_highlightPuzzleWord = (index) ->
@@ -910,7 +920,14 @@ Namespace('Crossword').Engine = do ->
 		_dom('kbhelp').focus()
 
 	# show the modal alert dialog
-	_showAlert = (caption, okayCaption, cancelCaption, action, focusTarget = null) ->
+	_showAlert = (caption, okayCaption, cancelCaption, focusTarget, action) ->
+		console.log 'show alert'
+		console.log caption
+		console.log okayCaption
+		console.log cancelCaption
+		console.log focusTarget
+		console.log action
+
 		ab = _dom('alertbox')
 
 		ab.classList.add 'show'
@@ -924,21 +941,26 @@ Namespace('Crossword').Engine = do ->
 			_dom('ab_cancel').classList.remove('removed')
 			_dom('ab_cancel').innerHTML = cancelCaption
 
+			$(ab).find('#ab_cancel').unbind('click').click ->
+				_hideAlert focusTarget
+
 		$(ab).find('#ab_confirm').unbind('click').click ->
-			_hideAlert()
 			action()
+			_hideAlert focusTarget
 		
 		_dom('ab_cancel').focus()
 		# set the application to inert to prevent dialog being defocused
 		_dom('application').setAttribute('inert', 'true')
 
 	# hide it
-	_hideAlert = ->
+	_hideAlert = (focusTarget = null) ->
 		_dom('backgroundcover').classList.remove 'show'
 		_dom('alertbox').classList.remove 'show'
 		_dom('application').removeAttribute 'inert'
-		_dom("letter_#{_curLetter.x}_#{_curLetter.y}").focus()
-		_highlightPuzzleLetter()
+		
+		if focusTarget isnt null
+			focusTarget.focus()
+			if focusTarget is _dom("letter_#{_curLetter.x}_#{_curLetter.y}") then _highlightPuzzleLetter()
 
 	# called after confirm dialog
 	_getHint = (index) ->
@@ -950,17 +972,14 @@ Namespace('Crossword').Engine = do ->
 		hintSpot.style.opacity = 1
 
 		hintButton = _dom('hintbtn_' + index)
-		hintButton.style.opacity = 0
 
 		hintButton.classList.add 'disabled'
-		hintButton.setAttribute 'inert', true
-		hintButton.setAttribute 'disabled', true
+		hintButton.setAttribute 'aria-labelledby', 'hintspot_'+index
 
-		# move freeword button to where it should be
-		setTimeout ->
-			hintButton.style.left = '-52px'
-			_dom("freewordbtn_#{index}").style.left = '-52px'
-		,190
+		_assistiveAlert 'Hint for question ' + (index + 1) + ': ' + _questions[index].options.hint
+		_curClueFocusDepth = 1
+
+		hintButton.focus()
 
 	_handleSpecialCharacterFocus = (direction) ->
 
@@ -1026,7 +1045,7 @@ Namespace('Crossword').Engine = do ->
 
 		if done
 			$('.arrow_box').show()
-			_assistiveNotification 'You have completed every question and are ready to submit.'
+			_assistiveAlert 'You have completed every question and are ready to submit.'
 		else
 			question = _questions[unfinishedWord]
 			missing = null
