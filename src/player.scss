@@ -544,7 +544,7 @@ input, button {
 	}
 }
 
-#alertbox, #tutorialbox {
+#alertbox, #tutorialbox, #introbox {
 	display: none;
 	margin: 0 auto;
 	min-width: 300px;
@@ -613,6 +613,73 @@ input, button {
 				border: solid 2px $darkblue;
 		}
 	}
+}
+@keyframes secondimg {
+	40% {
+		opacity: 0;
+	}
+	45% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+@keyframes thirdimg {
+	67% {
+		opacity: 0;
+	}
+	72% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+#introbox {
+	width: 500px;
+
+	div.content {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		gap: 10px;
+
+		margin: 25px 0 40px 0;
+	}
+
+	.image-frame {
+		position: relative;
+		flex-shrink: 0;
+		width: 186px;
+		height: 126px;
+
+		border: solid 2px #c5c5c5;
+
+		img {
+			position: absolute;
+			top: 3px;
+			right: 3px;
+			width: 180px;
+			height: 120px;
+		}
+
+		#preview-img-1 {
+			// animation: firstimg 8s infinite;
+			opacity: 1;
+		}
+		#preview-img-2 {
+			animation: secondimg 8s infinite;
+			opacity: 0;
+		}
+		#preview-img-3 {
+			animation: thirdimg 8s infinite;
+			opacity: 0;
+		}
+	}
+
 }
 
 .fade {

@@ -112,6 +112,8 @@ Namespace('Crossword').Engine = do ->
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
 
+		_showIntroDialog()
+
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
 
@@ -351,7 +353,7 @@ Namespace('Crossword').Engine = do ->
 			_questions[i].locations = locationList
 
 		# Select the first clue
-		_clueMouseUp {target: $('#clue_0')[0]}
+		# _clueMouseUp {target: $('#clue_0')[0]}
 
 	_getInteractiveLetterCount = (word) ->
 		interactive = word.map (letter) ->
@@ -826,7 +828,7 @@ Namespace('Crossword').Engine = do ->
 			_prevDir = _curDir
 			_highlightPuzzleWord (target).getAttribute('data-q')
 
-		_highlightPuzzleLetter(animate)
+		_highlightPuzzleLetter animate
 		_updateClue()
 
 	# confirm that the user really wants to risk a penalty
@@ -899,6 +901,26 @@ Namespace('Crossword').Engine = do ->
 					if l?
 						l.classList.add 'highlight'
 
+	_showIntroDialog = () ->
+		modal = _dom('introbox')
+		modal.classList.add 'show'
+		_dom('backgroundcover').classList.add 'show'
+
+		$(modal).find('#intro_dismiss').unbind('click').click ->
+			_hideIntroDialog()
+			_dom('movable').focus()
+
+		$(modal).find('#intro_instructions').unbind('click').click ->
+			_hideIntroDialog()
+			_showKeyboardDialog()
+
+		_dom('application').setAttribute('inert', 'true')
+
+	_hideIntroDialog = () ->
+		_dom('backgroundcover').classList.remove 'show'
+		_dom('tutorialbox').classList.remove 'show'
+		_dom('application').removeAttribute 'inert'
+
 	_showKeyboardDialog = () ->
 		modal = _dom('tutorialbox')
 		modal.classList.add 'show'
@@ -907,7 +929,7 @@ Namespace('Crossword').Engine = do ->
 		$(modal).find('#tutorial_dismiss').unbind('click').click ->
 			_hideKeyboardDialog()
 
-		_dom('tutorial_dismiss').focus()
+		_dom('tutorialbox').focus()
 		# set the application to inert to prevent dialog being defocused
 		_dom('application').setAttribute('inert', 'true')
 
@@ -920,12 +942,6 @@ Namespace('Crossword').Engine = do ->
 
 	# show the modal alert dialog
 	_showAlert = (caption, okayCaption, cancelCaption, focusTarget, action) ->
-		console.log 'show alert'
-		console.log caption
-		console.log okayCaption
-		console.log cancelCaption
-		console.log focusTarget
-		console.log action
 
 		ab = _dom('alertbox')
 

@@ -133,15 +133,26 @@
 					aria-label='Cancel.'
 					class='cancel'
 					tabindex='0'
-					type='button'
 					autofocus></button>
 				<button id='ab_confirm'
 					aria-label='Confirm.'
 					tabindex='0'
-					type='button'
 					class='submit action-button'></button>
 			</dialog>
-			<dialog id='tutorialbox' aria-modal='true'>
+			<dialog id='introbox' aria-modal='true' tabindex='0' aria-describedby='introcaption'>
+				<header>How to Play Crossword</header>
+				<div class='content'>
+					<div id='introcaption'>Fill in each <span class='bold'>word</span> or <span class='bold'>phrase</span> based on the associated clue on the right. Every cell contains a single letter. Letters at intersections should be correct for both words!</div>
+					<aside class='image-frame'>
+						<img id='preview-img-1' src='assets/crossword-intro-frame-1.svg' alt='Crossword preview demo image 1 of 3' />
+						<img id='preview-img-2' src='assets/crossword-intro-frame-2.svg' alt='Crossword preview demo image 2 of 3' />
+						<img id='preview-img-3' src='assets/crossword-intro-frame-3.svg' alt='Crossword preview demo image 3 of 3' />
+					</aside>
+				</div>
+				<button id='intro_instructions' class='cancel'>Keyboard instructions</button>
+				<button id='intro_dismiss' class='submit action-button' aria-label='Dismiss intro dialog and select game board.'>Let's Go</button>
+			</dialog>
+			<dialog id='tutorialbox' aria-modal='true' tabindex='0' aria-describedby='tutorialcaption'>
 				<div id='tutorialcaption'>
 					<header>Keyboard Controls</header>
 						<p>With the board selected, use the <span class='bold'>left</span> and <span class='bold'>right</span> keys to cycle between words.</p>
@@ -149,12 +160,7 @@
 						<p>When the current letter is selected, use the <span class='bold'>up</span> key to cycle through the special character drawer. <span class='bold'>Enter</span> will insert the selected character at the current letter. The <span class='bold'>down</span> key will return you to the board.</p>
 						<p>Use <span class='bold'>tab</span> and <span class='bold'>shift-tab</span> to cycle through letters in the current word before defocusing the board.</p>
 				</div>
-				<button id='tutorial_dismiss'
-					aria-label='Dismiss.'
-					aria-describedby='tutorialcaption'
-					tabindex='0'
-					type='button'
-					class='submit action-button'>Okay</button>
+				<button id='tutorial_dismiss' aria-label='Dismiss.' class='submit action-button'>Okay</button>
 			</dialog>
 		</div>
 	</body>
