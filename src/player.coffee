@@ -918,7 +918,7 @@ Namespace('Crossword').Engine = do ->
 
 	_hideIntroDialog = () ->
 		_dom('backgroundcover').classList.remove 'show'
-		_dom('tutorialbox').classList.remove 'show'
+		_dom('introbox').classList.remove 'show'
 		_dom('application').removeAttribute 'inert'
 
 	_showKeyboardDialog = () ->
