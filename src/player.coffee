@@ -38,9 +38,16 @@ Namespace('Crossword').Engine = do ->
 	_curLetter            = false
 	# the current clue that is selected
 	_curClue              = 0
+	# tracks the cursor state associated with the down arrow key when the board is focused
+	# 0 = board selected, 1 = hint button selected, 2 = free word button selected
 	_curClueFocusDepth    = 0
 
+	# tracks the cursor state associated with the up arrow key when the board is focused
+	# -1 = board selected, >= 0, special character index position
 	_specialCharacterFocusDepth = -1
+
+	# only auto-display the dialog prompt to submit the first time the student completes
+	_submitPromptReady = true
 
 	# track number of questions complete - and which
 	# used to report status to assistive elements
@@ -184,7 +191,7 @@ Namespace('Crossword').Engine = do ->
 		_dom('movable').addEventListener 'focus', _boardFocusHandler
 
 		_dom('submit').addEventListener 'click', () ->
-			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _dom('#board'), _submitAnswers
+			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _dom('moveable'), _submitAnswers
 
 		if _isMobile
 			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
@@ -929,7 +936,7 @@ Namespace('Crossword').Engine = do ->
 		$(modal).find('#tutorial_dismiss').unbind('click').click ->
 			_hideKeyboardDialog()
 
-		_dom('tutorialbox').focus()
+		_dom('tutorial_dismiss').focus()
 		# set the application to inert to prevent dialog being defocused
 		_dom('application').setAttribute('inert', 'true')
 
@@ -1059,8 +1066,12 @@ Namespace('Crossword').Engine = do ->
 						return
 
 		if done
-			$('.arrow_box').show()
-			_assistiveAlert 'You have completed every question and are ready to submit.'
+			if _submitPromptReady
+				_showAlert "You've completed every question are ready to submit.", 'Submit', 'Cancel', _dom('movable'), _submitAnswers
+				_submitPromptReady = false
+			else
+				$('.arrow_box').show()
+			
 		else
 			question = _questions[unfinishedWord]
 			missing = null
