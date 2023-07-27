@@ -34,6 +34,9 @@ $darkblue: #5163A6;
 	-moz-osx-font-smoothing: grayscale;
 }
 
+.icon-tutorial:before {
+	content: "\ea09";
+}
 .icon-keyboard:before {
 	content: "\e955";
 }
@@ -179,7 +182,7 @@ html, body {
 
 	#options {
 		position: relative;
-		.icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout {
+		.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout {
 			position: absolute;
 			right: 204px;
 			z-index: 100;
@@ -209,15 +212,17 @@ html, body {
 				// border: solid 1px #5163A6;
 			}
 		}
-		.icon-keyboard {
+		.icon-tutorial {
 			top: 10px;
 		}
-		.icon-print {
+		.icon-keyboard {
 			top: 40px;
-			
+		}
+		.icon-print {
+			top: 70px;	
 		}
 		.icon-zoomout {
-			top: 70px;
+			top: 100px;
 		}
 	}
 
@@ -645,9 +650,14 @@ input, button {
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: center;
-		gap: 10px;
+		gap: 16px;
 
 		margin: 25px 0 40px 0;
+
+		#introcaption {
+			text-align: left;
+			line-height: 1.5em;
+		}
 	}
 
 	.image-frame {

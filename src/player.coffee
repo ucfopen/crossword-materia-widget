@@ -171,6 +171,7 @@ Namespace('Crossword').Engine = do ->
 
 		$('#board').keydown _boardKeyDownHandler
 		$('#kbhelp').click -> _showKeyboardDialog()
+		$('#introbtn').click -> _showIntroDialog()
 		$('#printbtn').click (e) ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#printbtn').keyup (e) ->
