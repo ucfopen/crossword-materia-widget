@@ -743,6 +743,8 @@ Namespace('Crossword').Engine = do ->
 			if _wordIntersections.hasOwnProperty(location)
 				i = _wordIntersections[location][~~(_prevDir == 1)] - 1
 				_highlightPuzzleWord(i)
+				# update the aria-describedby attribute to match the clue associated with the current direction
+				nextletterElement.setAttribute('aria-describedby','cluetext_'+i)
 				_curDir = _questions[i].options.dir
 			else
 				if _curDir == ~~nextletterElement.getAttribute('data-dir') or _curDir is -1
