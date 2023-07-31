@@ -569,18 +569,15 @@ input, button {
 		border-color: #5163A6;
 	}
 
-	#alertcaption {
-		text-align: left;
-
-		br {
-			display: block;
-			height: 3px;
-		}
-	}
-
 	header {
+		text-align: center;
 		margin-bottom: 1em;
 		font-weight: bold;
+	}
+
+	#introcaption, #tutorialcaption {
+		text-align: left;
+		line-height: 1.5em;
 	}
 
 	p {
@@ -653,11 +650,6 @@ input, button {
 		gap: 16px;
 
 		margin: 25px 0 40px 0;
-
-		#introcaption {
-			text-align: left;
-			line-height: 1.5em;
-		}
 	}
 
 	.image-frame {
