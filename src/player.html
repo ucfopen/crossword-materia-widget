@@ -20,132 +20,107 @@
 	</head>
 
 	<body>
-		<div role="application">
-			<div id='widget-header'
-				class='header'>
-				<div class='logo'></div>
-				<h1 id='title' aria-describedby='widget-reader' tabindex='1'></h1>
-				<div id='title-instructions' class='reader-instructions'>Use the Tab key to select the list of clues. Press the Return or Enter key to receive a full list of keyboard instructions.</div>
-				<div id='keyboard-instructions'
-					class='invisible-until-focused button'
-					aria-labelledby='title-instructions'
-					tabindex='2'>
-					Keyboard Instructions
-				</div>
-				<div id='printbtn'
+		<div id='application' class='application'>
+			<div id='assistive-notification' class='reader-instructions' aria-live='polite'></div>
+			<div id='assistive-alert' class='reader-instructions' aria-live='assertive'></div>
+			<header id='widget-header' class='header'>
+				<h1 id='title'></h1>
+				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit Answers</button>
+				<div id='submit-label' class='assistive-element'>Submit Answers for scoring.</div>
+				<div id='submit-status' class='assistive-element'></div>
+			</header>
+			<div id='options' role='toolbar'>
+				<button id='introbtn'
+					class='icon-tutorial'
+					title='Tutorial'
+					aria-label='Display tutorial.'>
+				</button>
+				<button id='kbhelp'
+					class='icon-keyboard'
+					title='Keyboard Help'
+					aria-label='Display keyboard instructions.'>
+				</button>
+				<button id='printbtn'
 					class='icon-print'
 					title='Print'
-					aria-label='Print. Press the Enter key to produce a printout for this Crossword puzzle.'
-					tabindex='6'></div>
-				<div id='zoomout'
+					aria-label='Print. Press the Enter key to produce a printout for this Crossword puzzle.'>
+				</button>
+				<button id='zoomout'
 					class='icon-zoomout'
 					title='Zoom Out'
-					aria-label='Zoom Out. Press the Enter key to select the letter grid.'
-					tabindex='7'></div>
-				<div class='submitholder'>
-					<div id='submit-progress-reader' class='reader-instructions'>There are empty letter tiles.</div>
-					<input id='checkBtn'
-						type='button'
-						class='submit button'
-						value='Submit Answers'
-						aria-describedby='submit-progress-reader'
-						tabindex='4'>
-				</div>
+					aria-label='Zoom Out. Press the Enter key to select the letter grid.'>
+				</button>
 			</div>
-			<div id='board-reader' class='reader-instructions' aria-live='polite'></div>
-			<div id="board" class="screen board"
-				aria-describedby='board-reader'>
+			<div id='board' class="screen board">
+				<div id='board-info' class='assistive-element'>
+					Crossword game board selected.
+					Use tab and shift-tab to navigate between character spaces within a word.
+					With the game board focused, use left and right arrow keys to cycle between words.
+					Use the down arrow to select the hint and free word buttons sequentially,
+					and the up arrow to return focus to the game board.
+					With the game board focused, use the up arrow to cycle through the special characters drawer, and the down arrow to cycle in reverse before
+					returning to the board.</div>
 				<div id="movable-container">
-					<div id='movable' class='crossword-board'></div>
+					<div id='movable' class='crossword-board' role='application' aria-describedby='board-info' tabindex='0'></div>
 				</div>
 			</div>
 
-			<div id='clue-reader' class='reader-instructions' aria-live='polite'></div>
-			<div id='clues'
-				role='list'
-				aria-describedby='clue-reader'
-				tabindex='3'>
-				<span style='display:none'>Clues</span>
-			</div>
+			<ul id='clues' role='list' aria-label='List of clues'>
+			</ul>
 
-			<div id='controlbar'
-				tabindex='-1'
-				aria-hidden>
+			<div id='controlbar' aria-hidden>
 				<span id='freeWordsRemaining'>
 				</span>
 			</div>
-			<div id='specialInput' class='down'>
-				<div id='specialInputHead'>Special Characters</div>
-				<div id='specialInputBody'>
-					<span>Á</span>
-					<span>À</span>
-					<span>Â</span>
-					<span>Ä</span>
-					<span>Ã</span>
-					<span>Å</span>
-					<span>Æ</span>
-					<span>Ç</span>
-					<span>É</span>
-					<span>È</span>
-					<span>Ê</span>
-					<span>Ë</span>
-					<span>Í</span>
-					<span>Ì</span>
-					<span>Î</span>
-					<span>Ï</span>
-					<span>Ñ</span>
-					<span>Ó</span>
-					<span>Ò</span>
-					<span>Ô</span>
-					<span>Ö</span>
-					<span>Õ</span>
-					<span>Ø</span>
-					<span>Œ</span>
-					<span>Ú</span>
-					<span>Ù</span>
-					<span>Û</span>
-					<span>Ü</span>
-				</div>
-			</div>
-
-			<div id='backgroundcover' class='fade'>
-				<div id='alertbox'
-					aria-labelledby='alertcaption alert-reader alert-instructions'
-					aria-live='polite'
-					tabindex='5'>
-					<div id='alertcaption'></div>
-					<div id='alert-reader' class='reader-instructions'></div>
-					<div id='alert-instructions' class='reader-instructions'>
-						Use the Escape key to cancel or the Return or Enter key to confirm.
-						Press the R key to repeat.
-					</div>
-					<input id='cancelbtn'
-						aria-label='Cancel.'
-						class='cancel button'
-						tabindex='0'
-						type='button'>
-					<input id='okbtn'
-						aria-label='Confirm.'
-						tabindex='0'
-						type='button'
-						class='submit button'
-						aria-describedby='submit-progress-reader'>
-				</div>
-			</div>
+			<details id='specialInput' class='down'>
+				<summary id='specialInputHead'>Special Characters</summary>
+				<ul id='specialInputBody' aria-label='Special character drawer. To insert a special character into a word, use the up arrow key with the desired character space selected.'>
+					<li tabindex='0'>Á</li>
+					<li tabindex='0'>À</li>
+					<li tabindex='0'>Â</li>
+					<li tabindex='0'>Ä</li>
+					<li tabindex='0'>Ã</li>
+					<li tabindex='0'>Å</li>
+					<li tabindex='0'>Æ</li>
+					<li tabindex='0'>Ç</li>
+					<li tabindex='0'>É</li>
+					<li tabindex='0'>È</li>
+					<li tabindex='0'>Ê</li>
+					<li tabindex='0'>Ë</li>
+					<li tabindex='0'>Í</li>
+					<li tabindex='0'>Ì</li>
+					<li tabindex='0'>Î</li>
+					<li tabindex='0'>Ï</li>
+					<li tabindex='0'>Ñ</li>
+					<li tabindex='0'>Ó</li>
+					<li tabindex='0'>Ò</li>
+					<li tabindex='0'>Ô</li>
+					<li tabindex='0'>Ö</li>
+					<li tabindex='0'>Õ</li>
+					<li tabindex='0'>Ø</li>
+					<li tabindex='0'>Œ</li>
+					<li tabindex='0'>Ú</li>
+					<li tabindex='0'>Ù</li>
+					<li tabindex='0'>Û</li>
+					<li tabindex='0'>Ü</li>
+				</ul>
+			</details>
 
 			<div id='t_hints' style='display:none' class="clue">
-				<em data-i='{{i}}'>{{hintPrefix}}:</em><br>
-				{{question}}<br>
-				<div id='hintbtn_{{i}}'
-					class='hint button'
+				<em data-i='{{i}}'>{{hintPrefix}}:</em>
+				<span class='clue-text' id='cluetext_{{i}}' data-i='{{i}}'>
+					{{question}}
+				</span>
+				<button id='hintbtn_{{i}}'
+					class='hint action-button button'
 					data-i='{{i}}'
 					data-dir='{{dir}}'
-					aria-hidden>Hint</div>
-				<div id='freewordbtn_{{i}}'
-					class='free-word button'
+					aria-label='Request a hint for this word. There may be a score deduction incurred.'>Hint</button>
+				<button id='freewordbtn_{{i}}'
+					class='free-word action-button button'
 					data-i='{{i}}'
 					data-dir='{{dir}}'
-					aria-hidden>Free word</div>
+					aria-label='Complete this question by using a free word.'>Free word</button>
 				<span class='hintspot' id='hintspot_{{i}}'></span>
 			</div>
 			<div class="arrow_box">Click to finish</div>
@@ -155,6 +130,43 @@
 				Materia.Engine.start(Crossword.Engine);
 			</script>
 
+		</div>
+		<div id='backgroundcover' class='fade'>
+			<dialog id='alertbox' aria-describedby='alertcaption' role='alertdialog' aria-modal='true'>
+				<div id='alertcaption'></div>
+				<button id='ab_cancel'
+					aria-label='Cancel.'
+					class='cancel'
+					tabindex='0'
+					autofocus></button>
+				<button id='ab_confirm'
+					aria-label='Confirm.'
+					tabindex='0'
+					class='submit action-button'></button>
+			</dialog>
+			<dialog id='introbox' aria-modal='true' role='alertdialog' aria-describedby='introcaption'>
+				<header>How to Play Crossword</header>
+				<div class='content'>
+					<div id='introcaption'>Fill in each <span class='bold'>word</span> or <span class='bold'>phrase</span> based on the associated clue on the right. Every cell contains a single letter. Letters at intersections should be correct for both words!</div>
+					<aside class='image-frame' aria-hidden='true'>
+						<img id='preview-img-1' src='assets/crossword-intro-frame-1.svg' alt='Crossword preview demo image 1 of 3' />
+						<img id='preview-img-2' src='assets/crossword-intro-frame-2.svg' alt='Crossword preview demo image 2 of 3' />
+						<img id='preview-img-3' src='assets/crossword-intro-frame-3.svg' alt='Crossword preview demo image 3 of 3' />
+					</aside>
+				</div>
+				<button id='intro_instructions' class='cancel'>Keyboard instructions</button>
+				<button id='intro_dismiss' class='submit action-button' aria-label='Dismiss intro dialog and select game board.'>Let's Go</button>
+			</dialog>
+			<dialog id='tutorialbox' aria-modal='true' role='alertdialog' aria-describedby='tutorialcaption'>
+				<div id='tutorialcaption'>
+					<header>Keyboard Controls</header>
+						<p>With the board selected, use the <span class='bold'>left</span> and <span class='bold'>right</span> keys to cycle between words.</p>
+						<p>Use the <span class='bold'>down</span> key to select the hint and free word buttons associated with the selected clue. Use the <span class='bold'>up</span> key to return to the board.</p>
+						<p>When the current letter is selected, use the <span class='bold'>up</span> key to cycle through the special character drawer. <span class='bold'>Enter</span> will insert the selected character at the current letter. The <span class='bold'>down</span> key will return you to the board.</p>
+						<p>Use <span class='bold'>tab</span> and <span class='bold'>shift-tab</span> to cycle through letters in the current word before defocusing the board.</p>
+				</div>
+				<button id='tutorial_dismiss' aria-label='Dismiss.' class='submit action-button'>Okay</button>
+			</dialog>
 		</div>
 	</body>
 </html>
