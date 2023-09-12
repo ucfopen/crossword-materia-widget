@@ -30,6 +30,11 @@
 				<div id='submit-status' class='assistive-element'></div>
 			</header>
 			<div id='options' role='toolbar'>
+				<button id='introbtn'
+					class='icon-tutorial'
+					title='Tutorial'
+					aria-label='Display tutorial.'>
+				</button>
 				<button id='kbhelp'
 					class='icon-keyboard'
 					title='Keyboard Help'
@@ -143,7 +148,7 @@
 				<header>How to Play Crossword</header>
 				<div class='content'>
 					<div id='introcaption'>Fill in each <span class='bold'>word</span> or <span class='bold'>phrase</span> based on the associated clue on the right. Every cell contains a single letter. Letters at intersections should be correct for both words!</div>
-					<aside class='image-frame'>
+					<aside class='image-frame' aria-hidden='true'>
 						<img id='preview-img-1' src='assets/crossword-intro-frame-1.svg' alt='Crossword preview demo image 1 of 3' />
 						<img id='preview-img-2' src='assets/crossword-intro-frame-2.svg' alt='Crossword preview demo image 2 of 3' />
 						<img id='preview-img-3' src='assets/crossword-intro-frame-3.svg' alt='Crossword preview demo image 3 of 3' />
