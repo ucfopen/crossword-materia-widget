@@ -6,7 +6,7 @@
   "version": "1.3.3",
   "dependencies": {
     "hammerjs": "2.0.6",
-    "materia-widget-development-kit": "../../MWDK4"
+    "materia-widget-development-kit": "2.5.3"
   },
   "scripts": {
     "start": "mwdk-start",
