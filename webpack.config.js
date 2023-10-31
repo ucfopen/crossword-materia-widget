@@ -4,6 +4,7 @@ const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
 const copy = widgetWebpack.getDefaultCopyList()
 
 const outputPath = path.join(process.cwd(), 'build')
+const srcPath = path.join(__dirname, 'src') + path.sep
 
 const customCopy = copy.concat([
 	{
@@ -11,42 +12,30 @@ const customCopy = copy.concat([
 		to: outputPath,
 	},
 	{
-		from: path.join(__dirname, 'src', '_guides', 'assets'),
+		from: path.join(srcPath, '_guides', 'assets'),
 		to: path.join(outputPath, 'guides', 'assets'),
 		toType: 'dir'
 	},
 ])
 
 const entries = {
-	'creator.js': [
-		path.join(__dirname, 'src', 'print.coffee'),
-		path.join(__dirname, 'src', 'creator.puzzle.coffee'),
-		path.join(__dirname, 'src', 'creator.coffee')
+	'player': [
+		path.join(srcPath, 'player.html'),
+		path.join(srcPath, 'print.coffee'),
+		path.join(srcPath, 'player.coffee'),
+		path.join(srcPath, 'player.scss')
 	],
-	'player.js': [
-		path.join(__dirname, 'src', 'print.coffee'),
-		path.join(__dirname, 'src', 'player.coffee')
+	'creator': [
+		path.join(srcPath, 'creator.html'),
+		path.join(srcPath, 'print.coffee'),
+		path.join(srcPath, 'creator.coffee'),
+		path.join(srcPath, 'creator.puzzle.coffee'),
+		path.join(srcPath, 'creator.scss'),
 	],
-	'creator.css': [
-		path.join(__dirname, 'src', 'creator.html'),
-		path.join(__dirname, 'src', 'creator.scss')
-	],
-	'player.css': [
-		path.join(__dirname, 'src', 'player.html'),
-		path.join(__dirname, 'src', 'player.scss')
-	],
-	'scoreScreen.js': [
-		path.join(__dirname, 'src', 'scoreScreen.coffee')
-	],
-	'scoreScreen.css': [
-		path.join(__dirname, 'src', 'scoreScreen.html'),
-		path.join(__dirname, 'src', 'scoreScreen.scss')
-	],
-	'guides/player.temp.html': [
-		path.join(__dirname, 'src', '_guides', 'player.md')
-	],
-	'guides/creator.temp.html': [
-		path.join(__dirname, 'src', '_guides', 'creator.md')
+	'scoreScreen': [
+		path.join(srcPath, 'scoreScreen.html'),
+		path.join(srcPath, 'scoreScreen.coffee'),
+		path.join(srcPath, 'scoreScreen.scss')
 	]
 }
 
