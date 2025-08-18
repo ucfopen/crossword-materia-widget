@@ -10,6 +10,7 @@ general:
   is_qset_encrypted: Yes
   is_answer_encrypted: Yes
   is_storage_enabled: No
+  is_generable: Yes
   api_version: 2
 files:
   creator: creator.html
@@ -38,3 +39,8 @@ meta_data:
   accessibility_description: >
     Includes custom controls that may override standard navigation.
     These controls are communicated visually and to screenreaders.
+  generation_prompt: >
+    The resulting json object must contain an items array nested within a second items array within the qset->data object. The data object should
+    additionally contain an options key with two properties: freeWords and hintPenalty. The default values for these two properties are 1 and 50 respectively. The
+    hint value present in each question's options object should provide slightly more information or context to help students guess the associated word, and be more
+    substantive than simply offering the first letter.
