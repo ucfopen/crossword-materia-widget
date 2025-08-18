@@ -15,6 +15,21 @@ describe('Player', function() {
 
 		document.documentElement.innerHTML = html.toString();
 
+		// Create a global Namespace function
+		global.Namespace = function(path) {
+			const parts = path.split('.')
+			let current = global
+			
+			for (let i = 0; i < parts.length; i++) {
+				if (!current[parts[i]]) {
+				current[parts[i]] = {}
+				}
+				current = current[parts[i]]
+			}
+			
+			return current
+		}
+
 		// mock materia
 		global.Materia = {
 			Engine: {
