@@ -11,10 +11,9 @@ class Crossword(ScoreModule):
         self.hint_deductions = 0.0
         self.modifiers = {}
 
-    def handle_log_question_answered(self, log):
-        self.scores[log.item_id] = self.check_answer(log)
-        # Update totals once here
-        self.total_questions += 1
+    def handle_log_widget_interaction(self, log):
+        if log.text == self.HINT_INTERACTION:
+            self.modifiers[log.item_id] = log.value
 
     def check_answer(self, log):
 
@@ -46,11 +45,18 @@ class Crossword(ScoreModule):
         # Default to full credit unless a hint modifier is present
         if log.item_id in self.modifiers:
             deduction = float(self.modifiers[log.item_id])
-            score = base_score * percent_correct * ((100 - deduction) / 100)
+            hint_factor = 1 - (- deduction / self.INITIAL_SCORE)
+            score = (base_score * percent_correct) * hint_factor
+            self.hint_deductions += (base_score * percent_correct) - score
         else:
             score = base_score * percent_correct
 
         return score
+
+    def calculate_score(self):
+        super().calculate_score()
+        self.hint_deductions = -1 * (self.hint_deductions /
+                                     self.total_questions)
 
     def normalize_string(self, string_val: str):
         return list(string_val.lower())
@@ -67,7 +73,8 @@ class Crossword(ScoreModule):
         if len(submitted_chars) < max_len:
             submitted_chars += [" "] * (max_len - len(submitted_chars))
         for i in range(max_len):
-            if i < len(answer_chars) and self.is_guessable_letter(answer_chars[i]):
+            if (i < len(answer_chars) and 
+                    self.is_guessable_letter(answer_chars[i])):
                 if i < len(submitted_chars) and submitted_chars[i] == ' ':
                     submitted_chars[i] = '_'
         return "".join(submitted_chars)
@@ -81,7 +88,16 @@ class Crossword(ScoreModule):
     def get_overview_items(self):
         overview = []
         if self.hint_deductions < 0:
-            overview.append({"message": "Hint Deductions", "value": self.hint_deductions})
-        overview.append({"message": "Points Lost", "value": self.points_lost})
-        overview.append({"message": "Final Score", "value": self.calculated_percent})
+            overview.append({
+                "message": "Hint Deductions",
+                "value": self.hint_deductions
+            })
+        overview.append({
+            "message": "Points Lost",
+            "value": self.points_lost
+            })
+        overview.append({
+            "message": "Final Score",
+            "value": self.calculated_percent
+            })
         return overview
