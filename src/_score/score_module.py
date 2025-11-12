@@ -55,8 +55,9 @@ class Crossword(ScoreModule):
 
     def calculate_score(self):
         super().calculate_score()
-        self.hint_deductions = -1 * (self.hint_deductions /
-                                     self.total_questions)
+        if self.total_questions > 0:
+            self.hint_deductions = -1 * (self.hint_deductions /
+                                         self.total_questions)
 
     def normalize_string(self, string_val: str):
         return list(string_val.lower())
