@@ -44,3 +44,5 @@ meta_data:
     additionally contain an options key with two properties: freeWords and hintPenalty. The default values for these two properties are 1 and 50 respectively. The
     hint value present in each question's options object should provide slightly more information or context to help students guess the associated word, and be more
     substantive than simply offering the first letter.
+  update_method: github
+  repo: ucfopen/crossword-materia-widget
