@@ -2,6 +2,9 @@ const fs = require('fs')
 const path = require('path')
 
 describe('Player', function() {
+	require('angular/angular.js')
+	require('angular-mocks/angular-mocks.js')
+
 	var widgetInfo;
 	var qset;
 
@@ -11,6 +14,21 @@ describe('Player', function() {
 		jest.resetModules();
 
 		document.documentElement.innerHTML = html.toString();
+
+		// Create a global Namespace function
+		global.Namespace = function(path) {
+			const parts = path.split('.')
+			let current = global
+			
+			for (let i = 0; i < parts.length; i++) {
+				if (!current[parts[i]]) {
+				current[parts[i]] = {}
+				}
+				current = current[parts[i]]
+			}
+			
+			return current
+		}
 
 		// mock materia
 		global.Materia = {
@@ -30,7 +48,7 @@ describe('Player', function() {
 		widgetInfo = require('./demo.json');
 		qset = widgetInfo.qset;
 
-		require('../node_modules/materia-server-client-assets/src/js/materia-namespace');
+		require('../node_modules/materia-widget-dependencies/js/materia.js');
 		require('./player.coffee');
 	});
 

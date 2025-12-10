@@ -66,8 +66,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		_drawCurrentPuzzle _items
 		$scope.hasFreshPuzzle = true
 
-	$scope.onSaveClicked = ->
-		if not _buildSaveData()
+	$scope.onSaveClicked = (mode) ->
+		if not _buildSaveData() and mode isnt 'history'
 			return Materia.CreatorCore.cancelSave 'Required fields not filled out'
 		Materia.CreatorCore.save _title, _qset
 
