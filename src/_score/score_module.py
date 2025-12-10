@@ -10,10 +10,7 @@ class Crossword(ScoreModule):
         self.points_lost = 0.0
         self.hint_deductions = 0.0
         self.modifiers = {}
-
-    def handle_log_widget_interaction(self, log):
-        if log.text == self.HINT_INTERACTION:
-            self.modifiers[log.item_id] = log.value
+        self.incorrect_deductions = []
 
     def check_answer(self, log):
 
@@ -42,6 +39,11 @@ class Crossword(ScoreModule):
         percent_correct = match_num / guessable
         base_score = self.INITIAL_SCORE
 
+        # save the raw point deduction
+        self.incorrect_deductions.append(
+            base_score - percent_correct * base_score
+        )
+
         # Default to full credit unless a hint modifier is present
         if log.item_id in self.modifiers:
             deduction = float(self.modifiers[log.item_id])
@@ -53,11 +55,21 @@ class Crossword(ScoreModule):
 
         return score
 
+    def handle_log_widget_interaction(self, log):
+        if log.text == self.HINT_INTERACTION:
+            self.modifiers[log.item_id] = log.value
+
     def calculate_score(self):
         super().calculate_score()
         if self.total_questions > 0:
             self.hint_deductions = -1 * (self.hint_deductions /
                                          self.total_questions)
+
+            # points lost represents the point value deduction
+            # from incorrect letter guesses, sans hint deduction
+            self.points_lost = -1 * (
+                sum(self.incorrect_deductions) / self.total_questions
+            )
 
     def normalize_string(self, string_val: str):
         return list(string_val.lower())
