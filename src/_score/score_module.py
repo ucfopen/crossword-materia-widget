@@ -1,3 +1,4 @@
+from core.models import Log
 from scoring.module import ScoreModule
 
 
@@ -93,9 +94,11 @@ class Crossword(ScoreModule):
         return "".join(submitted_chars)
 
     def get_feedback(self, log, answers):
-        for ans in answers:
-            if "options" in ans and "feedback" in ans["options"]:
-                return ans["options"]["feedback"]
+        for play_log in self.logs:
+            if (play_log.log_type == Log.LogType.SCORE_WIDGET_INTERACTION
+                    and play_log.item_id == log.item_id):
+                return "Hint Received"
+
         return None
 
     def get_overview_items(self):
