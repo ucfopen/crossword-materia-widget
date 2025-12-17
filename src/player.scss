@@ -433,7 +433,7 @@ html, body {
 		#specialInputBody {
 			box-sizing: border-box;
 			height: 60px;
-			max-width: 480px;
+			max-width: calc(100vw - 220px);
 			margin: 0;
 			padding: 5px;
 			background-color: #333333;
