@@ -46,8 +46,14 @@ $clue_width: calc(max(25vw, 200px));
 .icon-print:before {
 	content: "\e954";
 }
-.icon-zoomout:before {
+.icon-zoomin:after {
+	content: "\e987";
+}
+.icon-zoomout:after {
 	content: "\e988";
+}
+.icon-center:before {
+	content: "\e987";
 }
 
 html, body {
@@ -183,13 +189,18 @@ html, body {
 		
 	}
 
+	#widget-header {
+		position: absolute;
+	}
+
 	#options {
 		position: relative;
-		.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout {
+		top: 60px;
+		.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout, .icon-center {
 			position: absolute;
 			right: calc($clue_width + 4px);
 			z-index: 100;
-
+			
 			color: #999;
 
 			font-family: 'icomoon';
@@ -214,6 +225,14 @@ html, body {
 				color: #000;
 				// border: solid 1px #5163A6;
 			}
+
+			#focus-text {
+				font-family: 'Roboto Slab';
+				font-size: 12px;
+				position: relative;
+				bottom: 4px;
+				right: -4px;
+			}
 		}
 		.icon-tutorial {
 			top: 10px;
@@ -224,7 +243,10 @@ html, body {
 		.icon-print {
 			top: 70px;	
 		}
-		.icon-zoomout {
+		.icon-center {
+			top: 100px;
+		}
+		.icon-zoomout, .icon-zoomin {
 			top: 100px;
 		}
 	}

@@ -69,6 +69,9 @@ Namespace('Crossword').Engine = do ->
 	_isMobile             = false
 	_zoomedIn             = false
 
+	# used for letter scale focusing
+	_doZoomIn             = false
+
 	# constants
 	LETTER_HEIGHT         = 23 # how many pixels high is a space?
 	LETTER_WIDTH          = 27 # how many pixels wide is a space?
@@ -224,10 +227,26 @@ Namespace('Crossword').Engine = do ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#printbtn').keyup (e) ->
 			if e.keyCode is 13 then Crossword.Print.printBoard(_instance, _questions)
-		$('#zoomout').click _zoomOut
-		$('#zoomout').keyup (e) ->
+		$('#center').click _zoomOut
+		$('#center').keyup (e) ->
 			if e.keyCode is 13 then _zoomOut()
 		
+		$('#focus-letter').click (e) ->
+			if !_doZoomIn
+				_doZoomIn = true
+				_centerLetter()
+				$('#focus-letter').attr('class', 'icon-zoomout')
+				$('#focus-text').text('focused')
+			else
+				_doZoomIn = false
+				_resetView()
+				$('#focus-letter').attr('class', 'icon-zoomin')
+				$('#focus-text').text('')
+		$('#focus-letter').keyup (e) ->
+			if e.keyCode is 13
+				doZoomIn = !_doZoomIn
+				_centerLetter()
+
 		$('#specialInputBody li').click ->
 			spoof = $.Event('keydown')
 			spoof.which = this.innerText.charCodeAt(0)
@@ -286,6 +305,8 @@ Namespace('Crossword').Engine = do ->
 
 		_puzzleY += (context.clientY - _mouseYAnchor)
 		_puzzleX += (context.clientX - _mouseXAnchor)
+
+		console.log(_puzzleX, _puzzleY)
 
 		# if its out of range, stop panning
 		_limitBoardPosition()
@@ -449,11 +470,11 @@ Namespace('Crossword').Engine = do ->
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
 		if _puzzleLetterWidth > BOARD_LETTER_WIDTH or _puzzleLetterHeight > BOARD_LETTER_HEIGHT
-			_zoomOut()
+			# _zoomOut()
 
-			setTimeout ->
-				_zoomIn()
-			, 2500
+			# setTimeout ->
+			# 	_zoomIn()
+			# , 2500
 
 		else # no zooming, just highlight first letter
 			_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }
@@ -466,8 +487,8 @@ Namespace('Crossword').Engine = do ->
 
 		# x = pixelHeight / visibleDivHeight
 		# 5 = 2000 / 400
-		heightScaleFactor = puzzlePixelHeight / BOARD_HEIGHT
-		widthScaleFactor = puzzlePixelWidth / BOARD_WIDTH
+		heightScaleFactor = puzzlePixelHeight / _contHeight()
+		widthScaleFactor = puzzlePixelWidth / _contWidth()
 
 		# find the biggest scale factor
 		scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor)
@@ -490,6 +511,61 @@ Namespace('Crossword').Engine = do ->
 			.css('transform', trans)
 		_zoomedIn = true
 
+	_resetView = (animate = true) ->
+		m = _dom('movable')
+		if animate
+			m.classList.add 'animateall'
+
+		clearTimeout _movableEase
+
+		_movableEase = setTimeout ->
+			m.classList.remove 'animateall'
+
+		, 1000
+
+		trans = ''
+		_boardDiv.css('-webkit-transform', trans)
+			.css('-moz-transform', trans)
+			.css('transform', trans)
+		_zoomedIn = true
+
+		_puzzleX = 0
+		_puzzleY = 0
+
+		m.style.top  = _puzzleY + 'px'
+		m.style.left = _puzzleX + 'px'
+
+	# centers puzzleX/Y on the current letter, zooms
+	_centerLetter = (animate = true) ->
+		letterX = _curLetter.x * LETTER_WIDTH
+		letterY = _curLetter.y * LETTER_HEIGHT
+
+		scaleFactor = 2
+
+		# we want to translate letterX/Y to the centerpoint
+		_puzzleX = (_mapWidth()/2) - ((letterX+(LETTER_WIDTH/2))*scaleFactor)
+		_puzzleY = (_mapHeight()/2) - ((letterY+(LETTER_HEIGHT/2))*scaleFactor)
+
+		m = _dom('movable')
+		if animate
+			m.classList.add 'animateall'
+
+		clearTimeout _movableEase
+
+		_movableEase = setTimeout ->
+			m.classList.remove 'animateall'
+
+		, 1000
+
+		trans = "scale(#{scaleFactor})"
+		_boardDiv
+			.css('-webkit-transform', trans)
+			.css('-moz-transform', trans)
+			.css('transform', trans)
+
+		m.style.top  = _puzzleY + 'px'
+		m.style.left = _puzzleX + 'px'
+
 	# remove letter focus class from the current letter
 	_removePuzzleLetterHighlight = ->
 		g = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
@@ -509,18 +585,16 @@ Namespace('Crossword').Engine = do ->
 			letterX = _curLetter.x * LETTER_WIDTH + _mapXMargin()
 			letterY = _curLetter.y * LETTER_HEIGHT + _mapYMargin()
 
-			#console.log(letterX, letterY)
-			isOffBoardX = letterX > _contWidth() + _puzzleX or letterX < 0 -_puzzleX 
-			isOffBoardY = letterY > _contHeight() + _puzzleY or letterY < 0 -_puzzleY
+			isOffBoardX = letterX > _contWidth() - _puzzleX or letterX < 0 -_puzzleX 
+			isOffBoardY = letterY > _contHeight() - _puzzleY or letterY < 0 -_puzzleY
 
 			m = _dom('movable')
-			console.log(_puzzleX, _puzzleY)
 			if not _boardMoving and (isOffBoardX or isOffBoardY)
 				if isOffBoardX
-					_puzzleX = -_curLetter.x * LETTER_WIDTH + _mapXMargin()
+					_puzzleX = -_curLetter.x * LETTER_WIDTH - _mapXMargin()
 
 				if isOffBoardY
-					_puzzleY = -_curLetter.y * LETTER_HEIGHT + _mapYMargin()
+					_puzzleY = -_curLetter.y * LETTER_HEIGHT - _mapYMargin()
 
 				if animate
 					m.classList.add 'animateall'
@@ -534,6 +608,8 @@ Namespace('Crossword').Engine = do ->
 
 			_limitBoardPosition()
 			_boardMoving = false
+
+			if _doZoomIn then _centerLetter()
 
 			m.style.top  = _puzzleY + 'px'
 			m.style.left = _puzzleX + 'px'
