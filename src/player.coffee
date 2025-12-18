@@ -23,8 +23,11 @@ Namespace('Crossword').Engine = do ->
 	_puzzleY              = 0
 	_puzzleX              = 0
 
+	# amount in pixels that the board overflows the window by
+	# negative means the window is larger than the board
 	_puzzleHeightOverflow = 0
 	_puzzleWidthOverflow  = 0
+
 	_puzzleLetterHeight   = 0
 	_puzzleLetterWidth    = 0
 
@@ -57,6 +60,7 @@ Namespace('Crossword').Engine = do ->
 	# cache DOM elements for performance
 	_domCache             = {}
 	_boardDiv             = null # div containing the board
+	_contDiv              = null # parent div of _boardDiv
 
 	# these are the allowed user input
 	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Á','À','Â','Ä','Ã','Å','Æ','Ç','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Õ','Ø','Œ','ß','Ú','Ù','Û','Ü']
@@ -69,11 +73,47 @@ Namespace('Crossword').Engine = do ->
 	LETTER_HEIGHT         = 23 # how many pixels high is a space?
 	LETTER_WIDTH          = 27 # how many pixels wide is a space?
 	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
+	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
+	
+	# NOTE: now that the player is responsive, these values
+	# should be used as a psuedo base scale for the game
 	BOARD_WIDTH           = 472 # visible board width
 	BOARD_HEIGHT          = 485 # visible board height
 	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
-	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
+
+	# width of the scaled game container (replaces BOARD_WIDTH usage)
+	_contWidth = () ->
+		return parseFloat(_contDiv.css("width").replace("px",""))
+
+	# height of the scaled game container (replaces BOARD_HEIGHT usage)
+	_contHeight = () ->
+		return parseFloat(_contDiv.css("height").replace("px",""))
+
+	# width of crossword map extent
+	_mapWidth = () ->
+		return parseFloat(_boardDiv.css("width").replace("px",""))
+
+	# height of crossword map extent
+	_mapHeight = () ->
+		return parseFloat(_boardDiv.css("height").replace("px",""))
+
+	# size of the margin centering the map in the X direction
+	_mapXMargin = () ->
+		return parseFloat(_boardDiv.css("margin-left").replace("px",""))
+
+	# size of the margin centering the map in the Y direction
+	_mapYMargin = () ->
+		return parseFloat(_boardDiv.css("margin-top").replace("px",""))
+
+	# Centers the board
+	_centerBoard = () ->
+		_boardDiv.css('margin-left', (_contWidth() - _mapWidth()) / 2)
+		_boardDiv.css('margin-top', (_contHeight() - _mapHeight()) / 2)
+
+	_rescaleVars = () ->
+		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - _contWidth()
+		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight()
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
@@ -93,6 +133,7 @@ Namespace('Crossword').Engine = do ->
 		# easy access to questions
 		_questions = _qset.items[0].items
 		_boardDiv = $('#movable')
+		_contDiv = $('#movable-container')
 
 		# clean qset variables
 		forEveryQuestion (i, letters, x, y, dir) ->
@@ -105,8 +146,9 @@ Namespace('Crossword').Engine = do ->
 
 		_puzzleLetterWidth  = puzzleSize.width
 		_puzzleLetterHeight = puzzleSize.height
-		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - BOARD_WIDTH
-		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - BOARD_HEIGHT
+	
+		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - _contWidth()
+		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight()
 
 		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y }
 
@@ -166,6 +208,11 @@ Namespace('Crossword').Engine = do ->
 
 	# set up listeners on UI elements
 	_setupEventHandlers = ->
+		$(window).on 'resize', () ->
+			_centerBoard()
+			_rescaleVars()
+			_limitBoardPosition()
+
 		# keep focus on the last letter that was highlighted whenever we move the board around
 		$('#board').click -> _highlightPuzzleLetter false
 
@@ -256,10 +303,20 @@ Namespace('Crossword').Engine = do ->
 
 	# limits board position to prevent going off into oblivion (down and right)
 	_limitBoardPosition = ->
-		_puzzleY = -_puzzleHeightOverflow if _puzzleY < -_puzzleHeightOverflow
-		_puzzleY = 0 if _puzzleY > 0
-		_puzzleX = - _puzzleWidthOverflow if _puzzleX < -_puzzleWidthOverflow
-		_puzzleX = 0 if _puzzleX > 0
+
+		# Sign variables flip collision behavior 
+		# based on if the map is larger or smaller than the screen
+
+		# when overflow is negative, the map should be blocked by the screen edge
+		# when overflow is positive, the map should be allowed to be panned past the edge
+		wSign = -Math.abs(_puzzleWidthOverflow) / _puzzleWidthOverflow
+		hSign = -Math.abs(_puzzleHeightOverflow) / _puzzleHeightOverflow
+
+		_puzzleX = wSign*(_puzzleWidthOverflow/2) if _puzzleX < wSign*(_puzzleWidthOverflow/2)
+		_puzzleX = -wSign*(_puzzleWidthOverflow/2) if _puzzleX > -wSign*(_puzzleWidthOverflow/2)
+
+		_puzzleY = hSign*(_puzzleHeightOverflow/2) if _puzzleY < hSign*(_puzzleHeightOverflow/2)
+		_puzzleY = -hSign*(_puzzleHeightOverflow/2) if _puzzleY > -hSign*(_puzzleHeightOverflow/2)
 
 	# Draw the main board.
 	_drawBoard = (title) ->
@@ -276,8 +333,10 @@ Namespace('Crossword').Engine = do ->
 
 		document.title = 'Crossword Materia widget: ' + title
 
-		# used to track the maximum dimensions of the puzzle
-		_top = 0
+		# tracks horizontal and vertical extent of the puzzle
+		# origin is top-left, in units of letters
+		maxLetterX = 0
+		maxLetterY = 0
 
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir) ->
@@ -352,6 +411,13 @@ Namespace('Crossword').Engine = do ->
 				# init the puzzle grid for this row and letter
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
+				
+				# track board extent
+				if letterLeft > maxLetterX
+					maxLetterX = letterLeft
+
+				if letterTop > maxLetterY
+					maxLetterY = letterTop
 
 				_boardDiv.append letterElement
 
@@ -359,6 +425,16 @@ Namespace('Crossword').Engine = do ->
 			_dom('submit-status').innerHTML = '' + _completeCount + ' of ' + _questions.length + ' completed.' 
 
 			_questions[i].locations = locationList
+		
+		# update board sizing
+		# +1 accounts for x/y values starting at 0
+		newWidth = (maxLetterX + 1) * LETTER_WIDTH
+		newHeight = (maxLetterY + 1) * LETTER_HEIGHT
+		_boardDiv.css('width', newWidth)
+		_boardDiv.css('height', newHeight)
+
+		# set offset to center board
+		_centerBoard()
 
 		# Select the first clue
 		# _clueMouseUp {target: $('#clue_0')[0]}
@@ -429,20 +505,22 @@ Namespace('Crossword').Engine = do ->
 			if autofocus then highlightedLetter.focus()
 
 			# figure out if the _curLetter is on the screen
-			letterX = _curLetter.x * LETTER_WIDTH
-			letterY = _curLetter.y * LETTER_HEIGHT
+			letterX = _curLetter.x * LETTER_WIDTH + _mapXMargin()
+			letterY = _curLetter.y * LETTER_HEIGHT + _mapYMargin()
 
-			isOffBoardX = letterX > _puzzleX or letterX < _puzzleX + BOARD_WIDTH
-			isOffBoardY = letterY > _puzzleY or letterY < _puzzleY + BOARD_HEIGHT
+			#console.log(letterX, letterY)
+			isOffBoardX = letterX > _contWidth() + _puzzleX or letterX < 0 -_puzzleX 
+			isOffBoardY = letterY > _contHeight() + _puzzleY or letterY < 0 -_puzzleY
 
 			m = _dom('movable')
-
+			console.log(_puzzleX, _puzzleY)
 			if not _boardMoving and (isOffBoardX or isOffBoardY)
 				if isOffBoardX
-					_puzzleX = -_curLetter.x * LETTER_WIDTH + 100
+					console.log("x was off board, setting to",-_curLetter.x * LETTER_WIDTH + _mapXMargin())
+					_puzzleX = -_curLetter.x * LETTER_WIDTH + _mapXMargin()
 
 				if isOffBoardY
-					_puzzleY = -_curLetter.y * LETTER_HEIGHT + 100
+					_puzzleY = -_curLetter.y * LETTER_HEIGHT + _mapYMargin()
 
 				if animate
 					m.classList.add 'animateall'
