@@ -208,6 +208,7 @@ Namespace('Crossword').Engine = do ->
 
 	# set up listeners on UI elements
 	_setupEventHandlers = ->
+		# control window scaling
 		$(window).on 'resize', () ->
 			_centerBoard()
 			_rescaleVars()
@@ -266,7 +267,7 @@ Namespace('Crossword').Engine = do ->
 	_mouseDownHandler = (e) ->
 		context = if _isMobile then e.pointers[0] else e
 
-		return if context.clientX > 515 or not _zoomedIn
+		return if context.clientX > _contWidth() or not _zoomedIn
 
 		_boardMouseDown = true
 		_mouseYAnchor = context.clientY
@@ -516,7 +517,6 @@ Namespace('Crossword').Engine = do ->
 			console.log(_puzzleX, _puzzleY)
 			if not _boardMoving and (isOffBoardX or isOffBoardY)
 				if isOffBoardX
-					console.log("x was off board, setting to",-_curLetter.x * LETTER_WIDTH + _mapXMargin())
 					_puzzleX = -_curLetter.x * LETTER_WIDTH + _mapXMargin()
 
 				if isOffBoardY
