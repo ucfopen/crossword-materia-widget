@@ -821,6 +821,8 @@ input, button {
 
 #nav-div {
 	visibility: hidden;
+	width: 0px;
+	height: 0px;
 }
 
 @media (width < $mobile_w_break) {
@@ -830,6 +832,7 @@ input, button {
 
 	#nav-div {
 		visibility: visible;
+		width: fit-content;
 	}
 
 	.application {
