@@ -3,10 +3,10 @@
   "materia": {
     "cleanName": "crossword"
   },
-  "version": "1.3.4",
+  "version": "1.4.0",
   "dependencies": {
     "hammerjs": "2.0.6",
-    "materia-widget-development-kit": "3.0.4"
+    "materia-widget-development-kit": "^3.0.4"
   },
   "scripts": {
     "start": "mwdk-start",
