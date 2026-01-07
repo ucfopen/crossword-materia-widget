@@ -25,7 +25,7 @@
 			<div id='assistive-alert' class='reader-instructions' aria-live='assertive'></div>
 			<header id='widget-header' class='header'>
 				<h1 id='title'></h1>
-				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit Answers</button>
+				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit</button>
 				<div id='submit-label' class='assistive-element'>Submit Answers for scoring.</div>
 				<div id='submit-status' class='assistive-element'></div>
 			</header>
@@ -117,16 +117,32 @@
 				<span class='clue-text' id='cluetext_{{i}}' data-i='{{i}}'>
 					{{question}}
 				</span>
-				<button id='hintbtn_{{i}}'
-					class='hint action-button button'
-					data-i='{{i}}'
-					data-dir='{{dir}}'
-					aria-label='Request a hint for this word. There may be a score deduction incurred.'>Hint</button>
-				<button id='freewordbtn_{{i}}'
-					class='free-word action-button button'
-					data-i='{{i}}'
-					data-dir='{{dir}}'
-					aria-label='Complete this question by using a free word.'>Free word</button>
+				<div id="hint-splitter">
+					<div>
+						<button id='hintbtn_{{i}}'
+						class='hint action-button button'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						aria-label='Request a hint for this word. There may be a score deduction incurred.'>Hint</button>
+						<button id='freewordbtn_{{i}}'
+						class='free-word action-button button'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						aria-label='Complete this question by using a free word.'>Free word</button>
+					</div>
+					<div id="nav-div">
+						<button id='prevQ_{{i}}'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						class='action-button button'
+						aria-label='Move to the previous question.'><</button>
+						<button id='nextQ_{{i}}'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						class='action-button button'
+						aria-label='Move to the next question.'>></button>
+					</div>
+				</div>
 				<span class='hintspot' id='hintspot_{{i}}'></span>
 			</div>
 			<div class="arrow_box">Click to finish</div>

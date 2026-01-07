@@ -4,6 +4,7 @@ $darkblue: #5163A6;
 
 // adjust this to change size of clue box
 $clue_width: calc(max(25vw, 200px));
+$mobile_w_break: 600px;
 
 /* Standardize padding in all browsers */
 * {
@@ -340,7 +341,7 @@ html, body {
 		top: 61px;
 		bottom: 28px;
 		width: $clue_width;
-
+		
 		padding: 0 0 20px 0;
 
 		background: #fff;
@@ -806,4 +807,75 @@ input, button {
 }
 .invisible-until-focused:focus {
 	opacity: 1;
+}
+
+// MOBILE SETTINGS
+
+#hint-splitter {
+	display: flex;
+	flex-direction: row;
+
+	width: 100%;
+	justify-content: space-between;
+}
+
+#nav-div {
+	visibility: hidden;
+}
+
+@media (width < $mobile_w_break) {
+	#controlbar {
+		width: 100%;	
+	}
+
+	#nav-div {
+		visibility: visible;
+	}
+
+	.application {
+		#specialInput {
+			bottom: 32px;
+			
+			#specialInputBody {
+				max-width: calc(100vw - 20px);
+			}
+		}
+		
+		#clues {
+			width: 100%;
+			max-height: 200px;
+			overflow-y: hidden;
+			padding: 0px;
+			padding-top: 7px;
+			padding-bottom: 7px;
+			.clue {
+				transition: all 0s ease;
+				-moz-transition: all 0s ease;
+				-webkit-transition: all 0s ease;
+			}
+		}
+
+		#board {
+			height: calc(100% - 90px);
+			#movable-container {
+				right: 10px;
+			}
+		}
+
+		#options {
+			top: calc(100vh - 180px);
+			.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout, .icon-center {
+				right: 4px;
+			}
+
+			.icon-zoomin, .icon-zoomout {
+				visibility: hidden;
+			}
+		}
+	}
+
+	#alertbox, #tutorialbox, #introbox {
+		min-width: 300px;
+		max-width: calc(90vw);
+	}
 }

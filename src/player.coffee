@@ -118,10 +118,19 @@ Namespace('Crossword').Engine = do ->
 		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - _contWidth()
 		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight()
 
+	# update isMobile variable depending on if the screen was scaled
+	# mainly so the widget doesnt break if someone rescales a bunch
+	_updateIsMobile = () ->
+		newMobile = if ($(window).width() < 600) || (navigator.userAgent.match /(iPhone|iPod|iPad|Android|BlackBerry)/) then true else false
+		if newMobile != _isMobile
+			$('#clues').css("height", "auto")
+		_isMobile = newMobile
+		console.log(_isMobile)
+
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
 		# if we're on a mobile device, some event listening will be different
-		_isMobile = navigator.userAgent.match /(iPhone|iPod|iPad|Android|BlackBerry)/
+		_updateIsMobile()
 		if _isMobile
 			document.ontouchmove = (e) ->
 					e.preventDefault()
@@ -154,7 +163,7 @@ Namespace('Crossword').Engine = do ->
 		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight()
 
 		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y }
-
+		
 		# render the widget, hook listeners, update UI
 		_drawBoard instance.name
 		_animateToShowBoardIfNeeded()
@@ -164,7 +173,9 @@ Namespace('Crossword').Engine = do ->
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
 
+		_centerBoard()
 		_showIntroDialog()
+		_updateClue()
 
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -213,6 +224,7 @@ Namespace('Crossword').Engine = do ->
 	_setupEventHandlers = ->
 		# control window scaling
 		$(window).on 'resize', () ->
+			_updateIsMobile()
 			_centerBoard()
 			_rescaleVars()
 			_limitBoardPosition()
@@ -305,8 +317,6 @@ Namespace('Crossword').Engine = do ->
 
 		_puzzleY += (context.clientY - _mouseYAnchor)
 		_puzzleX += (context.clientX - _mouseXAnchor)
-
-		console.log(_puzzleX, _puzzleY)
 
 		# if its out of range, stop panning
 		_limitBoardPosition()
@@ -540,7 +550,8 @@ Namespace('Crossword').Engine = do ->
 		letterX = _curLetter.x * LETTER_WIDTH
 		letterY = _curLetter.y * LETTER_HEIGHT
 
-		scaleFactor = 2
+		# don't add extra zoom on mobile
+		scaleFactor = if _isMobile then 1 else 2
 
 		# we want to translate letterX/Y to the centerpoint
 		_puzzleX = (_mapWidth()/2) - ((letterX+(LETTER_WIDTH/2))*scaleFactor)
@@ -609,7 +620,8 @@ Namespace('Crossword').Engine = do ->
 			_limitBoardPosition()
 			_boardMoving = false
 
-			if _doZoomIn then _centerLetter()
+			# focus on mobile by default
+			if _doZoomIn or _isMobile then _centerLetter()
 
 			m.style.top  = _puzzleY + 'px'
 			m.style.left = _puzzleX + 'px'
@@ -642,7 +654,10 @@ Namespace('Crossword').Engine = do ->
 			clue.classList.add 'highlight'
 
 			$('#clues').stop true
-			$('#clues').animate scrollTop: scrolly, 150
+			$('#clues').animate scrollTop: scrolly, 0
+			# set clue container to size of new clue displayed on mobile
+			if _isMobile
+				$('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')))
 
 	_updateCompleteCount = () ->
 		count = 0
@@ -1160,6 +1175,10 @@ Namespace('Crossword').Engine = do ->
 
 		hintButton.focus()
 
+		# update clue box height after hint is shown on mobile
+		if _isMobile
+			$('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')))
+
 	_handleSpecialCharacterFocus = (direction) ->
 
 		drawer = _dom 'specialInput'
@@ -1277,6 +1296,17 @@ Namespace('Crossword').Engine = do ->
 		# attach focus listeners to the hintbtn and freewordbtn after the clue element is attached to the DOM
 		_dom('hintbtn_' + i).addEventListener 'focus', _clueFocus
 		_dom('freewordbtn_' + i).addEventListener 'focus', _clueFocus
+		_dom('prevQ_' + i).addEventListener 'click', _navPrevQ
+		_dom('nextQ_' + i).addEventListener 'click', _navNextQ
+
+	# simulate clue clicks for mobile clue nav
+	_navPrevQ = ->
+		i = if (_curClue - 1) < 0 then _questions.length - 1 else _curClue - 1
+		_clueMouseUp {target: $('#clue_'+i)[0]}
+
+	_navNextQ = ->
+		i = (_curClue + 1) % _questions.length
+		_clueMouseUp {target: $('#clue_'+i)[0]}
 
 	_clueMouseUp = (e) ->
 		e = window.event if not e?
@@ -1329,7 +1359,7 @@ Namespace('Crossword').Engine = do ->
 
 			scrolly = clueElement.offsetTop
 			clueElement.classList.add 'highlight'
-
+			
 			$('#clues').stop true
 			$('#clues').animate scrollTop: scrolly, 150
 
