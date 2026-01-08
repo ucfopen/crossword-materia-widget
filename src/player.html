@@ -45,19 +45,14 @@
 					title='Print'
 					aria-label='Print. Press the Enter key to produce a printout for this Crossword puzzle.'>
 				</button>
-				<!-- <button id='center'
-					class='icon-center'
-					title='Zoom Out'
-					aria-label='Zoom Out. Press the Enter key to select the letter grid.'>
-				</button> -->
 				<button id='focus-letter'
 					class='icon-zoomin'
 					title='Focus'
 					aria-label='Focus. Press the Enter key to toggle zooming into the current letter.'>
-					<span id="focus-text"></span>
 				</button>
 			</div>
 			<div id='board' class="screen board">
+				<div id="focus-text"></div>
 				<div id='board-info' class='assistive-element'>
 					Crossword game board selected.
 					Use tab and shift-tab to navigate between character spaces within a word.
@@ -117,7 +112,7 @@
 				<span class='clue-text' id='cluetext_{{i}}' data-i='{{i}}'>
 					{{question}}
 				</span>
-				<div id="hint-splitter">
+				<div id="hint-splitter" data-i='{{i}}'>
 					<div>
 						<button id='hintbtn_{{i}}'
 						class='hint action-button button'

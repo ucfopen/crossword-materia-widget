@@ -87,19 +87,19 @@ Namespace('Crossword').Engine = do ->
 
 	# width of the scaled game container (replaces BOARD_WIDTH usage)
 	_contWidth = () ->
-		return parseFloat(_contDiv.css("width").replace("px",""))
+		return parseFloat(_contDiv.width())
 
 	# height of the scaled game container (replaces BOARD_HEIGHT usage)
 	_contHeight = () ->
-		return parseFloat(_contDiv.css("height").replace("px",""))
+		return parseFloat(_contDiv.height())
 
 	# width of crossword map extent
 	_mapWidth = () ->
-		return parseFloat(_boardDiv.css("width").replace("px",""))
+		return parseFloat(_boardDiv.width())
 
 	# height of crossword map extent
 	_mapHeight = () ->
-		return parseFloat(_boardDiv.css("height").replace("px",""))
+		return parseFloat(_boardDiv.height())
 
 	# size of the margin centering the map in the X direction
 	_mapXMargin = () ->
@@ -109,29 +109,41 @@ Namespace('Crossword').Engine = do ->
 	_mapYMargin = () ->
 		return parseFloat(_boardDiv.css("margin-top").replace("px",""))
 
+	# get the map's padding, assuming it is uniform
+	_mapPadding = () ->
+		return Math.abs(_boardDiv.width() - _boardDiv.innerWidth()) / 2
+
+	# get the map's border, assuming it is uniform
+	_mapBorder = () ->
+		return (_boardDiv.outerWidth() - _boardDiv.innerWidth()) / 2
+
 	# Centers the board
 	_centerBoard = () ->
-		_boardDiv.css('margin-left', (_contWidth() - _mapWidth()) / 2)
-		_boardDiv.css('margin-top', (_contHeight() - _mapHeight()) / 2)
+		_boardDiv.css('margin-left', (_contWidth() - _boardDiv.outerWidth()) / 2)
+		_boardDiv.css('margin-top', (_contHeight() - _boardDiv.outerHeight()) / 2)
 
 	_rescaleVars = () ->
-		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - _contWidth()
-		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight()
+		_puzzleWidthOverflow = _boardDiv.outerWidth() - _contWidth()
+		_puzzleHeightOverflow = _boardDiv.outerHeight() - _contHeight()
 
 	# update isMobile variable depending on if the screen was scaled
 	# mainly so the widget doesnt break if someone rescales a bunch
 	_updateIsMobile = () ->
-		newMobile = if ($(window).width() < 600) || (navigator.userAgent.match /(iPhone|iPod|iPad|Android|BlackBerry)/) then true else false
+		newMobile = $(window).width() < 600
 		if newMobile != _isMobile
-			$('#clues').css("height", "auto")
+			if !newMobile # mobile -> desktop
+				$('#clues').css("height", "auto")
+			else # desktop -> mobile
+				$('#clues').animate scrollTop: _dom('clue_'+_curClue).offsetTop, 0
+				$('#clues').css("height", $('#clue_'+_curClue).height())
 		_isMobile = newMobile
-		console.log(_isMobile)
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
 		# if we're on a mobile device, some event listening will be different
-		_updateIsMobile()
+		_isMobile = $(window).width() < 600
 		if _isMobile
+			$('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')))
 			document.ontouchmove = (e) ->
 					e.preventDefault()
 
@@ -176,6 +188,8 @@ Namespace('Crossword').Engine = do ->
 		_centerBoard()
 		_showIntroDialog()
 		_updateClue()
+
+		_rescaleVars()
 
 	# getElementById and cache it, for the sake of performance
 	_dom = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -248,11 +262,13 @@ Namespace('Crossword').Engine = do ->
 				_doZoomIn = true
 				_centerLetter()
 				$('#focus-letter').attr('class', 'icon-zoomout')
+				$('#movable').attr('class', 'crossword-board focused')
 				$('#focus-text').text('focused')
 			else
 				_doZoomIn = false
 				_resetView()
 				$('#focus-letter').attr('class', 'icon-zoomin')
+				$('#movable').attr('class', 'crossword-board')
 				$('#focus-text').text('')
 		$('#focus-letter').keyup (e) ->
 			if e.keyCode is 13
@@ -430,8 +446,8 @@ Namespace('Crossword').Engine = do ->
 				letterElement.setAttribute 'data-dir', dir
 				letterElement.onclick = _letterClicked
 
-				letterElement.style.top = letterTop * LETTER_HEIGHT + 'px'
-				letterElement.style.left = letterLeft * LETTER_WIDTH + 'px'
+				letterElement.style.top = letterTop * LETTER_HEIGHT + _mapPadding() + 'px'
+				letterElement.style.left = letterLeft * LETTER_WIDTH + _mapPadding() + 'px'
 
 				# if it's not a guessable char, display the char
 				if protectedSpace
@@ -593,8 +609,8 @@ Namespace('Crossword').Engine = do ->
 			if autofocus then highlightedLetter.focus()
 
 			# figure out if the _curLetter is on the screen
-			letterX = _curLetter.x * LETTER_WIDTH + _mapXMargin()
-			letterY = _curLetter.y * LETTER_HEIGHT + _mapYMargin()
+			letterX = _curLetter.x * LETTER_WIDTH + _mapXMargin() - _mapPadding() - _mapBorder()
+			letterY = _curLetter.y * LETTER_HEIGHT + _mapYMargin() - _mapPadding() - _mapBorder()
 
 			isOffBoardX = letterX > _contWidth() - _puzzleX or letterX < 0 -_puzzleX 
 			isOffBoardY = letterY > _contHeight() - _puzzleY or letterY < 0 -_puzzleY
@@ -602,10 +618,10 @@ Namespace('Crossword').Engine = do ->
 			m = _dom('movable')
 			if not _boardMoving and (isOffBoardX or isOffBoardY)
 				if isOffBoardX
-					_puzzleX = -_curLetter.x * LETTER_WIDTH - _mapXMargin()
+					_puzzleX = -_curLetter.x * LETTER_WIDTH - _mapXMargin() + _mapPadding() + _mapBorder()
 
 				if isOffBoardY
-					_puzzleY = -_curLetter.y * LETTER_HEIGHT - _mapYMargin()
+					_puzzleY = -_curLetter.y * LETTER_HEIGHT - _mapYMargin() + _mapPadding() + _mapBorder()
 
 				if animate
 					m.classList.add 'animateall'
@@ -1263,8 +1279,8 @@ Namespace('Crossword').Engine = do ->
 		numberLabel.innerHTML = questionNumber
 		numberLabel.classList.add 'numberlabel'
 		numberLabel.setAttribute 'aria-hidden', true
-		numberLabel.style.top = y * LETTER_HEIGHT + 'px'
-		numberLabel.style.left = x * LETTER_WIDTH + 'px'
+		numberLabel.style.top = y * LETTER_HEIGHT + _mapPadding() + 'px'
+		numberLabel.style.left = x * LETTER_WIDTH + _mapPadding() + 'px'
 		numberLabel.onclick = -> _letterClicked target: $("#letter_#{x}_#{y}")[0]
 		_boardDiv.append numberLabel
 
