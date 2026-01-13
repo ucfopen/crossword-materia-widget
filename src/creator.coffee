@@ -238,7 +238,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 			item.found = found
 			if not found
 				$scope.unused = true
-		$scope.error = $scope.unused or $scope.tooBig
+		$scope.error = $scope.unused || $scope.tooBig
 
 		_okToSave
 
@@ -278,8 +278,10 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 				$('#preview_kids').append letter
 
 		$scope.$apply ->
-			$scope.tooBig = _left > 17 or _top > 20
-			$scope.error = $scope.tooBig or $scope.unused
+			$scope.scrollWarn = _left > 17 or _top > 20
+			$scope.sizeWarn = _left > 25 or _top > 30
+			$scope.tooBig = _left > 35 or _top > 45
+			$scope.error = $scope.unused || $scope.tooBig
 
 	_process = (puzzleItem) ->
 		questionObj =

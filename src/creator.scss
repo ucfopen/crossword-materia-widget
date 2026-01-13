@@ -1,4 +1,13 @@
 $green: #70bd34;
+$green_transparent: #6fbd34be;
+
+// used for displaying max puzzle size
+$error_bound_w: 35;
+$error_bound_h: 45;
+$warn_bound_w: 25;
+$warn_bound_h: 30;
+$tile_w: 28px;
+$tile_h: 26px;
 
 * {
 	user-select: none;
@@ -220,25 +229,25 @@ body {
 	}
 
 	.previewarea {
-		margin: 0px 6px;
+		margin: 4px;
 		bottom: 0px;
 		top: 0px;
-		padding-bottom: 16px;
-		overflow: hidden;
+		padding: 16px;
+		max-height: 534px;
+		overflow: scroll;
 
 		cursor: pointer;
 
 		&.stationary {
 
-			&.error {
-				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
-				background-size: 570px 600px;
+			&.warn {
+				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255, 200, 0, 0.2) 20px, rgba(255,200,0,.2) 45px);
 				background-repeat: no-repeat;
 				background-position: 0px;
 
-				&:hover {
-					outline: none;
-				}
+				outline: solid 4px #f1c637a0;
+				outline-offset: -4px;	
+
 				&:before {
 					display: block;
 					width: 220px;
@@ -250,7 +259,43 @@ body {
 					text-align: center;
 					font-size: 14px;
 					color: #fff;
-					z-index: 1000;
+					z-index: 19;
+					background: #f1c637;
+					line-height: 20px;
+					content: "This puzzle is valid, but may be too big to comfortably play on all devices. Click here to redraw this puzzle or modify the puzzle words so they fit inside the box.";
+				}
+				&:after {
+					content: '';
+				}
+
+				#preview {
+					width: calc($warn_bound_w * $tile_w);
+					height: calc($warn_bound_h * $tile_h);
+					box-shadow: 0px 0px 4px 4px #f1c63739;
+					background-color: rgba(255, 255, 255, 0.35);
+				}
+			}
+
+			&.error {
+				background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.1) 20px, rgba(255,0,0,.1) 45px);
+				background-repeat: no-repeat;
+				background-position: 0px;
+
+				outline: solid 4px #f13751a0;
+				outline-offset: -4px;	
+
+				&:before {
+					display: block;
+					width: 220px;
+					padding: 20px 25px;
+					position: absolute;
+					left: 50%;
+					top: 300px;
+					margin-left: -145px;
+					text-align: center;
+					font-size: 14px;
+					color: #fff;
+					z-index: 19;
 					background: #f13751;
 					line-height: 20px;
 				}
@@ -259,23 +304,16 @@ body {
 				}
 
 				#preview {
-					outline: solid 3px #f00;
-				}
-
-				.right {
-					position: absolute;
-					top: -11px;
-					right: -120px;
-					width: 116px;
-					bottom: -10px;
-					background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,0,0,.2) 20px, rgba(255,0,0,.2) 45px);
-					z-index: 19;
+					width: calc($error_bound_w * $tile_w);
+					height: calc($error_bound_h * $tile_h);
+					box-shadow: 0px 0px 4px 4px #f1375039;
+					background-color: rgba(255, 255, 255, 0.35);
 				}
 			}
 
 			&.toobig {
 				&:before {
-					content: 'This puzzle will be difficult to view. Click here to redraw this puzzle or modify the puzzle words so they fit inside the box.';
+					content: 'This puzzle is too big to be printed correctly. Click here to redraw this puzzle or modify the puzzle words so they fit inside the box.';
 				}
 			}
 			&.unused {
@@ -285,36 +323,36 @@ body {
 			}
 
 			&:hover {
-				outline: solid 4px $green;
+				outline: dashed 4px $green_transparent;
 				outline-offset: -4px;
 
 				&:before {
 					display: block;
 					width: 190px;
-					padding-top: 140px;
-					padding-left: 5px;
+					padding-top: 15px;
+					padding-left: 35px;
 					padding-right: 5px;
-					padding-bottom: 30px;
+					padding-bottom: 15px;
 					background: $green;
 					position: absolute;
-					left: 50%;
-					top: 270px;
-					margin-left: -100px;
+					left: 25%;
+					top: 15.75%;
+					margin-left: -148px;
 					content: 'Click to redraw puzzle';
 					text-align: center;
 					color: #fff;
-					z-index: 1000;
+					z-index: 19;
 				}
 				&:after {
 					content: "\e984";
 					font-family: 'icomoon';
 					color: #fff;
-					font-size: 90px;
+					font-size: 32px;
 					position: absolute;
-					left: 50%;
-					margin-left: -44px;
-					top: 300px;
-					z-index: 1001;
+					left: 18%;
+					margin-left: -92px;
+					top: 16.75%;
+					z-index: 20;
 				}
 			}
 
@@ -325,13 +363,13 @@ body {
 		display: inline-block;
 		position: relative;
 		top: 10px;
-		left: 65px;
-		width: 500px;
+		left: 10px;
+		width: 100%;
 		height: 530px;
 		margin: 0px;
-		border: solid 1px #ccc;
+		//border: solid 1px #ccc;
 
-		background: #eee;
+		// background: #eee;
 
 		.letter {
 			position: absolute;
@@ -384,12 +422,26 @@ h1 {
 	cursor: pointer;
 }
 
+.scroll-notice {
+	visibility: hidden;
+
+	&.scrollwarn {
+		visibility: visible;
+	}
+
+	position: absolute;
+	margin-left: 16px;
+	margin-top: 20px;
+	font-style: italic;
+	opacity: 0.75;
+}
+
 .icon-print {
 	&:before {
 		content: "\e954";
 		position: relative;
 		float: right;
-		margin: 20px 74px;
+		margin: 20px 16px;
 		opacity: 0.5;
 	}
 	&:hover:before{
@@ -867,4 +919,3 @@ hr {
 		transform: translate(0px, 0px);
 	}
 }
-

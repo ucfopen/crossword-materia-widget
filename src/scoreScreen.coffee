@@ -55,6 +55,8 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	# Called by Materia.ScoreCore when your widget ScoreCore should start the user experience.
 	start = (instance, qset, scoreTable, isPreview, version = '1') ->
+		console.log("called start")
+
 		# store widget data
 		_qset = qset
 		_scoreTable = scoreTable
@@ -87,10 +89,9 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	# Called by Materia.ScoreCore when user switches score attempt
 	update = (qset, scoreTable) ->
-		_scoreTable = scoreTable
-
-		if not isConsistentQset(qset)
-			return redrawBoard(qset)
+		
+		if not _qset or not isConsistentQset(qset)
+			return redrawBoard(qset, scoreTable)
 
 		_qset = qset
 		answersShown = $('#hide-correct')[0].checked
@@ -273,8 +274,10 @@ Namespace('Crossword').ScoreScreen = do ->
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 				_boardDiv.append letterElement
 
-	redrawBoard = (qset) ->
+	redrawBoard = (qset, scoreTable) ->
 		_qset = qset
+		_scoreTable = scoreTable
+		_boardDiv = $("#movable")
 		_questions = _qset.items[0].items
 		forEveryQuestion (i, letters, x, y, dir, response) ->
 			_questions[i].options.x = ~~_questions[i].options.x
@@ -301,6 +304,7 @@ Namespace('Crossword').ScoreScreen = do ->
 
 		_drawBoard()
 		_animateToShowBoardIfNeeded()
+		_setupEventHandlers()
 
 	# zoom animation if dimensions are off screen
 	_animateToShowBoardIfNeeded = ->
