@@ -283,16 +283,11 @@ Namespace('Crossword').Engine = do ->
 		_dom('submit').addEventListener 'click', () ->
 			_showAlert "Are you sure you're done?", 'Yep, Submit', 'No, Cancel', _dom('moveable'), _submitAnswers
 
-		if _isMobile
-			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
-			Hammer(document.getElementById('board')).on 'panleft panright panup pandown', _mouseMoveHandler
-			Hammer(document).on 'panend', _mouseUpHandler
-		else
-			document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
-			document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
-			document.addEventListener 'mouseup', _mouseUpHandler
+		document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
+		document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
+		document.addEventListener 'mouseup', _mouseUpHandler
 
-			$('#clues').keydown _clueKeyDownHandler
+		$('#clues').keydown _clueKeyDownHandler
 
 	_assistiveNotification = (text) ->
 		_dom('assistive-notification').innerHTML = text

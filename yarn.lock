@@ -5146,11 +5146,6 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha512-+xGQY0YyAWCnqy7Cd++hc2JqMYzlm0dG30Jd0beaA64sROr8C4nt8Yc9V5Ro3avlSUDTN0ulqP/VBKi1/lLygw==
 
-hammerjs@2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/hammerjs/-/hammerjs-2.0.6.tgz#dc9e3be6d745b1145b736c40eadbaf2234519921"
-  integrity sha512-nZoavd6pgT++1rPy4wXt12oJI69DmWwLbEVssCg0nHXQaXneWbvlGMLRv5cWTL+Fe+WHudRftEM2+oe5Yzw7fg==
-
 handle-thing@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.1.tgz#857f79ce359580c340d43081cc648970d0bb234e"
@@ -7003,7 +6998,7 @@ materia-widget-dependencies@0.4.2:
   resolved "https://registry.yarnpkg.com/materia-widget-dependencies/-/materia-widget-dependencies-0.4.2.tgz#d6664f7c525ae624a0ca87579865b1864c53a2d7"
   integrity sha512-JyyeE9HSRC9tyEPmsEC+UsfC51z+Y6xT8qzn+2PGvj6T/Mda/hFK/Uqw0WA5pE42+SpjYOaJ2B8CK0bT9rZ21A==
 
-materia-widget-development-kit@3.0.4:
+materia-widget-development-kit@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/materia-widget-development-kit/-/materia-widget-development-kit-3.0.4.tgz#5fdea73976aa83463ca3c278d5fd8f2ac4830446"
   integrity sha512-iwinME3Kh3WsIr/XMpIuxNadPkLzsWkFxsJAI5JiSr2VpWkgznUvKT/KNisWD1vdwF1QQQrRXaFbE0lMG5FNMQ==

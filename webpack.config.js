@@ -8,10 +8,6 @@ const srcPath = path.join(__dirname, 'src') + path.sep
 
 const customCopy = copy.concat([
 	{
-		from: path.join(__dirname, 'node_modules', 'hammerjs', 'hammer.min.js'),
-		to: outputPath,
-	},
-	{
 		from: path.join(srcPath, '_guides', 'assets'),
 		to: path.join(outputPath, 'guides', 'assets'),
 		toType: 'dir'
@@ -49,4 +45,3 @@ let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
 module.exports = buildConfig
 
 // module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
-

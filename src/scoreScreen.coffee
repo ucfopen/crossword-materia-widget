@@ -155,14 +155,9 @@ Namespace('Crossword').ScoreScreen = do ->
 		$('#zoomout').click _zoomOut
 		$('#hide-correct').change _toggleAnswers
 
-		if _isMobile
-			Hammer(document.getElementById('board')).on 'panstart', _mouseDownHandler
-			Hammer(document.getElementById('board')).on 'panleft panright panup pandown', _mouseMoveHandler
-			Hammer(document).on 'panend', _mouseUpHandler
-		else
-			document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
-			document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
-			document.addEventListener 'mouseup', _mouseUpHandler
+		document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
+		document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
+		document.addEventListener 'mouseup', _mouseUpHandler
 
 	# start dragging
 	_mouseDownHandler = (e) ->
