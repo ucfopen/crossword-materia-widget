@@ -78,6 +78,7 @@ Namespace('Crossword').Engine = do ->
 	LETTER_HEIGHT         = 23 # how many pixels high is a space?
 	LETTER_WIDTH          = 27 # how many pixels wide is a space?
 
+	MOBILE_PX             = 576 # in px., mobile breakpoint size
 	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
 	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
 
@@ -125,7 +126,7 @@ Namespace('Crossword').Engine = do ->
 	# update isMobile variable depending on if the screen was scaled
 	# mainly so the widget doesnt break if someone rescales a bunch
 	_updateIsMobile = () ->
-		newMobile = $(window).width() < 600
+		newMobile = $(window).width() < MOBILE_PX;
 		if newMobile != _isMobile
 			if !newMobile # mobile -> desktop
 				$('#clues').css("height", "auto")
@@ -137,7 +138,7 @@ Namespace('Crossword').Engine = do ->
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
 		# if we're on a mobile device, some event listening will be different
-		_isMobile = $(window).width() < 600
+		_isMobile = $(window).width() < MOBILE_PX;
 		if _isMobile
 			$('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')))
 			document.ontouchmove = (e) ->
