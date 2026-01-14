@@ -73,23 +73,19 @@ Namespace('Crossword').Engine = do ->
 	_doZoomIn             = false
 
 	# constants
-	LETTER_HEIGHT         = 23 # how many pixels high is a space?
-	LETTER_WIDTH          = 27 # how many pixels wide is a space?
-	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
-	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
-	
 	# NOTE: now that the player is responsive, these values
 	# should be used as a psuedo base scale for the game
-	BOARD_WIDTH           = 472 # visible board width
-	BOARD_HEIGHT          = 485 # visible board height
-	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
-	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
+	LETTER_HEIGHT         = 23 # how many pixels high is a space?
+	LETTER_WIDTH          = 27 # how many pixels wide is a space?
 
-	# width of the scaled game container (replaces BOARD_WIDTH usage)
+	VERTICAL              = 1 # used to compare dir == 1 or dir == VERTICAL
+	NEXT_RECURSE_LIMIT    = 8 # number of characters in a row we'll try to jump forward before dying
+
+	# width of the scaled game container
 	_contWidth = () ->
 		return parseFloat(_contDiv.width())
 
-	# height of the scaled game container (replaces BOARD_HEIGHT usage)
+	# height of the scaled game container
 	_contHeight = () ->
 		return parseFloat(_contDiv.height())
 
@@ -253,27 +249,18 @@ Namespace('Crossword').Engine = do ->
 			Crossword.Print.printBoard(_instance, _questions)
 		$('#printbtn').keyup (e) ->
 			if e.keyCode is 13 then Crossword.Print.printBoard(_instance, _questions)
-		$('#center').click _zoomOut
-		$('#center').keyup (e) ->
-			if e.keyCode is 13 then _zoomOut()
 		
 		$('#focus-letter').click (e) ->
 			if !_doZoomIn
-				_doZoomIn = true
 				_centerLetter()
 				$('#focus-letter').attr('class', 'icon-zoomout')
 				$('#movable').attr('class', 'crossword-board focused')
 				$('#focus-text').text('focused')
 			else
-				_doZoomIn = false
 				_resetView()
 				$('#focus-letter').attr('class', 'icon-zoomin')
 				$('#movable').attr('class', 'crossword-board')
 				$('#focus-text').text('')
-		$('#focus-letter').keyup (e) ->
-			if e.keyCode is 13
-				doZoomIn = !_doZoomIn
-				_centerLetter()
 
 		$('#specialInputBody li').click ->
 			spoof = $.Event('keydown')
@@ -314,7 +301,7 @@ Namespace('Crossword').Engine = do ->
 	_mouseDownHandler = (e) ->
 		context = if _isMobile then e.pointers[0] else e
 
-		return if context.clientX > _contWidth() or not _zoomedIn
+		return if context.clientX > _contWidth() or _doZoomIn
 
 		_boardMouseDown = true
 		_mouseYAnchor = context.clientY
@@ -484,58 +471,16 @@ Namespace('Crossword').Engine = do ->
 		# set offset to center board
 		_centerBoard()
 
-		# Select the first clue
-		# _clueMouseUp {target: $('#clue_0')[0]}
-
 	_getInteractiveLetterCount = (word) ->
 		interactive = word.map (letter) ->
 			if letter isnt '-' and letter isnt ' ' then return letter
 		
 		interactive.length
 
-	# zoom animation if dimensions are off screen
+	# select first letter, in-bounds checks are handled by the click handler
 	_animateToShowBoardIfNeeded = ->
-		if _puzzleLetterWidth > BOARD_LETTER_WIDTH or _puzzleLetterHeight > BOARD_LETTER_HEIGHT
-			# _zoomOut()
+		_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }
 
-			# setTimeout ->
-			# 	_zoomIn()
-			# , 2500
-
-		else # no zooming, just highlight first letter
-			_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }
-
-	_zoomOut = ->
-		_letterClicked { target: _dom("letter_#{_curLetter.x}_#{_curLetter.y}") }, false
-
-		puzzlePixelHeight = _puzzleLetterHeight * LETTER_HEIGHT
-		puzzlePixelWidth  = _puzzleLetterWidth * LETTER_WIDTH
-
-		# x = pixelHeight / visibleDivHeight
-		# 5 = 2000 / 400
-		heightScaleFactor = puzzlePixelHeight / _contHeight()
-		widthScaleFactor = puzzlePixelWidth / _contWidth()
-
-		# find the biggest scale factor
-		scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor)
-
-		# translate values need to take scale into account
-		translateX = -_puzzleX / scaleFactor
-		translateY = -_puzzleY / scaleFactor
-
-		trans = "scale(#{scaleFactor}) translate(#{translateX}px, #{translateY}px)"
-		_boardDiv
-			.css('-webkit-transform', trans)
-			.css('-moz-transform', trans)
-			.css('transform', trans)
-		_zoomedIn = false
-
-	_zoomIn = ->
-		trans = ''
-		_boardDiv.css('-webkit-transform', trans)
-			.css('-moz-transform', trans)
-			.css('transform', trans)
-		_zoomedIn = true
 
 	_resetView = (animate = true) ->
 		m = _dom('movable')
@@ -553,7 +498,7 @@ Namespace('Crossword').Engine = do ->
 		_boardDiv.css('-webkit-transform', trans)
 			.css('-moz-transform', trans)
 			.css('transform', trans)
-		_zoomedIn = true
+		_doZoomIn = false
 
 		_puzzleX = 0
 		_puzzleY = 0
@@ -589,6 +534,7 @@ Namespace('Crossword').Engine = do ->
 			.css('-webkit-transform', trans)
 			.css('-moz-transform', trans)
 			.css('transform', trans)
+		_doZoomIn = true
 
 		m.style.top  = _puzzleY + 'px'
 		m.style.left = _puzzleX + 'px'
@@ -601,8 +547,6 @@ Namespace('Crossword').Engine = do ->
 	# apply highlight class
 	_highlightPuzzleLetter = (animate = true, autofocus = true) ->
 		highlightedLetter = _dom("letter_#{_curLetter.x}_#{_curLetter.y}")
-
-		_zoomIn() unless _zoomedIn
 
 		if highlightedLetter
 			highlightedLetter.classList.add 'focus'
@@ -777,7 +721,22 @@ Namespace('Crossword').Engine = do ->
 
 		switch keyEvent.key
 
-			when 'Control' then _highlightPuzzleLetter()
+			when 'Control'
+				if _isMobile then return
+				if !_doZoomIn
+					_centerLetter()
+					$('#focus-letter').attr('class', 'icon-zoomout')
+					$('#movable').attr('class', 'crossword-board focused')
+					$('#focus-text').text('focused')
+					_highlightPuzzleLetter()
+				else
+					_resetView()
+					$('#focus-letter').attr('class', 'icon-zoomin')
+					$('#movable').attr('class', 'crossword-board')
+					$('#focus-text').text('')
+					_highlightPuzzleLetter()
+				return
+
 			when 'Alt' then _highlightPuzzleLetter()
 
 			when 'ArrowLeft' then _selectPreviousQuestion questionIndex
