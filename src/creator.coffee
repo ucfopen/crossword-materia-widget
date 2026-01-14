@@ -279,7 +279,7 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 
 		$scope.$apply ->
 			$scope.scrollWarn = _left > 17 or _top > 20
-			$scope.sizeWarn = _left > 25 or _top > 30
+			$scope.sizeWarn = _left > 20 or _top > 25
 			$scope.tooBig = _left > 35 or _top > 45
 			$scope.error = $scope.unused || $scope.tooBig
 
