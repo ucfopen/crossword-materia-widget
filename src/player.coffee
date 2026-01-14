@@ -133,6 +133,12 @@ Namespace('Crossword').Engine = do ->
 			else # desktop -> mobile
 				$('#clues').animate scrollTop: _dom('clue_'+_curClue).offsetTop, 0
 				$('#clues').css("height", $('#clue_'+_curClue).height())
+
+				# reset view on transition back to mobile
+				_resetView()
+				$('#focus-letter').attr('class', 'icon-zoomin')
+				$('#movable').attr('class', 'crossword-board')
+				$('#focus-text').text('')
 		_isMobile = newMobile
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
