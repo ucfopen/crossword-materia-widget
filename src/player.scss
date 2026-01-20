@@ -908,7 +908,15 @@ input, button {
 	}
 
 	#alertbox, #tutorialbox, #introbox {
-		min-width: 300px;
 		max-width: calc(90vw);
+		max-height: calc(60vh);
+
+		overflow-y: scroll;
+	}
+
+	#introbox {	
+		div.content {
+			flex-direction: column;
+		}
 	}
 }
