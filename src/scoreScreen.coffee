@@ -154,8 +154,6 @@ Namespace('Crossword').ScoreScreen = do ->
 		_setupEventHandlers()
 		Materia.ScoreCore.setHeight()
 
-		_updateClue()
-
 	# Called by Materia.ScoreCore when user switches score attempt
 	update = (qset, scoreTable) ->
 		# if we're on a mobile device, some event listening will be different
@@ -178,6 +176,7 @@ Namespace('Crossword').ScoreScreen = do ->
 				protectedSpace = _allowedInput.indexOf(letters[l].toUpperCase()) == -1
 				letterElement.classList.add classColor if not protectedSpace
 				letterElement.innerHTML = response[l] if not answersShown
+
 
 	isConsistentQset = (newQset) ->
 		return newQset.id == _qset.id
@@ -516,7 +515,6 @@ Namespace('Crossword').ScoreScreen = do ->
 		if highlightedLetter
 			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
 			_curClue = parseInt highlightedLetter.getAttribute('data-q')
-
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
 				return

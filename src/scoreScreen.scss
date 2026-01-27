@@ -88,14 +88,15 @@ html, body {
 }
 
 body {
-	border-top: solid 16px rgb(118, 128, 141);
+	// border-top: solid 16px rgb(118, 128, 141);
 }
 
 #board {
 	position: fixed;
 	display: block;
 	left: 0px;
-	top: 16px;
+	// top: 16px;
+	top: 0px;
 	right: 0px;
 	bottom: 0px;
 
@@ -233,7 +234,7 @@ body {
 	display: block;
 	position: absolute;
 	right: 0px;
-	top: 16px;
+	top: 0px;
 	bottom: 0px;
 	width: 200px;
 	background: #fff;
@@ -245,6 +246,7 @@ body {
 
 	.clue{
 		cursor: pointer;
+		overflow: hidden;
 		font-size: 14px;
 		padding: 7px;
 		margin: 0px;
@@ -252,7 +254,6 @@ body {
 		-moz-transition: all 0.1s ease;
 		-webkit-transition: all 0.1s ease;
 		
-		overflow-x: auto;
 		em {
 			opacity: 0.5;
 		}
@@ -389,13 +390,20 @@ input, button {
 		width: 100%;
 		max-height: 200px;
 		height: 150px;
-		overflow-y: scroll;
+		overflow-y: hidden;
 		padding: 0px;
 		top: 0px;
 		.clue {
 			transition: all 0s ease;
 			-moz-transition: all 0s ease;
 			-webkit-transition: all 0s ease;
+
+			background: #5163A6;
+			color: #fff;
+
+			&:nth-child(even) {
+				background: #5163A6;
+			}
 		}
 
 		border-left: none;
