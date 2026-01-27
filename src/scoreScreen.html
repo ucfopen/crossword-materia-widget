@@ -33,7 +33,24 @@
 		<div id='t_hints' style='display:none' class="clue">
 			<em data-i='{{i}}'>{{hintPrefix}}:</em><br>
 			<span class="clueHeader">CLUE</span><br>{{question}}<br><br>
-			<span class="clueHeader">ANSWER</span><br><span class="answer">{{answer}}</span><br>
+			<div id="hint-splitter" data-i='{{i}}'>
+				<div>
+					<span class="clueHeader">ANSWER</span><br><span class="answer">{{answer}}</span>
+				</div>
+				<div id="nav-div">
+					<button id='prevQ_{{i}}'
+					data-i='{{i}}'
+					data-dir='{{dir}}'
+					class='action-button button'
+					aria-label='Move to the previous question.'><</button>
+					<button id='nextQ_{{i}}'
+					data-i='{{i}}'
+					data-dir='{{dir}}'
+					class='action-button button'
+					aria-label='Move to the next question.'>></button>
+				</div>
+			</div>
+			
 		</div>
 
 		<div id="bottomOptions">

@@ -33,10 +33,13 @@ Namespace('Crossword').ScoreScreen = do ->
 	_prevDir              = 0
 	# the current letter that is highlighted
 	_curLetter            = false
+	# the current clue that is highlighted
+	_curClue			  = -1
 
 	# cache DOM elements for performance
 	_domCache             = {}
 	_boardDiv             = null # div containing the board
+	_contDiv              = null # parent div of _boardDiv
 
 	# these are the allowed user input
 	_allowedInput         = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Á','À','Â','Ä','Ã','Å','Æ','Ç','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Õ','Ø','Œ','ß','Ú','Ù','Û','Ü']
@@ -45,6 +48,7 @@ Namespace('Crossword').ScoreScreen = do ->
 	_zoomedIn             = false
 
 	# constants
+	MOBILE_PX             = 576 # in px., mobile breakpoint size
 	LETTER_HEIGHT         = 23  # how many pixles high is a space?
 	LETTER_WIDTH          = 27  # how many pixles wide is a space?
 	VERTICAL              = 1   # used to compare dir == 1 or dir == VERTICAL
@@ -53,9 +57,71 @@ Namespace('Crossword').ScoreScreen = do ->
 	BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH)
 	BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT)
 
+		# width of the scaled game container
+	_contWidth = () ->
+		return parseFloat(_contDiv.width())
+
+	# height of the scaled game container
+	_contHeight = () ->
+		return parseFloat(_contDiv.height())
+
+	# width of crossword map extent
+	_mapWidth = () ->
+		return parseFloat(_boardDiv.width())
+
+	# height of crossword map extent
+	_mapHeight = () ->
+		return parseFloat(_boardDiv.height())
+
+	# size of the margin centering the map in the X direction
+	_mapXMargin = () ->
+		return parseFloat(_boardDiv.css("margin-left").replace("px",""))
+
+	# size of the margin centering the map in the Y direction
+	_mapYMargin = () ->
+		return parseFloat(_boardDiv.css("margin-top").replace("px",""))
+
+	# get the map's padding, assuming it is uniform
+	_mapPadding = () ->
+		return Math.abs(_boardDiv.width() - _boardDiv.innerWidth()) / 2
+
+	# get the map's border, assuming it is uniform
+	_mapBorder = () ->
+		return (_boardDiv.outerWidth() - _boardDiv.innerWidth()) / 2
+
+	# Centers the board
+	_centerBoard = () ->
+		_boardDiv.css('margin-left', (_contWidth() - _boardDiv.outerWidth()) / 2)
+		_boardDiv.css('margin-top', (_contHeight() - _boardDiv.outerHeight()) / 2)
+
+	_rescaleVars = () ->
+		_puzzleWidthOverflow = _boardDiv.outerWidth() - _contWidth()
+		_puzzleHeightOverflow = _boardDiv.outerHeight() - _contHeight()
+
+	_updateIsMobile = () ->
+		newMobile = $(window).width() < MOBILE_PX;
+		if newMobile != _isMobile
+			if !newMobile # mobile -> desktop
+				_contDiv.css("height", "calc(100%)")
+				_contDiv.css("top", "0px")
+				$('#clues').css("height", "auto")
+			else # desktop -> mobile
+				_contDiv.css("height", "calc(100% - 150px)")
+				_contDiv.css("top", "150px")
+				$('#clues').css("height", $('#clue_'+_curClue).outerHeight())
+				
+		_isMobile = newMobile
+
 	# Called by Materia.ScoreCore when your widget ScoreCore should start the user experience.
 	start = (instance, qset, scoreTable, isPreview, version = '1') ->
-		console.log("called start")
+		# if we're on a mobile device, some event listening will be different
+		_isMobile = $(window).width() < MOBILE_PX;
+		if _isMobile
+			$('#movable-container').css("height", "calc(100% - 150px)")
+			$('#movable-container').css("top", "150px")
+			$('#clues').css("height", parseInt($('#clue_'+_curClue).outerHeight()))
+			document.ontouchmove = (e) ->
+					e.preventDefault()
 
 		# store widget data
 		_qset = qset
@@ -64,6 +130,7 @@ Namespace('Crossword').ScoreScreen = do ->
 		# easy access to questions
 		_questions = _qset.items[0].items
 		_boardDiv = $('#movable')
+		_contDiv = $('#movable-container')
 
 		# clean qset variables
 		forEveryQuestion (i, letters, x, y, dir, response) ->
@@ -76,8 +143,8 @@ Namespace('Crossword').ScoreScreen = do ->
 
 		_puzzleLetterWidth  = puzzleSize.width
 		_puzzleLetterHeight = puzzleSize.height
-		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - BOARD_WIDTH
-		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - BOARD_HEIGHT
+		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - _contWidth()
+		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight()
 
 		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y }
 
@@ -87,8 +154,16 @@ Namespace('Crossword').ScoreScreen = do ->
 		_setupEventHandlers()
 		Materia.ScoreCore.setHeight()
 
+		_updateClue()
+
 	# Called by Materia.ScoreCore when user switches score attempt
 	update = (qset, scoreTable) ->
+		# if we're on a mobile device, some event listening will be different
+		_isMobile = $(window).width() < MOBILE_PX;
+		if _isMobile
+			$('#movable-container').css("height", "calc(100% - 150px)")
+			document.ontouchmove = (e) ->
+					e.preventDefault()
 		
 		if not _qset or not isConsistentQset(qset)
 			return redrawBoard(qset, scoreTable)
@@ -149,6 +224,13 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	# set up listeners on UI elements
 	_setupEventHandlers = ->
+		# control window scaling
+		$(window).on 'resize', () ->
+			_updateIsMobile()
+			_centerBoard()
+			_rescaleVars()
+			_limitBoardPosition()
+
 		# keep focus on the last letter that was highlighted whenever we move the board around
 		$('#board').click -> _highlightPuzzleLetter false
 
@@ -158,6 +240,14 @@ Namespace('Crossword').ScoreScreen = do ->
 		document.getElementById('board').addEventListener 'mousedown', _mouseDownHandler
 		document.getElementById('board').addEventListener 'mousemove', _mouseMoveHandler
 		document.addEventListener 'mouseup', _mouseUpHandler
+
+	_navPrevQ = ->
+		i = if (_curClue - 1) < 0 then _questions.length - 1 else _curClue - 1
+		_clueMouseUp {target: $('#clue_'+i)[0]}
+
+	_navNextQ = ->
+		i = (_curClue + 1) % _questions.length
+		_clueMouseUp {target: $('#clue_'+i)[0]}
 
 	# start dragging
 	_mouseDownHandler = (e) ->
@@ -197,15 +287,30 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	# limits board position to prevent going off into oblivion (down and right)
 	_limitBoardPosition = ->
-		_puzzleY = -_puzzleHeightOverflow if _puzzleY < -_puzzleHeightOverflow
-		_puzzleY = 0 if _puzzleY > 0
-		_puzzleX = - _puzzleWidthOverflow if _puzzleX < -_puzzleWidthOverflow
-		_puzzleX = 0 if _puzzleX > 0
+
+		# Sign variables flip collision behavior 
+		# based on if the map is larger or smaller than the screen
+
+		# when overflow is negative, the map should be blocked by the screen edge
+		# when overflow is positive, the map should be allowed to be panned past the edge
+		wSign = -Math.abs(_puzzleWidthOverflow) / _puzzleWidthOverflow
+		hSign = -Math.abs(_puzzleHeightOverflow) / _puzzleHeightOverflow
+
+		_puzzleX = wSign*(_puzzleWidthOverflow/2) if _puzzleX < wSign*(_puzzleWidthOverflow/2)
+		_puzzleX = -wSign*(_puzzleWidthOverflow/2) if _puzzleX > -wSign*(_puzzleWidthOverflow/2)
+
+		_puzzleY = hSign*(_puzzleHeightOverflow/2) if _puzzleY < hSign*(_puzzleHeightOverflow/2)
+		_puzzleY = -hSign*(_puzzleHeightOverflow/2) if _puzzleY > -hSign*(_puzzleHeightOverflow/2)
 
 	# Draw the main board.
 	_drawBoard = ->
 		# used to track the maximum dimensions of the puzzle
 		_top = 0
+
+		# tracks horizontal and vertical extent of the puzzle
+		# origin is top-left, in units of letters
+		maxLetterX = 0
+		maxLetterY = 0
 
 		# generate elements for questions
 		forEveryQuestion (i, letters, x, y, dir, response, hinted) ->
@@ -253,8 +358,8 @@ Namespace('Crossword').ScoreScreen = do ->
 				letterElement.setAttribute 'data-dir', dir
 				letterElement.onclick = _letterClicked
 
-				letterElement.style.top = letterTop * LETTER_HEIGHT + 'px'
-				letterElement.style.left = letterLeft * LETTER_WIDTH + 'px'
+				letterElement.style.top = letterTop * LETTER_HEIGHT + _mapPadding() + 'px'
+				letterElement.style.left = letterLeft * LETTER_WIDTH + _mapPadding() + 'px'
 				letterElement.innerHTML = response[l]
 
 				# if it's not a guessable char, display the char
@@ -267,7 +372,24 @@ Namespace('Crossword').ScoreScreen = do ->
 				# init the puzzle grid for this row and letter
 				_puzzleGrid[letterTop] = {} if !_puzzleGrid[letterTop]?
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
+
+				# track board extent
+				if letterLeft > maxLetterX
+					maxLetterX = letterLeft
+
+				if letterTop > maxLetterY
+					maxLetterY = letterTop
+
 				_boardDiv.append letterElement
+
+		# update board sizing
+		# +1 accounts for x/y values starting at 0
+		newWidth = (maxLetterX + 1) * LETTER_WIDTH
+		newHeight = (maxLetterY + 1) * LETTER_HEIGHT
+		_boardDiv.css('width', newWidth)
+		_boardDiv.css('height', newHeight)
+
+		_centerBoard()
 
 	redrawBoard = (qset, scoreTable) ->
 		_qset = qset
@@ -393,6 +515,7 @@ Namespace('Crossword').ScoreScreen = do ->
 
 		if highlightedLetter
 			clue = _dom('clue_'+highlightedLetter.getAttribute('data-q'))
+			_curClue = parseInt highlightedLetter.getAttribute('data-q')
 
 			# if it's already highlighted, do not try to scroll to it
 			if clue.classList.contains 'highlight'
@@ -407,7 +530,10 @@ Namespace('Crossword').ScoreScreen = do ->
 
 			$('#clues').stop true
 			if animate
-				$('#clues').animate scrollTop: scrolly, 150
+				$('#clues').animate scrollTop: scrolly, if _isMobile then 0 else 150
+
+			if _isMobile
+				$('#clues').css("height", parseInt($('#clue_'+_curClue).outerHeight()))
 
 	# highlight the clicked letter and set up direction
 	_letterClicked = (e, animate = true) ->
@@ -465,8 +591,8 @@ Namespace('Crossword').ScoreScreen = do ->
 		numberLabel = document.createElement 'div'
 		numberLabel.innerHTML = questionNumber
 		numberLabel.classList.add 'numberlabel'
-		numberLabel.style.top = y * LETTER_HEIGHT + 'px'
-		numberLabel.style.left = x * LETTER_WIDTH + 'px'
+		numberLabel.style.top = y * LETTER_HEIGHT + _mapPadding() + 'px'
+		numberLabel.style.left = x * LETTER_WIDTH + _mapPadding() + 'px'
 		numberLabel.onclick = -> _letterClicked target: $("#letter_#{x}_#{y}")[0]
 		_boardDiv.append numberLabel
 
@@ -489,8 +615,11 @@ Namespace('Crossword').ScoreScreen = do ->
 		clue.onmouseover = _clueMouseOver
 		clue.onmouseout  = _clueMouseOut
 		clue.onmouseup   = _clueMouseUp
-
+		
 		$('#clues').append clue
+
+		_dom('prevQ_' + i).addEventListener 'click', _navPrevQ
+		_dom('nextQ_' + i).addEventListener 'click', _navNextQ
 
 	_clueMouseUp = (e) ->
 		e = window.event if not e?
@@ -513,7 +642,7 @@ Namespace('Crossword').ScoreScreen = do ->
 			location = "" + x + y
 
 		firstLetter = $("#letter_#{x}_#{y}")[0]
-		_letterClicked { target: firstLetter }, false
+		_letterClicked { target: firstLetter }, true
 
 	# highlight words when a clue is moused over, to correspond what the user is seeing
 	_clueMouseOver = (e) ->
