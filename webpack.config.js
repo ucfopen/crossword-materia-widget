@@ -17,20 +17,20 @@ const customCopy = copy.concat([
 const entries = {
 	'player': [
 		path.join(srcPath, 'player.html'),
-		path.join(srcPath, 'print.coffee'),
-		path.join(srcPath, 'player.coffee'),
+		path.join(srcPath, 'print.js'),
+		path.join(srcPath, 'player.js'),
 		path.join(srcPath, 'player.scss')
 	],
 	'creator': [
 		path.join(srcPath, 'creator.html'),
-		path.join(srcPath, 'print.coffee'),
-		path.join(srcPath, 'creator.coffee'),
-		path.join(srcPath, 'creator.puzzle.coffee'),
+		path.join(srcPath, 'print.js'),
+		path.join(srcPath, 'creator.js'),
+		path.join(srcPath, 'creator.puzzle.js'),
 		path.join(srcPath, 'creator.scss'),
 	],
 	'scoreScreen': [
 		path.join(srcPath, 'scoreScreen.html'),
-		path.join(srcPath, 'scoreScreen.coffee'),
+		path.join(srcPath, 'scoreScreen.js'),
 		path.join(srcPath, 'scoreScreen.scss')
 	]
 }

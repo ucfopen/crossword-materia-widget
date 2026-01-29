@@ -49,7 +49,7 @@ describe('Player', function() {
 		qset = widgetInfo.qset;
 
 		require('../node_modules/materia-widget-dependencies/js/materia.js');
-		require('./player.coffee');
+		require('./player.js');
 	});
 
 	test('widget starts properly', () => {
