@@ -569,7 +569,6 @@ Namespace('Crossword').ScoreScreen = (function() {
 			_curClue = parseInt(highlightedLetter.getAttribute('data-q'));
 			// if it's already highlighted, do not try to scroll to it
 			if (!_isMobile && clue.classList.contains('highlight')) {
-				console.log("highlight return");
 				return;
 			}
 
@@ -587,7 +586,6 @@ Namespace('Crossword').ScoreScreen = (function() {
 			}
 
 			if (_isMobile) {
-				console.log(_curClue, parseInt($('#clue_'+_curClue).outerHeight(true)) + "px");
 				return $('#clues').css("height", parseInt($('#clue_'+_curClue).outerHeight(true)) + "px");
 			}
 		}
