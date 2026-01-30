@@ -2,6 +2,10 @@ $green:#5BAC58;
 $lightgreen:#6BBC68;
 $darkblue: #5163A6;
 
+// adjust this to change size of clue box
+$clue_width: calc(max(25vw, 200px));
+$mobile_w_break: 576px;
+
 /* Standardize padding in all browsers */
 * {
 	outline: 0;
@@ -43,8 +47,14 @@ $darkblue: #5163A6;
 .icon-print:before {
 	content: "\e954";
 }
-.icon-zoomout:before {
+.icon-zoomin:after {
+	content: "\e987";
+}
+.icon-zoomout:after {
 	content: "\e988";
+}
+.icon-center:before {
+	content: "\e987";
 }
 
 html, body {
@@ -52,6 +62,9 @@ html, body {
 	height: 100%;
 	
 	background: #eeedee;
+	background-image: url("assets/materia_stagger_bg.png");
+	background-size: 72px;
+	background-position: 0% -16px;
 	padding: 0;
 	margin: 0;
 
@@ -180,13 +193,18 @@ html, body {
 		
 	}
 
+	#widget-header {
+		position: absolute;
+	}
+
 	#options {
 		position: relative;
-		.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout {
+		top: 60px;
+		.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout, .icon-center {
 			position: absolute;
-			right: 204px;
+			right: calc($clue_width + 4px);
 			z-index: 100;
-
+			
 			color: #999;
 
 			font-family: 'icomoon';
@@ -211,6 +229,7 @@ html, body {
 				color: #000;
 				// border: solid 1px #5163A6;
 			}
+
 		}
 		.icon-tutorial {
 			top: 10px;
@@ -221,44 +240,59 @@ html, body {
 		.icon-print {
 			top: 70px;	
 		}
-		.icon-zoomout {
+		.icon-center {
+			top: 100px;
+		}
+		.icon-zoomout, .icon-zoomin {
 			top: 100px;
 		}
 	}
 
 	#board {
-		// position: fixed;
+		position: relative;
 		display: block;
-
 		width: 100%;
-		height: calc(100% - 61px);
+		height: calc(100% - 60px);
+		top: 60px;
 	
 		// max-height: 592;
 		// max-width: 715;
 	
 		overflow: hidden;
 
+		#focus-text {
+			font-family: 'Roboto Slab';
+			font-size: 24px;
+			color: #999;
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			z-index: 100;
+		}
+
 		#movable-container {
 			position: fixed;
 			top: 70px;
 			left: 10px;
-			right: 210px;
+			right: calc($clue_width + 10px);
 			bottom: 10px;
+			// border: solid;
+			// border-color: #000;
 		}
 
 		.crossword-board {
 			width: 100%;
 			height: 100%;
+			padding: 24px;
+			border-radius: 0px;
+			outline: solid;
+			outline-color: #BABABA;
+			outline-offset: -4px;
+			box-shadow: 0px 0px 4px 4px #BABABA;
+			background-color: rgb(250, 250, 250);
 
 			&:focus {
-				background: rgba(255,255,255,0.5);
-				// &:before {
-				// 	position: absolute;
-				// 	z-index: 200;
-				// 	content: 'Board is focused.';
-				// 	left: 50%;
-				// 	bottom: 10%;
-				// }
+				background: rgb(240, 240, 240);
 			}
 
 			.letter {
@@ -299,6 +333,15 @@ html, body {
 			}
 		}
 
+		.focused {
+			background-color: #d4e5f5;
+			box-shadow: 0px 0px 4px 4px #b2d1e9;
+			outline-color: transparent;
+
+			&:focus {
+				background-color: #b2cce5;
+			}
+		}
 	}
 
 	#clues {
@@ -309,8 +352,8 @@ html, body {
 		right: 0px;
 		top: 61px;
 		bottom: 28px;
-		width: 200px;
-
+		width: $clue_width;
+		
 		padding: 0 0 20px 0;
 
 		background: #fff;
@@ -323,7 +366,10 @@ html, body {
 			transition: all 0.1s ease;
 			-moz-transition: all 0.1s ease;
 			-webkit-transition: all 0.1s ease;
-			overflow-x: auto;
+			overflow-x: hidden;
+			overflow-y: hidden;
+			cursor: pointer;
+
 			em {
 				opacity: 0.5;
 			}
@@ -428,12 +474,16 @@ html, body {
 			&:focus {
 				background-color: $darkblue;
 			}
+
+			&::marker {
+				margin-right: 48px;
+			}
 		}
 
 		#specialInputBody {
 			box-sizing: border-box;
 			height: 60px;
-			max-width: 480px;
+			max-width: calc(100vw - $clue_width - 20px);
 			margin: 0;
 			padding: 5px;
 			background-color: #333333;
@@ -499,14 +549,22 @@ input, button {
 
 #movable {
 	position: absolute;
-	-webkit-transition: -webkit-transform 1s ease;
-	-moz-transition: -moz-transform 1s ease;
-	transition: transform 1s ease;
 	transform-origin: 0 0;
 
+	transition:
+		transform 1s ease,
+		background-color 1s ease,
+		outline-color 1s ease,
+		box-shadow 1s ease;
 
 	&.animateall {
-		transition-property: left, top, transform;
+		transition:
+			transform 1s ease,
+			left 1s ease,
+			top 1s ease,
+			background-color 1s ease,
+			outline-color 1s ease,
+			box-shadow 1s ease;
 	}
 }
 
@@ -739,7 +797,7 @@ input, button {
 
 	color: #fff;
 
-	width: 201px;
+	width: calc($clue_width + 1px);
 	padding: 5px 0;
 
 	z-index: 10;
@@ -776,4 +834,89 @@ input, button {
 }
 .invisible-until-focused:focus {
 	opacity: 1;
+}
+
+// MOBILE SETTINGS
+
+#hint-splitter {
+	display: flex;
+	flex-direction: row;
+
+	width: 100%;
+	justify-content: space-between;
+}
+
+#nav-div {
+	visibility: hidden;
+	width: 0px;
+	height: 0px;
+}
+
+@media (width < $mobile_w_break) {
+	#controlbar {
+		width: 100%;	
+	}
+
+	#nav-div {
+		visibility: visible;
+		width: fit-content;
+		height: fit-content;
+	}
+
+	.application {
+		position: relative;
+		
+		#specialInput {
+			bottom: 32px;
+			
+			#specialInputBody {
+				max-width: calc(100vw - 20px);
+			}
+		}
+		
+		#clues {
+			width: 100%;
+			max-height: 200px;
+			overflow-y: hidden;
+			padding: 0px;
+			padding-top: 7px;
+			padding-bottom: 7px;
+			.clue {
+				transition: all 0s ease;
+				-moz-transition: all 0s ease;
+				-webkit-transition: all 0s ease;
+			}
+		}
+
+		#board {
+			height: calc(100% - 90px);
+			#movable-container {
+				right: 10px;
+			}
+		}
+
+		#options {
+			top: calc(100vh - 140px);
+			.icon-tutorial, .icon-keyboard, .icon-print, .icon-zoomin, .icon-zoomout, .icon-center {
+				right: 4px;
+			}
+
+			.icon-zoomin, .icon-zoomout {
+				visibility: hidden;
+			}
+		}
+	}
+
+	#alertbox, #tutorialbox, #introbox {
+		max-width: calc(90vw);
+		max-height: calc(60vh);
+
+		overflow-y: scroll;
+	}
+
+	#introbox {	
+		div.content {
+			flex-direction: column;
+		}
+	}
 }

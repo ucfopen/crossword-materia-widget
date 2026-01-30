@@ -13,7 +13,6 @@
 
 		<!-- YOUR PREREQUISITES -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="hammer.min.js"></script>
 
 		<!-- MAIN PLAYER SCRIPT -->
 		<script src="player.js"></script>
@@ -25,7 +24,7 @@
 			<div id='assistive-alert' class='reader-instructions' aria-live='assertive'></div>
 			<header id='widget-header' class='header'>
 				<h1 id='title'></h1>
-				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit Answers</button>
+				<button id='submit' class='button action-button submit' aria-labelledby='submit-label' aria-describedby='submit-status'>Submit</button>
 				<div id='submit-label' class='assistive-element'>Submit Answers for scoring.</div>
 				<div id='submit-status' class='assistive-element'></div>
 			</header>
@@ -45,13 +44,14 @@
 					title='Print'
 					aria-label='Print. Press the Enter key to produce a printout for this Crossword puzzle.'>
 				</button>
-				<button id='zoomout'
-					class='icon-zoomout'
-					title='Zoom Out'
-					aria-label='Zoom Out. Press the Enter key to select the letter grid.'>
+				<button id='focus-letter'
+					class='icon-zoomin'
+					title='Focus'
+					aria-label='Focus. Press the Enter key to toggle zooming into the current letter.'>
 				</button>
 			</div>
 			<div id='board' class="screen board">
+				<div id="focus-text"></div>
 				<div id='board-info' class='assistive-element'>
 					Crossword game board selected.
 					Use tab and shift-tab to navigate between character spaces within a word.
@@ -111,16 +111,32 @@
 				<span class='clue-text' id='cluetext_{{i}}' data-i='{{i}}'>
 					{{question}}
 				</span>
-				<button id='hintbtn_{{i}}'
-					class='hint action-button button'
-					data-i='{{i}}'
-					data-dir='{{dir}}'
-					aria-label='Request a hint for this word. There may be a score deduction incurred.'>Hint</button>
-				<button id='freewordbtn_{{i}}'
-					class='free-word action-button button'
-					data-i='{{i}}'
-					data-dir='{{dir}}'
-					aria-label='Complete this question by using a free word.'>Free word</button>
+				<div id="hint-splitter" data-i='{{i}}'>
+					<div>
+						<button id='hintbtn_{{i}}'
+						class='hint action-button button'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						aria-label='Request a hint for this word. There may be a score deduction incurred.'>Hint</button>
+						<button id='freewordbtn_{{i}}'
+						class='free-word action-button button'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						aria-label='Complete this question by using a free word.'>Free word</button>
+					</div>
+					<div id="nav-div">
+						<button id='prevQ_{{i}}'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						class='action-button button'
+						aria-label='Move to the previous question.'><</button>
+						<button id='nextQ_{{i}}'
+						data-i='{{i}}'
+						data-dir='{{dir}}'
+						class='action-button button'
+						aria-label='Move to the next question.'>></button>
+					</div>
+				</div>
 				<span class='hintspot' id='hintspot_{{i}}'></span>
 			</div>
 			<div class="arrow_box">Click to finish</div>
@@ -147,7 +163,7 @@
 			<dialog id='introbox' aria-modal='true' role='alertdialog' aria-describedby='introcaption'>
 				<header>How to Play Crossword</header>
 				<div class='content'>
-					<div id='introcaption'>Fill in each <span class='bold'>word</span> or <span class='bold'>phrase</span> based on the associated clue on the right. Every cell contains a single letter. Letters at intersections should be correct for both words!</div>
+					<div id='introcaption'>Fill in each <span class='bold'>word</span> or <span class='bold'>phrase</span> based on the associated clue on the right. Every cell contains a single letter. Letters at intersections should be correct for both words!<br><br>You can drag to pan the board if it ever goes off-screen.</div>
 					<aside class='image-frame' aria-hidden='true'>
 						<img id='preview-img-1' src='assets/crossword-intro-frame-1.svg' alt='Crossword preview demo image 1 of 3' />
 						<img id='preview-img-2' src='assets/crossword-intro-frame-2.svg' alt='Crossword preview demo image 2 of 3' />
@@ -164,6 +180,7 @@
 						<p>Use the <span class='bold'>down</span> key to select the hint and free word buttons associated with the selected clue. Use the <span class='bold'>up</span> key to return to the board.</p>
 						<p>When the current letter is selected, use the <span class='bold'>up</span> key to cycle through the special character drawer. <span class='bold'>Enter</span> will insert the selected character at the current letter. The <span class='bold'>down</span> key will return you to the board.</p>
 						<p>Use <span class='bold'>tab</span> and <span class='bold'>shift-tab</span> to cycle through letters in the current word before defocusing the board.</p>
+						<p>Use <span class='bold'>control</span> to toggle the camera's letter focusing.</p>
 				</div>
 				<button id='tutorial_dismiss' aria-label='Dismiss.' class='submit action-button'>Okay</button>
 			</dialog>

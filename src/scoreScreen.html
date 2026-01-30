@@ -13,7 +13,6 @@
 
 		<!-- YOUR PREREQUISITES -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<script src="hammer.min.js"></script>
 
 		<!-- MAIN SCORE SCREEN SCRIPT -->
 		<script src="scoreScreen.js" data-embed></script>
@@ -33,12 +32,29 @@
 
 		<div id='t_hints' style='display:none' class="clue">
 			<em data-i='{{i}}'>{{hintPrefix}}:</em><br>
-			<span class="clueHeader">Clue: </span>{{question}}<br>
-			<span class="clueHeader">Answer: </span>{{answer}}<br>
+			<span class="clueHeader">CLUE</span><br>{{question}}<br><br>
+			<div id="hint-splitter" data-i='{{i}}'>
+				<div>
+					<span class="clueHeader">ANSWER</span><br><span class="answer">{{answer}}</span>
+				</div>
+				<div id="nav-div">
+					<button id='prevQ_{{i}}'
+					data-i='{{i}}'
+					data-dir='{{dir}}'
+					class='action-button button'
+					aria-label='Move to the previous question.'><</button>
+					<button id='nextQ_{{i}}'
+					data-i='{{i}}'
+					data-dir='{{dir}}'
+					class='action-button button'
+					aria-label='Move to the next question.'>></button>
+				</div>
+			</div>
+			
 		</div>
 
 		<div id="bottomOptions">
-				Show Correct Answers
+				Show Correct
 				<input type="checkbox" id="hide-correct"/>
 				<label for="hide-correct" class="checktoggle"></label>
 			</div>
