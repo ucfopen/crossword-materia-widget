@@ -61,10 +61,6 @@ Namespace('Crossword').ScoreScreen = (function() {
 	const LETTER_HEIGHT         = 23;  // how many pixles high is a space?
 	const LETTER_WIDTH          = 27;  // how many pixles wide is a space?
 	const VERTICAL              = 1;   // used to compare dir == 1 or dir == VERTICAL
-	const BOARD_WIDTH           = 560; // visible board width, minus space for
-	const BOARD_HEIGHT          = 550; // visible board height, minus space for zoom button
-	const BOARD_LETTER_WIDTH    = Math.floor(BOARD_WIDTH / LETTER_WIDTH);
-	const BOARD_LETTER_HEIGHT   = Math.floor(BOARD_HEIGHT / LETTER_HEIGHT);
 
 		// width of the scaled game container
 	const _contWidth = () => parseFloat(_contDiv.width());
@@ -116,8 +112,32 @@ Namespace('Crossword').ScoreScreen = (function() {
 			}
 		}
 	};
-		
 
+	// centers puzzleX/Y on the current letter
+	var _centerLetter = function(animate) {
+		if (animate == null) { animate = true; }
+		const letterX = _curLetter.x * LETTER_WIDTH;
+		const letterY = _curLetter.y * LETTER_HEIGHT;
+
+		// we want to translate letterX/Y to the centerpoint
+		_puzzleX = (_mapWidth()/2) - (letterX+(LETTER_WIDTH/2));
+		_puzzleY = (_mapHeight()/2) - (letterY+(LETTER_HEIGHT/2));
+
+		const m = _dom('movable');
+		if (animate) {
+			m.classList.add('animateall');
+		}
+
+		clearTimeout(_movableEase);
+
+		_movableEase = setTimeout(() => m.classList.remove('animateall')
+
+		, 1000);
+
+		m.style.top  = _puzzleY + 'px';
+		return m.style.left = _puzzleX + 'px';
+	};
+		
 	// Called by Materia.ScoreCore when your widget ScoreCore should start the user experience.
 	const start = function(instance, qset, scoreTable, isPreview, version) {
 		// if we're on a mobile device, some event listening will be different
@@ -127,7 +147,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 			$('#movable-container').css("height", "calc(100% - 150px)");
 			$('#movable-container').css("top", "150px");
 			$('#clues').css("height", parseInt($('#clue_'+_curClue).outerHeight(true)));
-			document.ontouchmove = e => e.preventDefault();
+			// document.ontouchmove = e => e.preventDefault();
 		}
 
 		// store widget data
@@ -158,7 +178,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 		// render the widget, hook listeners, update UI
 		_drawBoard();
-		_animateToShowBoardIfNeeded();
+		_zoomOut();
 		_setupEventHandlers();
 		setTimeout(()=>_updateClue(true), 100);
 		return Materia.ScoreCore.setHeight();
@@ -170,7 +190,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_isMobile = $(window).width() < MOBILE_PX;
 		if (_isMobile) {
 			$('#movable-container').css("height", "calc(100% - 150px)");
-			document.ontouchmove = e => e.preventDefault();
+			// document.ontouchmove = e => e.preventDefault();
 		}
 		
 		if (!_qset || !isConsistentQset(qset)) {
@@ -277,6 +297,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 	// start dragging
 	var _mouseDownHandler = function(e) {
+		if(_isMobile) return;
 		const context = _isMobile ? e.pointers[0] : e;
 
 		if ((context.clientX > 515) || !_zoomedIn) { return; }
@@ -433,6 +454,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_qset = qset;
 		_scoreTable = scoreTable;
 		_boardDiv = $("#movable");
+		_contDiv = $('#movable-container');
 		_questions = _qset.items[0].items;
 		forEveryQuestion(function(i, letters, x, y, dir, response) {
 			_questions[i].options.x = ~~_questions[i].options.x;
@@ -445,8 +467,8 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 		_puzzleLetterWidth  = puzzleSize.width;
 		_puzzleLetterHeight = puzzleSize.height;
-		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - BOARD_WIDTH;
-		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - BOARD_HEIGHT;
+		_puzzleWidthOverflow = (_puzzleLetterWidth * LETTER_WIDTH) - _contWidth();
+		_puzzleHeightOverflow = (_puzzleLetterHeight * LETTER_HEIGHT) - _contHeight();
 
 		_curLetter = { x: _questions[0].options.x, y:_questions[0].options.y };
 
@@ -459,19 +481,10 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_wordIntersections = {};
 
 		_drawBoard();
-		_animateToShowBoardIfNeeded();
+		_zoomOut();
 		return _setupEventHandlers();
 	};
 
-	// zoom animation if dimensions are off screen
-	var _animateToShowBoardIfNeeded = function() {
-		if ((_puzzleLetterWidth > BOARD_LETTER_WIDTH) || (_puzzleLetterHeight > BOARD_LETTER_HEIGHT)) {
-			_zoomOut();
-
-			return setTimeout(() => _zoomIn()
-			, 2500);
-		}
-	};
 
 	var _zoomOut = function() {
 		const puzzlePixelHeight = _puzzleLetterHeight * LETTER_HEIGHT;
@@ -479,15 +492,15 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 		// x = pixelHeight / visibleDivHeight
 		// 5 = 2000 / 400
-		const heightScaleFactor = puzzlePixelHeight / BOARD_HEIGHT;
-		const widthScaleFactor = puzzlePixelWidth / BOARD_WIDTH;
+		const heightScaleFactor = puzzlePixelHeight / _contHeight();
+		const widthScaleFactor = puzzlePixelWidth / _contWidth();
 
 		// find the biggest scale factor
 		const scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor);
 
 		// translate values need to take scale into account
-		const translateX = -_puzzleX / scaleFactor;
-		const translateY = -_puzzleY / scaleFactor;
+		const translateX = (-_puzzleX - _mapXMargin()) / scaleFactor;
+		const translateY = (-_puzzleY - _mapYMargin()) / scaleFactor;
 
 		const trans = `scale(${scaleFactor}) translate(${translateX}px, ${translateY}px)`;
 		_boardDiv
@@ -523,21 +536,21 @@ Namespace('Crossword').ScoreScreen = (function() {
 			highlightedLetter.focus();
 
 			// figure out if the _curLetter is on the screen
-			const letterX = _curLetter.x * LETTER_WIDTH;
-			const letterY = _curLetter.y * LETTER_HEIGHT;
+			const letterX = ((_curLetter.x * LETTER_WIDTH) + _mapXMargin()) - _mapPadding() - _mapBorder();
+			const letterY = ((_curLetter.y * LETTER_HEIGHT) + _mapYMargin()) - _mapPadding() - _mapBorder();
 
-			const isOffBoardX = (letterX > _puzzleX) || (letterX < (_puzzleX + BOARD_WIDTH));
-			const isOffBoardY = (letterY > _puzzleY) || (letterY < (_puzzleY + BOARD_HEIGHT));
+			const isOffBoardX = (letterX > (_contWidth() - _puzzleX)) || (letterX < (0 -_puzzleX)); 
+			const isOffBoardY = (letterY > (_contHeight() - _puzzleY)) || (letterY < (0 -_puzzleY));
 
 			const m = _dom('movable');
 
 			if (!_boardMoving && (isOffBoardX || isOffBoardY)) {
 				if (isOffBoardX) {
-					_puzzleX = (-_curLetter.x * LETTER_WIDTH) + 100;
+					_puzzleX = ((-_curLetter.x * LETTER_WIDTH) - _mapXMargin()) + _mapPadding() + _mapBorder();
 				}
 
 				if (isOffBoardY) {
-					_puzzleY = (-_curLetter.y * LETTER_HEIGHT) + 100;
+					_puzzleY = ((-_curLetter.y * LETTER_HEIGHT) - _mapYMargin()) + _mapPadding() + _mapBorder();
 				}
 
 				if (animate) {
@@ -553,6 +566,9 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 			_limitBoardPosition();
 			_boardMoving = false;
+
+			// focus on mobile by default
+			if(_isMobile) _centerLetter();
 
 			m.style.top  = _puzzleY + 'px';
 			return m.style.left = _puzzleX + 'px';

@@ -109,7 +109,7 @@ body {
 	bottom: 0px;
 	z-index: 100;
 	font-size: 14px;
-	background: black;
+	background: #333333;
 	color: white;
 	padding: 5px 10px;
 
@@ -136,6 +136,7 @@ body {
 			transition: all ease 0.25s;
 			background: #be3434;
 			padding: 5px 6px;
+			padding-left: 8px;
 			margin: -5px;
 			width: 30px;
 			display: inline-block;
@@ -150,7 +151,8 @@ body {
 			content: 'ON';
 			background: #70be34;
 			margin-left: 36px;
-			padding-left: 13px;
+			padding-left: 15px;
+			padding-right: 4px;
 		}
 	}
 }
@@ -424,8 +426,11 @@ input, button {
 		height: fit-content;
 	}
 
-	.icon-zoomin, .icon-zoomout {
-		visibility: hidden;
+	.icon-zoomout {
+		right: 16px;
+		bottom: 8px;
+		font-size: 28px;
+		top: auto;
 	}
 	
 	body {
