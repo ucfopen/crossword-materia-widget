@@ -87,12 +87,10 @@ Namespace('Crossword').ScoreScreen = do ->
 
 	# Called by Materia.ScoreCore when user switches score attempt
 	update = (qset, scoreTable) ->
-		_scoreTable = scoreTable
+		if not _qset or not isConsistentQset(qset)
+			return redrawBoard(qset, scoreTable)
 
-		if not isConsistentQset(qset)
-			return redrawBoard(qset)
-
-		_qset = qset
+		_qset = qset;
 		answersShown = $('#hide-correct')[0].checked
 		$('.letter').removeClass('correct incorrect')
 		forEveryQuestion (i, letters, x, y, dir, response) ->
@@ -273,9 +271,11 @@ Namespace('Crossword').ScoreScreen = do ->
 				_puzzleGrid[letterTop][letterLeft] = letters[l]
 				_boardDiv.append letterElement
 
-	redrawBoard = (qset) ->
+	redrawBoard = (qset, scoreTable) ->
 		_qset = qset
 		_questions = _qset.items[0].items
+		_scoreTable = scoreTable
+		_boardDiv = $('#movable')
 		forEveryQuestion (i, letters, x, y, dir, response) ->
 			_questions[i].options.x = ~~_questions[i].options.x
 			_questions[i].options.y = ~~_questions[i].options.y
