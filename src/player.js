@@ -665,11 +665,11 @@ Namespace('Crossword').Engine = (function() {
 
 			const scrolly = clue.offsetTop;
 			clue.classList.add('highlight');
-
-			$('#clues').stop(true);
-			$('#clues').animate({scrollTop: scrolly}, 0);
+			
 			// set clue container to size of new clue displayed on mobile
 			if (_isMobile) {
+				$('#clues').stop(true);
+				$('#clues').animate({scrollTop: scrolly}, 0);
 				return $('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')));
 			}
 		}
@@ -1512,8 +1512,10 @@ Namespace('Crossword').Engine = (function() {
 			const scrolly = clueElement.offsetTop;
 			clueElement.classList.add('highlight');
 			
-			$('#clues').stop(true);
-			$('#clues').animate({scrollTop: scrolly}, 150);
+			if(_isMobile) {
+				$('#clues').stop(true);
+				$('#clues').animate({scrollTop: scrolly}, 150);
+			}
 		}
 
 		// make sure the word associated with the current clue is highlighted (focus is not on the word)
