@@ -266,9 +266,25 @@ Namespace('Crossword').Engine = (function() {
 			_rescaleVars();
 			return _limitBoardPosition();
 		});
+		
+		$('#movable-container').click(() => {
+			if (_doZoomIn && !_isMobile) {
+				_resetView();
+				$('#focus-letter').attr('class', 'icon-zoomin');
+				$('body').attr('class', '');
+				return $('#focus-text').text('');
+			}
+		})
+
+		$('#movable').click((e) => {
+			e.preventDefault()
+			e.stopPropagation()
+		})
 
 		// keep focus on the last letter that was highlighted whenever we move the board around
-		$('#board').click(() => _highlightPuzzleLetter(false));
+		$('#board').click((e) => {
+			_highlightPuzzleLetter(false)
+		});
 
 		$('#board').keydown(_boardKeyDownHandler);
 		$('#kbhelp').click(() => _showKeyboardDialog());
@@ -282,12 +298,12 @@ Namespace('Crossword').Engine = (function() {
 			if (!_doZoomIn) {
 				_centerLetter();
 				$('#focus-letter').attr('class', 'icon-zoomout');
-				$('#movable').attr('class', 'crossword-board focused');
+				$('body').attr('class', 'focused');
 				return $('#focus-text').text('focused');
 			} else {
 				_resetView();
 				$('#focus-letter').attr('class', 'icon-zoomin');
-				$('#movable').attr('class', 'crossword-board');
+				$('body').attr('class', '');
 				return $('#focus-text').text('');
 			}
 		});
@@ -923,13 +939,13 @@ Namespace('Crossword').Engine = (function() {
 						if (!_doZoomIn) {
 							_centerLetter();
 							$('#focus-letter').attr('class', 'icon-zoomout');
-							$('#movable').attr('class', 'crossword-board focused');
+							$('body').attr('class', 'focused');
 							$('#focus-text').text('focused');
 							_highlightPuzzleLetter();
 						} else {
 							_resetView();
 							$('#focus-letter').attr('class', 'icon-zoomin');
-							$('#movable').attr('class', 'crossword-board');
+							$('body').attr('class', '');
 							$('#focus-text').text('');
 							_highlightPuzzleLetter();
 						}
