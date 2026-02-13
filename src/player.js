@@ -798,25 +798,6 @@ Namespace('Crossword').Engine = (function() {
 		let questionIndex = _curClue;
 
 		switch (keyEvent.key) {
-
-			case 'Control':
-				if (_isMobile) { return; }
-				if (!_doZoomIn) {
-					_centerLetter();
-					$('#focus-letter').attr('class', 'icon-zoomout');
-					$('#movable').attr('class', 'crossword-board focused');
-					$('#focus-text').text('focused');
-					_highlightPuzzleLetter();
-				} else {
-					_resetView();
-					$('#focus-letter').attr('class', 'icon-zoomin');
-					$('#movable').attr('class', 'crossword-board');
-					$('#focus-text').text('');
-					_highlightPuzzleLetter();
-				}
-				return;
-				break;
-
 			case 'Alt': _highlightPuzzleLetter(); break;
 
 			case 'ArrowLeft': _selectPreviousQuestion(questionIndex); break;
@@ -933,8 +914,30 @@ Namespace('Crossword').Engine = (function() {
 				} else {
 					letterTyped = String.fromCharCode(keyEvent.keyCode);
 				}
+				// check for shortcuts
+				if(keyEvent.ctrlKey || keyEvent.metaKey) {
+					if(keyEvent.ctrlKey && keyEvent.key.toLowerCase() == "f")
+					{
+						if (_isMobile) { return; }
+						keyEvent.preventDefault();
+						if (!_doZoomIn) {
+							_centerLetter();
+							$('#focus-letter').attr('class', 'icon-zoomout');
+							$('#movable').attr('class', 'crossword-board focused');
+							$('#focus-text').text('focused');
+							_highlightPuzzleLetter();
+						} else {
+							_resetView();
+							$('#focus-letter').attr('class', 'icon-zoomin');
+							$('#movable').attr('class', 'crossword-board');
+							$('#focus-text').text('');
+							_highlightPuzzleLetter();
+						}
+					}
+					return
+				}
 				// a letter was typed, move onto the next letter or override if this is the last letter
-				if (letterElement) {
+				else if (letterElement) {
 					if (!_isGuessable(letterTyped)) {
 						// disallow special characters from being entered
 						keyEvent.preventDefault();
