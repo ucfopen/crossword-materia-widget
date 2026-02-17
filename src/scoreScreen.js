@@ -492,11 +492,12 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 		// x = pixelHeight / visibleDivHeight
 		// 5 = 2000 / 400
-		const heightScaleFactor = puzzlePixelHeight / _contHeight();
-		const widthScaleFactor = puzzlePixelWidth / _contWidth();
+		const extraSize = 50 // px
+		const heightScaleFactor = (puzzlePixelHeight + extraSize) / _contHeight();
+		const widthScaleFactor = (puzzlePixelWidth + extraSize) / _contWidth();
 
 		// find the biggest scale factor
-		const scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor);
+		const scaleFactor =  1 / Math.max(widthScaleFactor, heightScaleFactor, 1.2);
 
 		// translate values need to take scale into account
 		const translateX = (-_puzzleX - _mapXMargin()) / scaleFactor;
