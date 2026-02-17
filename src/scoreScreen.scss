@@ -193,7 +193,7 @@ body {
 	background: #FB8A8A80;
 	border: solid 1px #922;
 
-	&.highlight {
+	&.highlight, &.selected {
 		border: solid 1px black;
 		background: #ff6a6aa0;
 		font-weight: bold;
@@ -209,7 +209,7 @@ body {
 	background: #B9FFB980;
 	border: solid 1px #292;
 
-	&.highlight {
+	&.highlight, &.selected {
 		border: solid 1px black;
 		background: #77ff77a0;
 		font-weight: bold;
@@ -223,6 +223,13 @@ body {
 
 .letter.highlight.neutral,
 .letter.highlight:not(.correct):not(.incorrect) {
+	border: solid 1px #6E7DA3;
+	background: #E5F3FF;
+	font-weight: bold;
+}
+
+.letter.selected.neutral,
+.letter.selected:not(.correct):not(.incorrect) {
 	border: solid 1px #6E7DA3;
 	background: #E5F3FF;
 	font-weight: bold;
@@ -282,7 +289,7 @@ body {
 			background: #eeeeee;
 		}
 
-		&.highlight{
+		&.highlight, &.selected{
 			background: #5163A6;
 			color: #fff;
 		}

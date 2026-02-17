@@ -592,13 +592,15 @@ Namespace('Crossword').ScoreScreen = (function() {
 			// remove the highlight from all others
 			for (var j in _questions) {
 				_dom('clue_'+j).classList.remove('highlight');
+				_dom('clue_'+j).classList.remove('selected');
 			}
 
 			const scrolly = clue.offsetTop;
 			clue.classList.add('highlight');
+			clue.classList.add('selected');
 
 			$('#clues').stop(true);
-			if (animate) {
+			if (animate || _isMobile) {
 				$('#clues').animate({scrollTop: scrolly}, _isMobile ? 0 : 150);
 			}
 
@@ -624,7 +626,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_curLetter = { x: ~~s[1], y:~~s[2] };
 		const location = "" + ~~s[1] + ~~s[2];
 
-		_highlightPuzzleWord((target).getAttribute('data-q'));
+		_selectPuzzleWord((target).getAttribute('data-q'));
 
 		_highlightPuzzleLetter(true);
 
@@ -634,7 +636,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 	// highlight a word (series of letters)
 	var _highlightPuzzleWord = function(index) {
 		// remove highlights
-		$(".highlight").removeClass("highlight");
+		$("#movable>.highlight").removeClass("highlight");
 		// and add it to the ones we care about
 		return forEveryQuestion(function(i, letters, x, y, dir, response) {
 			if (~~i === ~~index) {
@@ -642,6 +644,23 @@ Namespace('Crossword').ScoreScreen = (function() {
 					const l = _dom(`letter_${letterLeft}_${letterTop}`);
 					if (l != null) {
 						return l.classList.add('highlight');
+					}
+				});
+			}
+		});
+	};
+
+	// select a word (series of letters)
+	var _selectPuzzleWord = function(index) {
+		// remove prev selection
+		$("#movable>.selected").removeClass("selected");
+		// and add it to the ones we care about
+		return forEveryQuestion(function(i, letters, x, y, dir, response) {
+			if (~~i === ~~index) {
+				return forEveryLetter(x,y,dir,letters,response, function(letterLeft, letterTop) {
+					const l = _dom(`letter_${letterLeft}_${letterTop}`);
+					if (l != null) {
+						return l.classList.add('selected');
 					}
 				});
 			}
@@ -731,7 +750,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 		}
 
 		const firstLetter = $(`#letter_${x}_${y}`)[0];
-		return _letterClicked({ target: firstLetter }, true);
+		return _letterClicked({ target: firstLetter }, false);
 	};
 
 	// highlight words when a clue is moused over, to correspond what the user is seeing
