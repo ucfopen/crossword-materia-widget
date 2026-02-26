@@ -287,6 +287,24 @@ Namespace('Crossword').Engine = (function() {
 		});
 
 		$('#board').keydown(_boardKeyDownHandler);
+
+		document.addEventListener("input", (e) => {
+			const squareInput = _dom(`letter_${_curLetter.x}_${_curLetter.y}`);
+			const data = e.data[e.data.length - 1].toUpperCase()
+
+			if(_isGuessable(data)) {
+				if(squareInput.value != "") {
+					_boardKeyDownHandler(new KeyboardEvent("keydown", {key: data}))
+				} else {
+					squareInput.value = data
+					_boardKeyDownHandler(new KeyboardEvent("keydown", {key: data}))
+				}
+			} else {
+				squareInput.value = ""
+			}
+			
+		})
+
 		$('#kbhelp').click(() => _showKeyboardDialog());
 		$('#introbtn').click(() => _showIntroDialog());
 		$('#printbtn').click(e => Crossword.Print.printBoard(_instance, _questions));
