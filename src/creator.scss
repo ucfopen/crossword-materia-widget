@@ -501,7 +501,7 @@ h1 {
 		font-weight: 300;
 		outline: none;
 
-		&[type=text] {
+		&[type=text], &[type=number] {
 			width: 450px;
 			margin-top: 20px;
 			border: solid 1px #333;
@@ -526,7 +526,7 @@ h1 {
 	margin-left: -250px;
 
 	input {
-		&[type=text] {
+		&[type=text], &[type=number] {
 			width: 25px;
 			padding: 5px 7px;
 			border: 1px solid #ccc;
@@ -536,6 +536,9 @@ h1 {
 			&:hover{
 				background: #F7FAB3;
 			}
+		}
+		&[type=number] {
+			width: 3em;
 		}
 		&[type=button] {
 			position: relative;

@@ -57,8 +57,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		$scope.$apply ->
 			$scope.widget.title	= title
 			$scope.widget.puzzleItems = []
-			$scope.widget.freeWords = qset.options.freeWords
-			$scope.widget.hintPenalty = qset.options.hintPenalty
+			$scope.widget.freeWords = parseInt(qset.options.freeWords) || 0
+			$scope.widget.hintPenalty = parseInt(qset.options.hintPenalty) || 0
 			for item in _items
 				$scope.addPuzzleItem( item.questions[0].text, item.answers[0].text , item.options.hint, item.id)
 			return
@@ -98,6 +98,8 @@ CrosswordCreator.controller 'crosswordCreatorCtrl', ['$scope', '$timeout', ($sco
 		$scope.showIntroDialog = false
 
 	$scope.closeDialog = ->
+		if $scope.showOptionsDialog and $scope.widget.hintPenalty == null then $scope.widget.hintPenalty = 0
+		if $scope.showOptionsDialog and $scope.widget.freeWords == null then $scope.widget.freeWords = 0
 		$scope.showIntroDialog = $scope.showTitleDialog = $scope.showOptionsDialog = false
 
 	$scope.showOptions = ->
