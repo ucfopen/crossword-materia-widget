@@ -160,7 +160,7 @@
 			<h2>Options</h2>
 
 			<strong>Hint penalty</strong>
-			-<input type='text' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
+			-<input type='number' max='100' min='0' ng-model='widget.hintPenalty' value='{{widget.hintPenalty}}'>%
 			<p>
 				Students can ask for a hint (if one is provided) but
 				using one will reduce that word's score by the <b>Hint penalty </b>
@@ -168,7 +168,7 @@
 			</p>
 
 			<strong>Free words</strong>
-			<input type='text' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
+			<input type='number' min='0' ng-model='widget.freeWords' value='{{widget.freeWords}}'>
 
 			<p>
 				Students can get a word revealed for free if they're
