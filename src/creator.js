@@ -71,8 +71,8 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 		$scope.$apply(function() {
 			$scope.widget.title	= title;
 			$scope.widget.puzzleItems = [];
-			$scope.widget.freeWords = qset.options.freeWords;
-			$scope.widget.hintPenalty = qset.options.hintPenalty;
+			$scope.widget.freeWords = parseInt(qset.options.freeWords) || 0;
+			$scope.widget.hintPenalty = parseInt(qset.options.hintPenalty) || 0;
 			for (var item of Array.from(_items)) {
 				$scope.addPuzzleItem( item.questions[0].text, item.answers[0].text , item.options.hint, item.id);
 			}
@@ -122,7 +122,15 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 
 	$scope.introComplete = () => $scope.showIntroDialog = false;
 
-	$scope.closeDialog = () => $scope.showIntroDialog = ($scope.showTitleDialog = ($scope.showOptionsDialog = false));
+	$scope.closeDialog = () => {
+		if ($scope.showOptionsDialog && $scope.widget.hintPenalty == null) 
+			$scope.widget.hintPenalty = 0
+
+		if ($scope.showOptionsDialog && $scope.widget.freeWords == null) 
+			$scope.widget.freeWords = 0
+
+		$scope.showIntroDialog = ($scope.showTitleDialog = ($scope.showOptionsDialog = false));
+	}
 
 	$scope.showOptions = () => $scope.showOptionsDialog = true;
 

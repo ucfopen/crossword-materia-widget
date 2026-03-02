@@ -58,7 +58,10 @@ class Crossword(ScoreModule):
 
     def handle_log_widget_interaction(self, log):
         if log.text == self.HINT_INTERACTION:
-            self.modifiers[log.item_id] = log.value
+            try:
+                self.modifiers[log.item_id] = int(log.value)
+            except (ValueError, TypeError):
+                self.modifiers[log.item_id] = 0
 
     def calculate_score(self):
         super().calculate_score()

@@ -164,6 +164,9 @@ Namespace('Crossword').Engine = (function() {
 		_instance = instance;
 		_qset = qset;
 
+		_qset.options.freeWords = parseInt(_qset.options.freeWords) || 0
+		_qset.options.hintPenalty = parseInt(_qset.options.hintPenalty) || 0
+
 		// easy access to questions
 		_questions = _qset.items[0].items;
 		_boardDiv = $('#movable');
