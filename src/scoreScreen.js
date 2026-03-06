@@ -89,7 +89,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 	// Centers the board
 	const _centerBoard = function() {
 		_boardDiv.css('margin-left', (_contWidth() - _boardDiv.outerWidth()) / 2);
-		return _boardDiv.css('margin-top', (_contHeight() - _boardDiv.outerHeight()) / 2);
+		_boardDiv.css('margin-top', (_contHeight() - _boardDiv.outerHeight()) / 2);
 	};
 
 	const _rescaleVars = function() {
@@ -178,7 +178,6 @@ Namespace('Crossword').ScoreScreen = (function() {
 
 		// render the widget, hook listeners, update UI
 		_drawBoard();
-		_zoomOut();
 		_setupEventHandlers();
 		setTimeout(()=>_updateClue(true), 100);
 		return Materia.ScoreCore.setHeight();
@@ -447,7 +446,7 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_boardDiv.css('width', newWidth);
 		_boardDiv.css('height', newHeight);
 
-		return _centerBoard();
+		_centerBoard();
 	};
 
 	var redrawBoard = function(qset, scoreTable) {
@@ -481,7 +480,6 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_wordIntersections = {};
 
 		_drawBoard();
-		_zoomOut();
 		return _setupEventHandlers();
 	};
 
@@ -508,7 +506,9 @@ Namespace('Crossword').ScoreScreen = (function() {
 			.css('-webkit-transform', trans)
 			.css('-moz-transform', trans)
 			.css('transform', trans);
-		return _zoomedIn = false;
+		_zoomedIn = false;
+
+		$('#zoomout').addClass('hidden');
 	};
 
 	var _zoomIn = function() {
@@ -516,7 +516,8 @@ Namespace('Crossword').ScoreScreen = (function() {
 		_boardDiv.css('-webkit-transform', trans)
 			.css('-moz-transform', trans)
 			.css('transform', trans);
-		return _zoomedIn = true;
+		_zoomedIn = true;
+		$('#zoomout').removeClass('hidden');
 	};
 
 	// remove letter focus class from the current letter

@@ -320,7 +320,7 @@ Namespace('Crossword').Engine = (function() {
 				_centerLetter();
 				$('#focus-letter').attr('class', 'icon-zoomout');
 				$('body').attr('class', 'focused');
-				return $('#focus-text').text('focused');
+				return $('#focus-text').text('Focused');
 			} else {
 				_resetView();
 				$('#focus-letter').attr('class', 'icon-zoomin');
@@ -700,14 +700,23 @@ Namespace('Crossword').Engine = (function() {
 				_dom('clue_'+j).classList.remove('highlight');
 			}
 
-			const scrolly = clue.offsetTop;
+			// const scrolly = clue.offsetTop;
 			clue.classList.add('highlight');
 			
 			// set clue container to size of new clue displayed on mobile
 			if (_isMobile) {
 				$('#clues').stop(true);
-				$('#clues').animate({scrollTop: scrolly}, 0);
-				return $('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')));
+				$('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')));
+
+				clue.scrollIntoView({
+					behavior: "instant",
+					block: "start"
+				})
+			} else {
+				clue.scrollIntoView({
+					behavior: "smooth",
+					block: "nearest"
+				})
 			}
 		}
 	};
