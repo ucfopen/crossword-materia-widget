@@ -1,34 +1,27 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const CrosswordCreator = angular.module('crosswordCreator', []);
 
 CrosswordCreator.directive('focusMe', ['$timeout', '$parse', ($timeout, $parse) => ({
-    link(scope, element, attrs) {
-        const model = $parse(attrs.focusMe);
-        scope.$watch(model, function(value) {
-            if (value === true) {
-                return $timeout(() => element[0].focus());
-            }
-        });
-        return element.bind('blur', () => scope.$apply(model.assign(scope, false)));
-    }
+	link(scope, element, attrs) {
+		const model = $parse(attrs.focusMe);
+		scope.$watch(model, function(value) {
+			if (value === true) {
+				$timeout(() => element[0].focus());
+			}
+		});
+		element.bind('blur', () => scope.$apply(model.assign(scope, false)));
+	}
 })
 ]);
 CrosswordCreator.directive('selectMe', ['$timeout', '$parse', ($timeout, $parse) => ({
-    link(scope, element, attrs) {
-        const model = $parse(attrs.selectMe);
-        return scope.$watch(model, function(value) {
-            if (value === true) {
-                return $timeout(() => $(element[0]).focus().select());
-            }
-        });
-    }
+	link(scope, element, attrs) {
+		const model = $parse(attrs.selectMe);
+		scope.$watch(model, function(value) {
+			if (value === true) {
+				$timeout(() => $(element[0]).focus().select());
+			}
+		});
+	}
 })
 ]);
 
@@ -79,24 +72,24 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 		});
 
 		_drawCurrentPuzzle(_items);
-		return $scope.hasFreshPuzzle = true;
+		$scope.hasFreshPuzzle = true;
 	};
 
 	$scope.onSaveClicked = function(mode) {
 		if (!_buildSaveData() && (mode !== 'history')) {
-			return Materia.CreatorCore.cancelSave('Required fields not filled out');
+			Materia.CreatorCore.cancelSave('Required fields not filled out');
 		}
-		return Materia.CreatorCore.save(_title, _qset);
+		Materia.CreatorCore.save(_title, _qset);
 	};
 
 	$scope.onSaveComplete = (title, widget, qset, version) => true;
 
 	$scope.onQuestionImportComplete = items => $scope.$apply(function() {
-        for (var item of Array.from(items)) {
-            $scope.addPuzzleItem(item.questions[0].text, item.answers[0].text, (item.options != null ? item.options.hint : undefined) || '', item.id);
-        }
-        return $scope.generateNewPuzzle(true);
-    });
+		for (var item of Array.from(items)) {
+			$scope.addPuzzleItem(item.questions[0].text, item.answers[0].text, (item.options != null ? item.options.hint : undefined) || '', item.id);
+		}
+		$scope.generateNewPuzzle(true);
+	});
 
 	$scope.onMediaImportComplete = media => null;
 
@@ -105,7 +98,7 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 		if (a == null) { a = ''; }
 		if (h == null) { h = ''; }
 		if (id == null) { id = ''; }
-		return $scope.widget.puzzleItems.push({
+		$scope.widget.puzzleItems.push({
 			question: q,
 			answer: a,
 			hint: h,
@@ -117,7 +110,7 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 	$scope.removePuzzleItem = function(index) {
 		$scope.widget.puzzleItems.splice(index,1);
 		$scope.noLongerFresh();
-		return $scope.generateNewPuzzle();
+		$scope.generateNewPuzzle();
 	};
 
 	$scope.introComplete = () => $scope.showIntroDialog = false;
@@ -141,7 +134,7 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 		$('.loading').show();
 		$scope.isBuilding = true;
 
-		return $timeout(function() {
+		$timeout(function() {
 			if (reset) {
 				Crossword.Puzzle.resetRandom();
 			}
@@ -151,32 +144,32 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 			$('.loading').hide();
 			$scope.stopTimer();
 
-			return $scope.$apply(() => $scope.isBuilding = false);
+			$scope.$apply(() => $scope.isBuilding = false);
 		}
 		,300);
 	};
 
 	$scope.noLongerFresh = function() {
 		$scope.hasFreshPuzzle = false;
-		return $scope.resetTimer();
+		$scope.resetTimer();
 	};
 
 	$scope.$watch('widget.hintPenalty', function(newValue, oldValue) {
 		if ((newValue != null) && newValue.match && !newValue.match(/^[0-9]?[0-9]?$/)) {
-			return $scope.widget.hintPenalty = oldValue;
+			$scope.widget.hintPenalty = oldValue;
 		}
 	});
 
 	$scope.$watch('widget.freeWords', function(newValue, oldValue) {
 		if ((newValue != null) && newValue.match && !newValue.match(/^[0-9]?[0-9]?$/)) {
-			return $scope.widget.freeWords = oldValue;
+			$scope.widget.freeWords = oldValue;
 		}
 	});
 
 	$scope.printPuzzle = function() {
 		$scope.generateNewPuzzle();
 		if (__guard__(_qset != null ? _qset.items : undefined, x => x.length)) {
-			return $timeout(() => Crossword.Print.printBoard({ name: $scope.widget.title }, _qset.items[0].items)
+			$timeout(() => Crossword.Print.printBoard({ name: $scope.widget.title }, _qset.items[0].items)
 			,500);
 		}
 	};
@@ -184,14 +177,14 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 	// Timer for regenerating
 	$scope.startTimer = function() {
 		$scope.stopTimer();
-		return $scope.timer = setInterval($scope.generateNewPuzzle, 1000);
+		$scope.timer = setInterval($scope.generateNewPuzzle, 1000);
 	};
 
 	$scope.stopTimer = () => clearInterval($scope.timer);
 
 	$scope.resetTimer = function() {
 		$scope.stopTimer();
-		return $scope.startTimer();
+		$scope.startTimer();
 	};
 
 	$scope.setSpecialInputTarget = function(event, index, field) {
@@ -214,8 +207,8 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 		const textAfter = inputString.substring(cursorPos, inputString.length);
 
 		const {
-            index
-        } = specialInputTarget;
+			index
+		} = specialInputTarget;
 
 		switch (specialInputTarget.field) {
 			case 'answer': $scope.widget.puzzleItems[index].answer = textBefore + $scope.specialInputChar + textAfter; break;
@@ -223,11 +216,11 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 			case 'hint': $scope.widget.puzzleItems[index].hint = textBefore + $scope.specialInputChar + textAfter; break;
 		}
 
-		return $timeout(function() {
+		$timeout(function() {
 			specialInputTargetElement[0].focus();
 			specialInputTargetElement[0].selectionStart = (specialInputTargetElement[0].selectionEnd = cursorPos + 1);
 
-			if (specialInputTarget.field === 'answer') { return $scope.noLongerFresh(); }
+			if (specialInputTarget.field === 'answer') { $scope.noLongerFresh(); }
 		});
 	};
 
@@ -343,11 +336,11 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 			}
 		}
 
-		return $scope.$apply(function() {
+		$scope.$apply(function() {
 			$scope.scrollWarn = (_left > 17) || (_top > 20);
 			$scope.sizeWarn = (_left > 20) || (_top > 25);
 			$scope.tooBig = (_left > 35) || (_top > 45);
-			return $scope.error = $scope.unused || $scope.tooBig;
+			$scope.error = $scope.unused || $scope.tooBig;
 		});
 	};
 
@@ -374,7 +367,7 @@ CrosswordCreator.controller('crosswordCreatorCtrl', ['$scope', '$timeout', funct
 		};
 	};
 
-	return Materia.CreatorCore.start($scope);
+	Materia.CreatorCore.start($scope);
 }
 ]);
 

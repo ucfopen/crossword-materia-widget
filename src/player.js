@@ -1,12 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS202: Simplify dynamic range loops
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 Namespace('Crossword').Engine = (function() {
 	// variables to store widget data in this scope
 	let _qset                 = null;
@@ -118,12 +109,12 @@ Namespace('Crossword').Engine = (function() {
 	// Centers the board
 	const _centerBoard = function() {
 		_boardDiv.css('margin-left', (_contWidth() - _boardDiv.outerWidth()) / 2);
-		return _boardDiv.css('margin-top', (_contHeight() - _boardDiv.outerHeight()) / 2);
+		_boardDiv.css('margin-top', (_contHeight() - _boardDiv.outerHeight()) / 2);
 	};
 
 	const _rescaleVars = function() {
 		_puzzleWidthOverflow = _boardDiv.outerWidth() - _contWidth();
-		return _puzzleHeightOverflow = _boardDiv.outerHeight() - _contHeight();
+		_puzzleHeightOverflow = _boardDiv.outerHeight() - _contHeight();
 	};
 
 	// update isMobile variable depending on if the screen was scaled
@@ -144,7 +135,7 @@ Namespace('Crossword').Engine = (function() {
 				$('#focus-text').text('');
 			}
 		}
-		return _isMobile = newMobile;
+		_isMobile = newMobile;
 	};
 
 	// Called by Materia.Engine when your widget Engine should start the user experience.
@@ -176,7 +167,7 @@ Namespace('Crossword').Engine = (function() {
 		forEveryQuestion(function(i, letters, x, y, dir) {
 			_questions[i].options.x = ~~_questions[i].options.x;
 			_questions[i].options.y = ~~_questions[i].options.y;
-			return _questions[i].options.dir = ~~_questions[i].options.dir;
+			_questions[i].options.dir = ~~_questions[i].options.dir;
 		});
 
 		const puzzleSize = _measureBoard(_questions);
@@ -203,7 +194,7 @@ Namespace('Crossword').Engine = (function() {
 		_showIntroDialog();
 		_updateClue();
 
-		return _rescaleVars();
+		_rescaleVars();
 	};
 
 	// getElementById and cache it, for the sake of performance
@@ -267,7 +258,7 @@ Namespace('Crossword').Engine = (function() {
 			_updateIsMobile();
 			_centerBoard();
 			_rescaleVars();
-			return _limitBoardPosition();
+			_limitBoardPosition();
 		});
 		
 		$('#movable-container').click(() => {
@@ -275,7 +266,7 @@ Namespace('Crossword').Engine = (function() {
 				_resetView();
 				$('#focus-letter').attr('class', 'icon-zoomin');
 				$('body').attr('class', '');
-				return $('#focus-text').text('');
+				$('#focus-text').text('');
 			}
 		})
 
@@ -312,7 +303,7 @@ Namespace('Crossword').Engine = (function() {
 		$('#introbtn').click(() => _showIntroDialog());
 		$('#printbtn').click(e => Crossword.Print.printBoard(_instance, _questions));
 		$('#printbtn').keyup(function(e) {
-			if (e.keyCode === 13) { return Crossword.Print.printBoard(_instance, _questions); }
+			if (e.keyCode === 13) { Crossword.Print.printBoard(_instance, _questions); }
 		});
 		
 		$('#focus-letter').click(function(e) {
@@ -320,12 +311,12 @@ Namespace('Crossword').Engine = (function() {
 				_centerLetter();
 				$('#focus-letter').attr('class', 'icon-zoomout');
 				$('body').attr('class', 'focused');
-				return $('#focus-text').text('Focused');
+				$('#focus-text').text('Focused');
 			} else {
 				_resetView();
 				$('#focus-letter').attr('class', 'icon-zoomin');
 				$('body').attr('class', '');
-				return $('#focus-text').text('');
+				$('#focus-text').text('');
 			}
 		});
 
@@ -334,7 +325,7 @@ Namespace('Crossword').Engine = (function() {
 			spoof.which = this.innerText.charCodeAt(0);
 			spoof.keyCode = this.innerText.charCodeAt(0);
 			const currentLetter = _dom(`letter_${_curLetter.x}_${_curLetter.y}`);
-			return $(currentLetter).trigger(spoof);
+			$(currentLetter).trigger(spoof);
 		});
 		$('#specialInputHead').click(() => $('#specialInput').toggleClass('down up'));
 
@@ -346,7 +337,7 @@ Namespace('Crossword').Engine = (function() {
 		document.getElementById('board').addEventListener('mousemove', _mouseMoveHandler);
 		document.addEventListener('mouseup', _mouseUpHandler);
 
-		return $('#clues').keydown(_clueKeyDownHandler);
+		$('#clues').keydown(_clueKeyDownHandler);
 	};
 
 	const _assistiveNotification = text => _dom('assistive-notification').innerHTML = text;
@@ -355,7 +346,7 @@ Namespace('Crossword').Engine = (function() {
 
 	var _boardFocusHandler = function(e) {
 		_highlightPuzzleWord(_curClue);
-		return _highlightPuzzleLetter(true, false);
+		_highlightPuzzleLetter(true, false);
 	};
 
 	// start dragging
@@ -369,7 +360,7 @@ Namespace('Crossword').Engine = (function() {
 		_mouseXAnchor = context.clientX;
 
 		if (_curDir !== -1) { _prevDir = _curDir; }
-		return _curDir = -1;
+		_curDir = -1;
 	};
 
 	// start dragging the board when the mousedown occurs
@@ -526,7 +517,7 @@ Namespace('Crossword').Engine = (function() {
 					maxLetterY = letterTop;
 				}
 
-				return _boardDiv.append(letterElement);
+				_boardDiv.append(letterElement);
 			});
 
 			_questionsComplete.set(~~i, false);
@@ -543,7 +534,7 @@ Namespace('Crossword').Engine = (function() {
 		_boardDiv.css('height', newHeight);
 
 		// set offset to center board
-		return _centerBoard();
+		_centerBoard();
 	};
 
 	var _getInteractiveLetterCount = function(word) {
@@ -581,7 +572,7 @@ Namespace('Crossword').Engine = (function() {
 		_puzzleY = 0;
 
 		m.style.top  = _puzzleY + 'px';
-		return m.style.left = _puzzleX + 'px';
+		m.style.left = _puzzleX + 'px';
 	};
 
 	// centers puzzleX/Y on the current letter, zooms
@@ -616,13 +607,13 @@ Namespace('Crossword').Engine = (function() {
 		_doZoomIn = true;
 
 		m.style.top  = _puzzleY + 'px';
-		return m.style.left = _puzzleX + 'px';
+		m.style.left = _puzzleX + 'px';
 	};
 
 	// remove letter focus class from the current letter
 	const _removePuzzleLetterHighlight = function() {
 		const g = _dom(`letter_${_curLetter.x}_${_curLetter.y}`);
-		if (g != null) { return g.classList.remove('focus'); }
+		if (g != null) { g.classList.remove('focus'); }
 	};
 
 	// apply highlight class
@@ -670,7 +661,7 @@ Namespace('Crossword').Engine = (function() {
 			if (_doZoomIn || _isMobile) { _centerLetter(); }
 
 			m.style.top  = _puzzleY + 'px';
-			return m.style.left = _puzzleX + 'px';
+			m.style.left = _puzzleX + 'px';
 		}
 	};
 
@@ -745,17 +736,17 @@ Namespace('Crossword').Engine = (function() {
 
 	const _nextLetter = function(direction) {
 		if (direction === VERTICAL) {
-			return _curLetter.y++;
+			_curLetter.y++;
 		} else {
-			return _curLetter.x++;
+			_curLetter.x++;
 		}
 	};
 
 	const _prevLetter = function(direction) {
 		if (direction === VERTICAL) {
-			return _curLetter.y--;
+			_curLetter.y--;
 		} else {
-			return _curLetter.x--;
+			_curLetter.x--;
 		}
 	};
 
@@ -765,20 +756,24 @@ Namespace('Crossword').Engine = (function() {
 		switch (keyEvent.key) {
 			case 'ArrowUp':
 				_setClueFocusDepth('up', questionIndex);
-				return keyEvent.preventDefault();
+				keyEvent.preventDefault();
+				break;
 			case 'ArrowDown':
 				_setClueFocusDepth('down', questionIndex);
-				return keyEvent.preventDefault();
+				keyEvent.preventDefault();
+				break;
 			case 'ArrowLeft':
 				_selectPreviousQuestion(questionIndex);
 				var i = (questionIndex - 1) < 0 ? _questions.length - 1 : questionIndex - 1;
 				_highlightPuzzleWord(i);
-				return _highlightPuzzleLetter();
+				_highlightPuzzleLetter();
+				break;
 			case 'ArrowRight':
 				_selectNextQuestion(questionIndex);
 				i = (questionIndex + 1) % _questions.length;
 				_highlightPuzzleWord(i);
-				return _highlightPuzzleLetter();
+				_highlightPuzzleLetter();
+				break;
 		}
 	};
 	
@@ -790,35 +785,39 @@ Namespace('Crossword').Engine = (function() {
 					_curClueFocusDepth = 0;
 					_dom('letter_' + _curLetter.x + '_' + _curLetter.y).focus();
 					_highlightPuzzleLetter();
-					return _assistiveNotification('Focus returned to game board for question ' + (index + 1) + '.');
+					_assistiveNotification('Focus returned to game board for question ' + (index + 1) + '.');
+					return;
 				case 2:
 					_curClueFocusDepth = 0;
 					if (_dom('hintbtn_' + index).hasAttribute('disabled')) {
-						return _assistiveNotification('Hint button unavailable for question ' + (index + 1) + '. Focus returned to game board.');
+						_assistiveNotification('Hint button unavailable for question ' + (index + 1) + '. Focus returned to game board.');
 					} else {
 						_curClueFocusDepth = 1;
 						_dom('hintbtn_' + index).focus();
-						return _assistiveNotification('Hint button selected for question ' + (index + 1) + '.');
+						_assistiveNotification('Hint button selected for question ' + (index + 1) + '.');
 					}
+					return;
 			}
 		} else if (direction === 'down') {
 			switch (_curClueFocusDepth) {
 				case 0:
 					_curClueFocusDepth = 1;
 					if (_dom('hintbtn_' + index).hasAttribute('disabled')) {
-						return _assistiveNotification('Hint has already been requested for question ' + (index + 1) + '.');
+						_assistiveNotification('Hint has already been requested for question ' + (index + 1) + '.');
 					} else {
 						_dom('hintbtn_' + index).focus();
-						return _assistiveNotification('Hint button selected for question ' + (index + 1) + '.');
+						_assistiveNotification('Hint button selected for question ' + (index + 1) + '.');
 					}
+					return;
 				case 1:
 					if (_dom('freewordbtn_' + index).hasAttribute('disabled')) {
-						return _assistiveAlert('You cannot request a free word. No free words remain.');
+						_assistiveAlert('You cannot request a free word. No free words remain.');
 					} else {
 						_curClueFocusDepth = 2;
 						_dom('freewordbtn_' + index).focus();
-						return _assistiveNotification('Free Word button selected for question ' + (index + 1) + '. You have ' + _freeWordsRemaining + ' free words remaining.');
+						_assistiveNotification('Free Word button selected for question ' + (index + 1) + '. You have ' + _freeWordsRemaining + ' free words remaining.');
 					}
+					return;
 				case 2: return;
 			}
 		}
@@ -853,7 +852,6 @@ Namespace('Crossword').Engine = (function() {
 				_highlightPuzzleLetter(); // puzzle letter highlight is removed by default
 				_handleSpecialCharacterFocus('up');
 				return;
-				break;
 
 			case 'ArrowRight': _selectNextQuestion(questionIndex); break;
 
@@ -865,13 +863,11 @@ Namespace('Crossword').Engine = (function() {
 					_highlightPuzzleLetter(); // puzzle letter highlight is removed by default
 				}
 				return;
-				break;
 
 			case 'Delete': //delete
 				if (!isProtected && !isLocked) { letterElement.value = ''; }
 				_checkIfDone();
 				return;
-				break;
 			case 'Tab': // tab
 
 				var question = _questions[questionIndex];
@@ -1071,7 +1067,7 @@ Namespace('Crossword').Engine = (function() {
 		_curClue = prevQuestionIndex;
 
 		_assistiveNotification('Question ' + (prevQuestionIndex + 1) + ' of ' + _questions.length + '. This question has ' + Object.keys(prevQuestion.locations).length + ' characters.');
-		return _updateClue();
+		_updateClue();
 	};
 
 	var _selectNextQuestion = function(index) {
@@ -1088,7 +1084,7 @@ Namespace('Crossword').Engine = (function() {
 		_curClue = nextQuestionIndex;
 
 		_assistiveNotification('Question ' + (nextQuestionIndex + 1) + ' of ' + _questions.length + '. This question has ' + Object.keys(nextQuestion.locations).length + ' characters.');
-		return _updateClue();
+		_updateClue();
 	};
 
 	// is a letter one that can be guessed?
@@ -1151,7 +1147,7 @@ Namespace('Crossword').Engine = (function() {
 		}
 
 		_highlightPuzzleLetter(animate);
-		return _updateClue();
+		_updateClue();
 	};
 
 	// confirm that the user really wants to risk a penalty
@@ -1162,7 +1158,7 @@ Namespace('Crossword').Engine = (function() {
 		}
 		
 		const index = e.target.getAttribute('data-i');
-		return _showAlert(`Receiving a hint will result in a ${_qset.options.hintPenalty}% penalty for this question.`, 'Okay', 'Nevermind', _dom('hintbtn_'+index),  () => _getHint(index));
+		_showAlert(`Receiving a hint will result in a ${_qset.options.hintPenalty}% penalty for this question.`, 'Okay', 'Nevermind', _dom('hintbtn_'+index),  () => _getHint(index));
 	};
 
 	// fired by the free word buttons
@@ -1183,14 +1179,14 @@ Namespace('Crossword').Engine = (function() {
 		// letter array to fill
 		const letters = _questions[index].answers[0].text.split('');
 		const {
-            x
-        } = _questions[index].options;
+			x
+		} = _questions[index].options;
 		const {
-            y
-        } = _questions[index].options;
+			y
+		} = _questions[index].options;
 		const {
-            dir
-        } = _questions[index].options;
+			dir
+		} = _questions[index].options;
 		const answer  = '';
 
 		// fill every letter element
@@ -1200,7 +1196,7 @@ Namespace('Crossword').Engine = (function() {
 			const existingText = letter.getAttribute('aria-label');
 			letter.setAttribute('aria-label', existingText + '. This character is locked because it is part of a free word.');
 			letter.setAttribute('data-locked', '1');
-			return letter.value = letters[l].toUpperCase();
+			letter.value = letters[l].toUpperCase();
 		});
 
 		_freeWordsRemaining--;
@@ -1218,7 +1214,7 @@ Namespace('Crossword').Engine = (function() {
 		_checkIfDone();
 		
 		_dom(`letter_${_curLetter.x}_${_curLetter.y}`).focus();
-		return _highlightPuzzleLetter();
+		_highlightPuzzleLetter();
 	};
 
 	// highlight a word (series of letters)
@@ -1226,12 +1222,12 @@ Namespace('Crossword').Engine = (function() {
 		// remove highlight from every letter
 		$(".letter.highlight").removeClass("highlight");
 		// and add it to the ones we care about
-		return forEveryQuestion(function(i, letters, x, y, dir) {
+		forEveryQuestion(function(i, letters, x, y, dir) {
 			if (~~i === ~~index) {
-				return forEveryLetter(x,y,dir,letters, function(letterLeft, letterTop) {
+				forEveryLetter(x,y,dir,letters, function(letterLeft, letterTop) {
 					const l = _dom(`letter_${letterLeft}_${letterTop}`);
 					if (l != null) {
-						return l.classList.add('highlight');
+						l.classList.add('highlight');
 					}
 				});
 			}
@@ -1245,21 +1241,21 @@ Namespace('Crossword').Engine = (function() {
 
 		$(modal).find('#intro_dismiss').unbind('click').click(function() {
 			_hideIntroDialog();
-			return _dom('movable').focus();
+			_dom('movable').focus();
 		});
 
 		$(modal).find('#intro_instructions').unbind('click').click(function() {
 			_hideIntroDialog();
-			return _showKeyboardDialog();
+			_showKeyboardDialog();
 		});
 
-		return _dom('application').setAttribute('inert', 'true');
+		_dom('application').setAttribute('inert', 'true');
 	};
 
 	var _hideIntroDialog = function() {
 		_dom('backgroundcover').classList.remove('show');
 		_dom('introbox').classList.remove('show');
-		return _dom('application').removeAttribute('inert');
+		_dom('application').removeAttribute('inert');
 	};
 
 	var _showKeyboardDialog = function() {
@@ -1271,7 +1267,7 @@ Namespace('Crossword').Engine = (function() {
 
 		_dom('tutorial_dismiss').focus();
 		// set the application to inert to prevent dialog being defocused
-		return _dom('application').setAttribute('inert', 'true');
+		_dom('application').setAttribute('inert', 'true');
 	};
 
 	var _hideKeyboardDialog = function() {
@@ -1279,7 +1275,7 @@ Namespace('Crossword').Engine = (function() {
 		_dom('tutorialbox').classList.remove('show');
 		_dom('application').removeAttribute('inert');
 
-		return _dom('kbhelp').focus();
+		_dom('kbhelp').focus();
 	};
 
 	// show the modal alert dialog
@@ -1303,12 +1299,12 @@ Namespace('Crossword').Engine = (function() {
 
 		$(ab).find('#ab_confirm').unbind('click').click(function() {
 			action();
-			return _hideAlert(focusTarget);
+			_hideAlert(focusTarget);
 		});
 		
 		_dom('ab_cancel').focus();
 		// set the application to inert to prevent dialog being defocused
-		return _dom('application').setAttribute('inert', 'true');
+		_dom('application').setAttribute('inert', 'true');
 	};
 
 	// hide it
@@ -1319,7 +1315,7 @@ Namespace('Crossword').Engine = (function() {
 		
 		if (focusTarget !== null) {
 			focusTarget.focus();
-			if (focusTarget === _dom(`letter_${_curLetter.x}_${_curLetter.y}`)) { return _highlightPuzzleLetter(); }
+			if (focusTarget === _dom(`letter_${_curLetter.x}_${_curLetter.y}`)) { _highlightPuzzleLetter(); }
 		}
 	};
 
@@ -1344,7 +1340,7 @@ Namespace('Crossword').Engine = (function() {
 
 		// update clue box height after hint is shown on mobile
 		if (_isMobile) {
-			return $('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')));
+			$('#clues').css("height", parseInt($('#clue_'+_curClue).css('height')));
 		}
 	};
 
@@ -1369,7 +1365,7 @@ Namespace('Crossword').Engine = (function() {
 			select = $('#specialInputBody').find('li').eq(_specialCharacterFocusDepth);
 			select[0].classList.add('focus');
 
-			return _assistiveNotification(select.html() + ' selected. Use enter to insert the value at the current character.');
+			_assistiveNotification(select.html() + ' selected. Use enter to insert the value at the current character.');
 
 		} else if (direction === 'down') {
 
@@ -1386,7 +1382,7 @@ Namespace('Crossword').Engine = (function() {
 			_specialCharacterFocusDepth--;
 
 			select = $('#specialInputBody').find('li').eq(_specialCharacterFocusDepth);
-			return select[0].classList.add('focus');
+			select[0].classList.add('focus');
 		}
 	};
 
@@ -1401,7 +1397,7 @@ Namespace('Crossword').Engine = (function() {
 
 		drawer.removeAttribute('open');
 		drawer.classList.remove('up');
-		return drawer.classList.add('down');
+		drawer.classList.add('down');
 	};
 
 	// highlight submit button if all letters are filled in
@@ -1410,21 +1406,21 @@ Namespace('Crossword').Engine = (function() {
 		let unfinishedWord = null;
 
 		forEveryQuestion((i, letters, x, y, dir) => forEveryLetter(x, y, dir, letters, function(letterLeft, letterTop, l) {
-            if (letters[l] !== ' ') {
-                if (_dom(`letter_${letterLeft}_${letterTop}`).value === '') {
-                    unfinishedWord = _dom(`letter_${letterLeft}_${letterTop}`).getAttribute('data-q');
-                    done = false;
-                    return;
-                }
-            }
-        }));
+			if (letters[l] !== ' ') {
+				if (_dom(`letter_${letterLeft}_${letterTop}`).value === '') {
+					unfinishedWord = _dom(`letter_${letterLeft}_${letterTop}`).getAttribute('data-q');
+					done = false;
+					return;
+				}
+			}
+		}));
 
 		if (done) {
 			if (_submitPromptReady) {
 				_showAlert("You've completed every question are ready to submit.", 'Submit', 'Cancel', _dom('movable'), _submitAnswers);
-				return _submitPromptReady = false;
+				_submitPromptReady = false;
 			} else {
-				return $('.arrow_box').show();
+				$('.arrow_box').show();
 			}
 			
 		} else {
@@ -1435,7 +1431,7 @@ Namespace('Crossword').Engine = (function() {
 				if (_dom(`letter_${location.x}_${location.y}`).value === '') { missing = location.index + 1; }
 			}
 
-			return $('.arrow_box').hide();
+			$('.arrow_box').hide();
 		}
 	};
 
@@ -1448,7 +1444,7 @@ Namespace('Crossword').Engine = (function() {
 		numberLabel.style.top = (y * LETTER_HEIGHT) + _mapPadding() + 'px';
 		numberLabel.style.left = (x * LETTER_WIDTH) + _mapPadding() + 'px';
 		numberLabel.onclick = () => _letterClicked({target: $(`#letter_${x}_${y}`)[0]});
-		return _boardDiv.append(numberLabel);
+		_boardDiv.append(numberLabel);
 	};
 
 	// draw the clue from template html
@@ -1480,18 +1476,18 @@ Namespace('Crossword').Engine = (function() {
 		_dom('hintbtn_' + i).addEventListener('focus', _clueFocus);
 		_dom('freewordbtn_' + i).addEventListener('focus', _clueFocus);
 		_dom('prevQ_' + i).addEventListener('click', _navPrevQ);
-		return _dom('nextQ_' + i).addEventListener('click', _navNextQ);
+		_dom('nextQ_' + i).addEventListener('click', _navNextQ);
 	};
 
 	// simulate clue clicks for mobile clue nav
 	var _navPrevQ = function() {
 		const i = (_curClue - 1) < 0 ? _questions.length - 1 : _curClue - 1;
-		return _clueMouseUp({target: $('#clue_'+i)[0]});
+		_clueMouseUp({target: $('#clue_'+i)[0]});
 	};
 
 	var _navNextQ = function() {
 		const i = (_curClue + 1) % _questions.length;
-		return _clueMouseUp({target: $('#clue_'+i)[0]});
+		_clueMouseUp({target: $('#clue_'+i)[0]});
 	};
 
 	var _clueMouseUp = function(e) {
@@ -1500,11 +1496,11 @@ Namespace('Crossword').Engine = (function() {
 		// click on the first letter of the word
 		const i = e.target.getAttribute('data-i');
 		let {
-            x
-        } = _questions[i].options;
+			x
+		} = _questions[i].options;
 		let {
-            y
-        } = _questions[i].options;
+			y
+		} = _questions[i].options;
 		_prevDir = _questions[i].options.dir;
 
 		let firstLetter = $(`#letter_${x}_${y}`)[0];
@@ -1518,13 +1514,13 @@ Namespace('Crossword').Engine = (function() {
 			firstLetter = $(`#letter_${x}_${y}`)[0];
 		}
 
-		return _letterClicked({ target: firstLetter });
+		_letterClicked({ target: firstLetter });
 	};
 
 	// highlight words when a clue is moused over, to correspond what the user is seeing
 	var _clueMouseOver = function(e) {
 		if ((e == null)) { e = window.event; }
-		return _highlightPuzzleWord((e.target || e.srcElement).getAttribute('data-i'));
+		_highlightPuzzleWord((e.target || e.srcElement).getAttribute('data-i'));
 	};
 
 	var _clueMouseOut = e => _highlightPuzzleWord(-1);
@@ -1537,11 +1533,11 @@ Namespace('Crossword').Engine = (function() {
 		// click on the first letter of the word
 		const i = e.target.getAttribute('data-i');
 		const {
-            x
-        } = _questions[i].options;
+			x
+		} = _questions[i].options;
 		const {
-            y
-        } = _questions[i].options;
+			y
+		} = _questions[i].options;
 		
 		_curLetter = { x, y };
 		_curDir = (_prevDir =  ~~e.target.getAttribute('data-dir'));
@@ -1582,54 +1578,54 @@ Namespace('Crossword').Engine = (function() {
 
 				if (isProtected) {
 					// get the letter from the qset
-					return answer += letters[l];
+					answer += letters[l];
 				} else {
 					// get the letter from the input
-					return answer += letterElement.value || '_';
+					answer += letterElement.value || '_';
 				}
 			});
 
-			return Materia.Score.submitQuestionForScoring(_questions[i].id, answer);
+			Materia.Score.submitQuestionForScoring(_questions[i].id, answer);
 		});
 
-		return Materia.Engine.end();
+		Materia.Engine.end();
 	};
 
 	// loop iteration functions to prevent redundancy
 	var forEveryLetter = (x, y, dir, letters, cb) => (() => {
-        const result = [];
-        for (let l = 0, end = letters.length, asc = 0 <= end; asc ? l < end : l > end; asc ? l++ : l--) {
-            var letterLeft, letterTop;
-            if (dir === VERTICAL) {
-                letterLeft = x;
-                letterTop  = y + l;
-            } else {
-                letterLeft = x + l;
-                letterTop  = y;
-            }
+		const result = [];
+		for (let l = 0, end = letters.length, asc = 0 <= end; asc ? l < end : l > end; asc ? l++ : l--) {
+			var letterLeft, letterTop;
+			if (dir === VERTICAL) {
+				letterLeft = x;
+				letterTop  = y + l;
+			} else {
+				letterLeft = x + l;
+				letterTop  = y;
+			}
 
-            result.push(cb(letterLeft, letterTop, l));
-        }
-        return result;
-    })();
+			result.push(cb(letterLeft, letterTop, l));
+		}
+		return result;
+	})();
 
 	var forEveryQuestion = callBack => (() => {
-        const result = [];
-        for (var i in _questions) {
-            var letters = _questions[i].answers[0].text.toUpperCase().split('');
-            var {
-                x
-            } = _questions[i].options;
-            var {
-                y
-            } = _questions[i].options;
-            var {
-                dir
-            } = _questions[i].options;
-            result.push(callBack(i, letters, x, y, dir));
-        }
-        return result;
-    })();
+		const result = [];
+		for (var i in _questions) {
+			var letters = _questions[i].answers[0].text.toUpperCase().split('');
+			var {
+				x
+			} = _questions[i].options;
+			var {
+				y
+			} = _questions[i].options;
+			var {
+				dir
+			} = _questions[i].options;
+			result.push(callBack(i, letters, x, y, dir));
+		}
+		return result;
+	})();
 
 	// return public stuff for Materia
 
