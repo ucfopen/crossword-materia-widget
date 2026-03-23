@@ -16,7 +16,7 @@ describe('Creator', () => {
 		}
 		global.$ = require('jquery')
 
-		require('./creator.coffee')
+		require('./creator.js')
 
 		// use angular mock to access angular modules
 		inject(function(_$controller_) {

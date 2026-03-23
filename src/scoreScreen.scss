@@ -1,5 +1,8 @@
 $green:#5BAC58;
 $lightgreen:#6BBC68;
+$darkblue: #5163A6;
+
+$mobile_w_break: 576px;
 
 /* Standardize padding in all browsers */
 * {
@@ -38,7 +41,7 @@ $lightgreen:#6BBC68;
 	color: #999;
 	position: absolute;
 	right: 210px;
-	top: 10px;
+	top: 26px;
 	z-index: 6;
 
 	font-family: 'icomoon';
@@ -59,14 +62,25 @@ $lightgreen:#6BBC68;
 	&:before {
 		content: "\e988";
 	}
+
+	transition: right 0.4s ease;
+
+	&.hidden {
+		right: 160px;
+	}
 }
 
 html, body {
 	cursor: default;
-	background: #eeedee;
 	padding: 0;
 	margin: 0;
 	word-wrap: break-word;
+
+	background: #eeedee;
+	background-image: url("assets/materia_stagger_bg.png");
+	background-size: 72px;
+	background-position: 0% -16px;
+
 
 	overflow: hidden;
 
@@ -79,10 +93,15 @@ html, body {
 	user-select: none;
 }
 
+body {
+	// border-top: solid 16px rgb(118, 128, 141);
+}
+
 #board {
 	position: fixed;
 	display: block;
 	left: 0px;
+	// top: 16px;
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
@@ -96,7 +115,7 @@ html, body {
 	bottom: 0px;
 	z-index: 100;
 	font-size: 14px;
-	background: black;
+	background: #333333;
 	color: white;
 	padding: 5px 10px;
 
@@ -111,6 +130,7 @@ html, body {
 		background: #777;
 		padding: 5px;
 		color: #fff;
+		cursor: pointer;
 
 		position:relative;
 		margin-left: 20px;
@@ -122,6 +142,7 @@ html, body {
 			transition: all ease 0.25s;
 			background: #be3434;
 			padding: 5px 6px;
+			padding-left: 8px;
 			margin: -5px;
 			width: 30px;
 			display: inline-block;
@@ -135,8 +156,9 @@ html, body {
 		&:before {
 			content: 'ON';
 			background: #70be34;
-			margin-left: 35px;
-			padding-left: 13px;
+			margin-left: 36px;
+			padding-left: 15px;
+			padding-right: 4px;
 		}
 	}
 }
@@ -153,46 +175,68 @@ html, body {
 	text-align: center;
 	background: #fff;
 
+	cursor: pointer;
+
 	margin: 0;
 
 	color: transparent;
 	text-shadow: 0 0 0 black;
 }
 
+.crossword-board {
+	width: 100%;
+	height: 100%;
+	padding: 24px;
+	border-radius: 0px;
+	outline: solid 1px;
+	outline-color: #BABABA75;
+	outline-offset: -4px;
+	box-shadow: 0px 0px 1px 1px #DBDBDB;
+	background-color: rgb(250, 250, 250);
+}
+
 .letter.incorrect:not(.neutral) {
-	background: #FB8A8A;
+	background: #FB8A8A80;
 	border: solid 1px #922;
 
-	&.highlight {
+	&.highlight, &.selected {
 		border: solid 1px black;
-		background: #E75A5A;
+		background: #ff6a6aa0;
 		font-weight: bold;
 	}
 
-	&.hinted {
-		-webkit-box-shadow: inset 0 0 5px 1px yellow;
-		box-shadow: inset 0 0 5px 1px yellow;
-	}
+	// &.hinted {
+	// 	-webkit-box-shadow: inset 0 0 5px 1px yellow;
+	// 	box-shadow: inset 0 0 5px 1px yellow;
+	// }
 }
 
 .letter.correct:not(.neutral) {
-	background: #B9FFB9;
+	background: #B9FFB980;
 	border: solid 1px #292;
 
-	&.highlight {
+	&.highlight, &.selected {
 		border: solid 1px black;
-		background: #91EC7D;
+		background: #77ff77a0;
 		font-weight: bold;
+		outline: solid 2px #27ff88;
 	}
 
-	&.hinted {
-		-webkit-box-shadow: inset 0 0 5px 1px orange;
-		box-shadow: inset 0 0 5px 1px orange;
-	}
+	// &.hinted {
+	// 	-webkit-box-shadow: inset 0 0 5px 1px orange;
+	// 	box-shadow: inset 0 0 5px 1px orange;
+	// }
 }
 
 .letter.highlight.neutral,
 .letter.highlight:not(.correct):not(.incorrect) {
+	border: solid 1px #6E7DA3;
+	background: #E5F3FF;
+	font-weight: bold;
+}
+
+.letter.selected.neutral,
+.letter.selected:not(.correct):not(.incorrect) {
 	border: solid 1px #6E7DA3;
 	background: #E5F3FF;
 	font-weight: bold;
@@ -211,25 +255,32 @@ html, body {
 	width: 200px;
 	background: #fff;
 	padding: 0px;
-	padding-bottom: 20px;
 	padding-top: 0px;
 	overflow: auto;
+	z-index: 20;
 	border-left: solid 1px #999;
-	z-index: 5;
 
 	.clue{
+		cursor: pointer;
+		overflow: hidden;
 		font-size: 14px;
 		padding: 7px;
 		margin: 0px;
 		transition: all 0.1s ease;
 		-moz-transition: all 0.1s ease;
 		-webkit-transition: all 0.1s ease;
-		overflow-x: auto;
+		
 		em {
 			opacity: 0.5;
 		}
 		.clueHeader {
-			font-weight: bold;
+			font-size: 12px;
+			margin-top: 4px;
+			opacity: 0.75;
+		}
+
+		.answer {
+			font-family: "Delius Unicase";
 		}
 
 		.hintspot {
@@ -245,7 +296,7 @@ html, body {
 			background: #eeeeee;
 		}
 
-		&.highlight{
+		&.highlight, &.selected{
 			background: #5163A6;
 			color: #fff;
 		}
@@ -269,7 +320,7 @@ input {
 
 #movable-container {
 	position: fixed;
-	top: 10px;
+	top: 26px;
 	left: 10px;
 	right: 210px;
 	bottom: 10px;
@@ -299,4 +350,108 @@ input {
 	margin-top:9px;
 	z-index: 1;
 	text-align: right;
+}
+
+#nav-div {
+	visibility: hidden;
+	width: 0px;
+	height: 0px;
+}
+
+#hint-splitter {
+	display: flex;
+	flex-direction: row;
+
+	width: 100%;
+	justify-content: space-between;
+}
+
+input, button {
+	font-family: 'Roboto Slab', sans-serif;
+	font-size: 14px;
+
+	border: solid 2px rgba(0,0,0,0);
+
+	cursor: pointer;
+
+	position: relative;
+	color: #fff;
+	margin: 10px 0px;
+	margin-right: 4px;
+	padding: 4px 8px;
+	display: inline-block;
+	background: #C5C5C5;
+	border: solid 2px rgba(0,0,0,0);
+	cursor: pointer;
+
+	&:focus {
+		border: solid 2px #666;
+	}
+
+	&.action-button {
+		background: $green;
+		border-color: $green;
+
+		color: #fff;
+
+		&:hover {
+			background: $lightgreen;
+			border-color: $lightgreen;
+		}
+	}
+}
+
+@media (width < $mobile_w_break) {
+	#clues {
+		width: 100%;
+		max-height: 200px;
+		height: 150px;
+		overflow-y: hidden;
+		padding: 0px;
+		top: 0px;
+		.clue {
+			transition: all 0s ease;
+			-moz-transition: all 0s ease;
+			-webkit-transition: all 0s ease;
+
+			background: #5163A6;
+			color: #fff;
+
+			&:nth-child(even) {
+				background: #5163A6;
+			}
+		}
+
+		border-left: none;
+		border-bottom: solid 1px #999;
+	}
+
+	#board {
+		height: calc(100% - 90px);
+		top: 0px;
+		#movable-container {
+			right: 10px;
+		}
+	}
+
+	#nav-div {
+		visibility: visible;
+		width: fit-content;
+		height: fit-content;
+	}
+
+	.icon-zoomout {
+		top: auto;
+		right: 16px;
+		bottom: 8px;
+		font-size: 28px;
+
+		&.hidden {
+			right: -80px;
+		}
+	}
+	
+	body {
+		border-top: none;
+	}
 }

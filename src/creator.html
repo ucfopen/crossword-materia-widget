@@ -109,7 +109,7 @@
 				<div class='puzzleintro' ng-hide='widget.puzzleItems.length'>
 					Add words to build a puzzle
 				</div>
-				<div class='previewarea' ng-show='widget.puzzleItems.length' ng-click='generateNewPuzzle(true, true)' ng-class=' { error: error, toobig: tooBig, unused: unused, stationary: !isBuilding } '>
+				<div class='previewarea' ng-show='widget.puzzleItems.length' ng-click='generateNewPuzzle(true, true)' ng-class=' { warn: sizeWarn, error: error, toobig: tooBig, unused: unused, stationary: !isBuilding } '>
 					<div id='preview'>
 						<div class='right'></div>
 						<div id='preview_kids'></div>
@@ -121,6 +121,7 @@
 						</div>
 					</div>
 				</div>
+				<div class="scroll-notice" ng-class=' {scrollwarn: scrollWarn} '>Scroll to see full puzzle</div>
 				<div ng-show='widget.puzzleItems.length' ng-click='printPuzzle()' class='icon-print' title='Print'></div>
 			</div>
 		</section>

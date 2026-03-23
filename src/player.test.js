@@ -15,6 +15,8 @@ describe('Player', function() {
 
 		document.documentElement.innerHTML = html.toString();
 
+		Element.prototype.scrollIntoView = jest.fn();
+
 		// Create a global Namespace function
 		global.Namespace = function(path) {
 			const parts = path.split('.')
@@ -49,7 +51,7 @@ describe('Player', function() {
 		qset = widgetInfo.qset;
 
 		require('../node_modules/materia-widget-dependencies/js/materia.js');
-		require('./player.coffee');
+		require('./player.js');
 	});
 
 	test('widget starts properly', () => {
