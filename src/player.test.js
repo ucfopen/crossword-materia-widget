@@ -15,6 +15,8 @@ describe('Player', function() {
 
 		document.documentElement.innerHTML = html.toString();
 
+		Element.prototype.scrollIntoView = jest.fn();
+
 		// Create a global Namespace function
 		global.Namespace = function(path) {
 			const parts = path.split('.')
