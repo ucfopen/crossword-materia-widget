@@ -441,10 +441,14 @@ input, button {
 	}
 
 	.icon-zoomout {
+		top: auto;
 		right: 16px;
 		bottom: 8px;
 		font-size: 28px;
-		top: auto;
+
+		&.hidden {
+			right: -80px;
+		}
 	}
 	
 	body {
