@@ -23,15 +23,10 @@ class Crossword(ScoreModule):
         answer = self.normalize_string(correct_text)
         response = self.normalize_string(log.text)
 
-        max_len = max(len(answer), len(response))
-
         match_num = 0
         guessable = 0
 
-        for i in range(max_len):
-
-            if i >= len(answer):
-                break
+        for i in range(len(answer)):
 
             if self.is_guessable_letter(answer[i]):
                 guessable += 1
