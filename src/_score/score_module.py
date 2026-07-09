@@ -29,6 +29,10 @@ class Crossword(ScoreModule):
         guessable = 0
 
         for i in range(max_len):
+
+            if i >= len(answer):
+                break
+
             if self.is_guessable_letter(answer[i]):
                 guessable += 1
                 if answer[i] == response[i]:
